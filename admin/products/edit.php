@@ -49,20 +49,6 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                 $id = ProductRepository::create($name, $sku);
                 $p = ProductRepository::adminFind($id);
             }
-            $cat = p_term($_POST['category_id'] ?? '', 'category');
-            $sub = p_term($_POST['subcategory_id'] ?? '', 'category');
-            if ($cat && ($ct = Catalog::term($cat)) && $ct['parent_id'] !== null) {
-                $sub = $cat;                      // a subcategory was chosen as category
-                $cat = (int)$ct['parent_id'];
-            }
-            if ($sub) {
-                $st = Catalog::term($sub);
-                if ($st['parent_id'] === null) {
-                    $sub = null;
-                } elseif (!$cat || (int)$st['parent_id'] !== $cat) {
-                    $cat = (int)$st['parent_id'];  // keep category and subcategory consistent
-                }
-            }
             $slugIn = p_str('slug', 200);
             $cols = [
                 'short_description' => p_str('short_description', 2000),
@@ -71,8 +57,6 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                 'brand_id'          => p_term($_POST['brand_id'] ?? '', 'brand'),
                 'type_id'           => p_term($_POST['type_id'] ?? '', 'type'),
                 'env_rating_id'     => p_term($_POST['env_rating_id'] ?? '', 'env_rating'),
-                'category_id'       => $cat,
-                'subcategory_id'    => $sub,
             ];
             if ($name !== '') $cols['name'] = $name;
             if ($sku !== '' && !$errors) $cols['sku'] = $sku;
@@ -81,9 +65,20 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 
             // Storefronts (Main Store always includes every published product).
             Database::run('DELETE FROM product_storefronts WHERE product_id = ?', [$id]);
+            $stores = ['store'];
             foreach ((array)($_POST['storefronts'] ?? []) as $sf) {
                 if (in_array($sf, ['work', 'learn'], true)) {
                     Database::run('INSERT IGNORE INTO product_storefronts (product_id, storefront) VALUES (?, ?)', [$id, $sf]);
+                    $stores[] = $sf;
+                }
+            }
+
+            // Categories: one tree per storefront; only the storefronts the product is in are kept.
+            Database::run("DELETE l FROM product_term_links l JOIN product_terms t ON t.id = l.term_id WHERE l.product_id = ? AND t.taxonomy LIKE 'cat\\_%'", [$id]);
+            foreach (array_unique(array_map('intval', (array)($_POST['categories'] ?? []))) as $tid) {
+                $t = Catalog::term($tid);
+                if ($t && Catalog::isCategoryTax($t['taxonomy']) && in_array(Catalog::TAXONOMIES[$t['taxonomy']]['store'], $stores, true)) {
+                    Database::run('INSERT IGNORE INTO product_term_links (product_id, term_id) VALUES (?, ?)', [$id, $tid]);
                 }
             }
             unset($_SESSION['p_old']);
@@ -440,17 +435,8 @@ admin_header($title, $p ? 'p:all' : 'p:new');
 <?php switch ($tab):
 
 case 'general':
-    $cats = Catalog::terms('category');
-    $catTop = $catSub = $subAttrs = [];
-    foreach ($cats as $c) {
-        if ($c['parent_id'] === null) {
-            $catTop[$c['id']] = $c['name'];
-        } else {
-            $catSub[$c['id']] = $c['name'];
-            $subAttrs[$c['id']] = ' data-parent="' . (int)$c['parent_id'] . '"';
-        }
-    }
-    $stores = $p ? ProductRepository::storefronts($id) : (array)($old['storefronts'] ?? []); ?>
+    $stores = $p ? ProductRepository::storefronts($id) : (array)($old['storefronts'] ?? []);
+    $chosenCats = $p ? ProductRepository::categoryIds($id) : array_map('intval', (array)($old['categories'] ?? [])); ?>
     <section class="adm-card">
         <h2>Product details</h2>
         <div class="adm-grid-2">
@@ -461,21 +447,34 @@ case 'general':
         <div class="adm-grid-2">
             <?= p_field('Brand', p_select('brand_id', Catalog::options('brand'), $val('brand_id')), '', 'f_brand_id') ?>
             <?= p_field('Product type', p_select('type_id', Catalog::options('type'), $val('type_id')), '', 'f_type_id') ?>
-            <?= p_field('Category', p_select('category_id', $catTop, $val('category_id'), '— None —', 'f_category_id'), '', 'f_category_id') ?>
-            <?= p_field('Subcategory', p_select('subcategory_id', $catSub, $val('subcategory_id'), '— None —', 'f_subcategory_id', $subAttrs), 'Only subcategories of the chosen category are listed.', 'f_subcategory_id') ?>
             <?= p_field('Environmental rating', p_select('env_rating_id', Catalog::options('env_rating'), $val('env_rating_id')), '', 'f_env_rating_id') ?>
         </div>
-        <p class="help">Lists are managed under Products → <a href="terms.php?tax=category">Categories</a>, <a href="terms.php?tax=type">Product Types</a>, <a href="terms.php?tax=brand">Brands</a> and <a href="terms.php?tax=env_rating">Environmental Ratings</a>.</p>
+        <p class="help">Lists are managed under Products → Lists: <a href="terms.php?tax=type">Product Types</a>, <a href="terms.php?tax=brand">Brands</a> and <a href="terms.php?tax=env_rating">Environmental Ratings</a>.</p>
     </section>
 
     <section class="adm-card">
-        <h2>Storefronts</h2>
+        <h2>Storefronts &amp; categories</h2>
         <div class="adm-checks">
-            <?= p_check('storefronts[]', 'Work', in_array('work', $stores, true), 'work') ?>
-            <?= p_check('storefronts[]', 'Learn', in_array('learn', $stores, true), 'learn') ?>
+            <?= p_check('storefronts[]', 'Work', in_array('work', $stores, true), 'work', ' data-store-toggle="work"') ?>
+            <?= p_check('storefronts[]', 'Learn', in_array('learn', $stores, true), 'learn', ' data-store-toggle="learn"') ?>
             <label class="check is-locked"><input type="checkbox" checked disabled> Main Store (always)</label>
         </div>
-        <p class="help">Every published product appears in the main Store. Tick Work and/or Learn to also show it there. One product – shared pricing and stock everywhere.</p>
+        <p class="help adm-card__intro">Every published product appears in the main Store. Tick Work and/or Learn to also show it there. Then choose its categories in each storefront – each storefront has its own category tree. One product – shared pricing and stock everywhere.</p>
+        <div class="adm-cat-trees">
+            <?php foreach (['work' => 'cat_work', 'learn' => 'cat_learn', 'store' => 'cat_store'] as $store => $tax):
+                $tree = Catalog::terms($tax); ?>
+            <fieldset class="adm-fieldset adm-cat-tree" data-store-cats="<?= $store ?>"<?= $store !== 'store' && !in_array($store, $stores, true) ? ' hidden' : '' ?>>
+                <legend><?= e(Catalog::TAXONOMIES[$tax]['label']) ?> <a class="small" href="terms.php?tax=<?= $tax ?>">Edit list</a></legend>
+                <?php if (!$tree): ?><p class="muted small">No categories yet.</p><?php endif; ?>
+                <?php foreach ($tree as $c): ?>
+                <label class="check<?= !empty($c['depth']) ? ' adm-cat-tree__child' : ' adm-cat-tree__parent' ?>">
+                    <input type="checkbox" name="categories[]" value="<?= (int)$c['id'] ?>"<?= in_array((int)$c['id'], $chosenCats, true) ? ' checked' : '' ?>> <?= e($c['name']) ?>
+                </label>
+                <?php endforeach; ?>
+            </fieldset>
+            <?php endforeach; ?>
+        </div>
+        <p class="help">Tip: tick the subcategory (e.g. Seating › Task). The product then also shows under its main category.</p>
     </section>
 
     <section class="adm-card">

@@ -18,7 +18,11 @@ final class Catalog
      *   option          offered as a product option (size / colour / material)
      */
     public const TAXONOMIES = [
-        'category'   => ['label' => 'Categories',            'single' => 'Category',             'nested' => true],
+        // Each storefront has its own category tree (category → subcategories).
+        // Products are linked to any number of them via product_term_links.
+        'cat_work'   => ['label' => 'Work Categories',       'single' => 'Work category',  'nested' => true, 'store' => 'work'],
+        'cat_learn'  => ['label' => 'Learn Categories',      'single' => 'Learn category', 'nested' => true, 'store' => 'learn'],
+        'cat_store'  => ['label' => 'Store Categories',      'single' => 'Store category', 'nested' => true, 'store' => 'store'],
         'type'       => ['label' => 'Product Types',         'single' => 'Product Type'],
         'brand'      => ['label' => 'Brands',                'single' => 'Brand', 'image' => ['w' => 600, 'h' => 300, 'fit' => true]],
         'material'   => ['label' => 'Materials',             'single' => 'Material', 'option' => true],
@@ -29,7 +33,6 @@ final class Catalog
 
     /** Product column that holds a single term of this taxonomy (null = linked via product_term_links). */
     public const COLUMN = [
-        'category'   => 'category_id',
         'type'       => 'type_id',
         'brand'      => 'brand_id',
         'env_rating' => 'env_rating_id',
@@ -40,6 +43,17 @@ final class Catalog
     public static function valid(string $taxonomy): bool
     {
         return isset(self::TAXONOMIES[$taxonomy]);
+    }
+
+    /** Category taxonomy of a storefront: 'work' → 'cat_work'. */
+    public static function categoryTax(string $store): string
+    {
+        return 'cat_' . (in_array($store, ['work', 'learn'], true) ? $store : 'store');
+    }
+
+    public static function isCategoryTax(string $taxonomy): bool
+    {
+        return str_starts_with($taxonomy, 'cat_') && isset(self::TAXONOMIES[$taxonomy]);
     }
 
     /** All terms of a taxonomy, ordered (categories: parents first, each followed by its children). */
@@ -119,8 +133,8 @@ final class Catalog
         if ($col) {
             Database::run("UPDATE products SET $col = NULL WHERE $col = ?", [$id]);
         }
-        if ($t['taxonomy'] === 'category') {
-            Database::run('UPDATE products SET subcategory_id = NULL WHERE subcategory_id = ?', [$id]);
+        if (!empty(self::TAXONOMIES[$t['taxonomy']]['nested'])) {
+            // Subcategories of a deleted category become top-level categories.
             Database::run('UPDATE product_terms SET parent_id = NULL WHERE parent_id = ?', [$id]);
         }
         foreach (['size_id', 'colour_id', 'material_id'] as $vc) {
@@ -133,8 +147,14 @@ final class Catalog
     public static function usage(string $taxonomy): array
     {
         $col = self::COLUMN[$taxonomy] ?? null;
-        if ($taxonomy === 'category') {
-            $rows = Database::all('SELECT t.id, (SELECT COUNT(*) FROM products p WHERE p.category_id = t.id OR p.subcategory_id = t.id) AS n FROM product_terms t WHERE t.taxonomy = ?', [$taxonomy]);
+        if (!empty(self::TAXONOMIES[$taxonomy]['nested'])) {
+            // A category counts products in it and in its subcategories.
+            $rows = Database::all(
+                'SELECT t.id, (SELECT COUNT(DISTINCT l.product_id) FROM product_term_links l JOIN product_terms c ON c.id = l.term_id
+                               WHERE c.id = t.id OR c.parent_id = t.id) AS n
+                 FROM product_terms t WHERE t.taxonomy = ?',
+                [$taxonomy]
+            );
         } elseif ($col) {
             $rows = Database::all("SELECT $col AS id, COUNT(*) AS n FROM products WHERE $col IS NOT NULL GROUP BY $col");
         } else {

@@ -253,6 +253,12 @@ body.crop-open { overflow:hidden; }
 .adm-fieldset { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; margin: 0; display: grid; gap: 6px; align-content: start; }
 .adm-fieldset legend { font-weight: 600; font-size: 13px; padding: 0 4px; }
 .adm-checks { display: flex; flex-wrap: wrap; gap: 10px 24px; margin-bottom: 8px; }
+.adm-cat-trees { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; align-items: start; }
+.adm-cat-tree { max-height: 420px; overflow-y: auto; gap: 3px; }
+.adm-cat-tree legend a { margin-left: 6px; font-weight: 400; }
+.adm-cat-tree__parent { margin-top: 8px; font-weight: 600 !important; color: var(--ink); }
+.adm-cat-tree__parent:first-of-type { margin-top: 0; }
+.adm-cat-tree__child { padding-left: 24px; font-size: 13px !important; font-weight: 400 !important; }
 .check.is-locked { opacity: .65; cursor: default; }
 .check--danger { color: var(--danger); font-size: 12px; }
 .adm-split { display: grid; grid-template-columns: minmax(300px, 400px) 1fr; gap: 24px; align-items: start; }

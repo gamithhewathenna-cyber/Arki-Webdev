@@ -431,6 +431,15 @@
         });
     });
 
+    // Product → storefront ticked: show that storefront's category tree
+    document.querySelectorAll('[data-store-toggle]').forEach(function (cb) {
+        var tree = document.querySelector('[data-store-cats="' + cb.getAttribute('data-store-toggle') + '"]');
+        if (!tree) return;
+        var sync = function () { tree.hidden = !cb.checked; };
+        cb.addEventListener('change', sync);
+        sync();
+    });
+
     // Select all rows
     document.querySelectorAll('[data-check-all]').forEach(function (all) {
         all.addEventListener('change', function () {

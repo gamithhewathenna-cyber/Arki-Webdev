@@ -6,7 +6,7 @@
 declare(strict_types=1);
 require __DIR__ . '/_lib.php';
 
-$tax = (string)($_GET['tax'] ?? 'category');
+$tax = (string)($_GET['tax'] ?? 'cat_work');
 if (!Catalog::valid($tax)) {
     http_response_code(404);
     exit('Unknown list.');
@@ -86,7 +86,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 
 $terms = Catalog::terms($tax);
 $usage = Catalog::usage($tax);
-$parents = !empty($def['nested']) ? Catalog::options('category', true) : [];
+$parents = !empty($def['nested']) ? Catalog::options($tax, true) : [];
 
 admin_header($def['label'], 'p:' . $tax);
 ?>

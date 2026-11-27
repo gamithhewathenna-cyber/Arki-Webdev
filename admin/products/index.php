@@ -35,7 +35,16 @@ admin_header('All Products', 'p:all');
 <form class="adm-card adm-filters" method="get" action="">
     <input type="search" name="q" value="<?= e($f['q']) ?>" placeholder="Search name or SKU…" aria-label="Search products">
     <?= p_select('store', ['work' => 'Work', 'learn' => 'Learn', 'store_only' => 'Store only'], $f['store'], 'All storefronts', 'flt_store') ?>
-    <?= p_select('category', Catalog::options('category'), $f['category'] ?: '', 'All categories', 'flt_category') ?>
+    <select id="flt_category" name="category" aria-label="Category">
+        <option value="">All categories</option>
+        <?php foreach (['cat_work', 'cat_learn', 'cat_store'] as $ctax): ?>
+        <optgroup label="<?= e(Catalog::TAXONOMIES[$ctax]['label']) ?>">
+            <?php foreach (Catalog::terms($ctax) as $c): ?>
+            <option value="<?= (int)$c['id'] ?>"<?= (int)$c['id'] === $f['category'] ? ' selected' : '' ?>><?= !empty($c['depth']) ? '— ' : '' ?><?= e($c['name']) ?></option>
+            <?php endforeach; ?>
+        </optgroup>
+        <?php endforeach; ?>
+    </select>
     <?= p_select('brand', Catalog::options('brand'), $f['brand'] ?: '', 'All brands', 'flt_brand') ?>
     <?= p_select('stock', ['in_stock' => 'In stock', 'out_of_stock' => 'Out of stock', 'made_to_order' => 'Made to order', 'low' => 'Low stock'], $f['stock'], 'Any stock', 'flt_stock') ?>
     <?= p_select('status', ['published' => 'Published', 'draft' => 'Draft', 'hidden' => 'Hidden', 'featured' => '★ Featured'], $f['status'], 'Any status', 'flt_status') ?>
@@ -93,7 +102,7 @@ admin_header('All Products', 'p:all');
                     <?php if ($r['is_new']): ?><span class="adm-pill adm-pill--tiny">New</span><?php endif; ?>
                     <?php if ($r['is_bestseller']): ?><span class="adm-pill adm-pill--tiny">Best seller</span><?php endif; ?></td>
                 <td class="small"><?= e($r['sku']) ?></td>
-                <td class="small"><?= e(trim(($r['category_name'] ?? '') . ($r['subcategory_name'] ? ' › ' . $r['subcategory_name'] : ''))) ?: '–' ?><br><span class="muted"><?= e($r['type_name'] ?? '') ?></span></td>
+                <td class="small"><?= $r['categories'] ? nl2br(e($r['categories']), false) : '<span class="muted">No category</span>' ?><br><span class="muted"><?= e($r['type_name'] ?? '') ?></span></td>
                 <td class="small"><?= e($r['brand_name'] ?? '–') ?></td>
                 <td><?= p_store_badges($r['stores']) ?></td>
                 <td class="col-num small"><?= e(money($r['retail_price'], $r['currency'])) ?: '–' ?><?php if ($r['sale_price'] !== null): ?><br><span class="muted">Sale <?= e(money($r['sale_price'], $r['currency'])) ?></span><?php endif; ?></td>

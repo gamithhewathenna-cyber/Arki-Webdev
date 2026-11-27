@@ -6,8 +6,9 @@
  * @var array $family @var array|null $familyRow @var array $related @var array $settings @var array|null $cta
  */
 $listing = listing_url($from);
-$catSlug = $p['category_slug'] ?? $p['subcategory_slug'] ?? null;
-$catName = $p['category_name'] ?? $p['subcategory_name'] ?? null;
+/** @var array|null $crumb the product's category in this storefront */
+$catSlug = $crumb['slug'] ?? null;
+$catName = $crumb['name'] ?? null;
 $price = price_html($p);
 $main = $gallery[0] ?? null;
 

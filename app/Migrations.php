@@ -46,6 +46,17 @@ final class Migrations
                 }
             },
 
+            // One category tree per storefront (app/schema/categories_db.php).
+            // Listed before the link update, so a new install links cards straight to the new categories.
+            '2026-11-28-storefront-categories' => static function (): void {
+                foreach (['work', 'learn', 'store'] as $store) {
+                    ContentRepository::sync($store); // category cards must exist before they are linked
+                }
+                foreach (self::statements((string)require APP_PATH . '/schema/categories_db.php') as $sql) {
+                    Database::pdo()->exec($sql);
+                }
+            },
+
             // Point the storefront pages' links at the new product listings.
             '2026-11-28-link-product-listings' => static function (): void {
                 foreach (['work', 'learn', 'store'] as $store) {
@@ -88,12 +99,14 @@ final class Migrations
     /** Link category cards (Tables, Seating …) to the filtered product listing. */
     private static function linkCategoryCards(string $page, string $list): void
     {
-        $map = ['tables' => 'desks-tables', 'seating' => 'seating', 'lounge' => 'lounge', 'privacy' => 'privacy', 'storage' => 'storage-accessories'];
+        // Card title → top-level category of that storefront with the same name (Tables → tables …).
         $s = Database::one("SELECT id FROM sections WHERE page = ? AND section_key = 'categories'", [$page]);
         if (!$s) return;
+        $have = array_column(Catalog::terms(Catalog::categoryTax($page)), 'slug');
         foreach (Database::all('SELECT id, data, is_active FROM section_items WHERE section_id = ?', [$s['id']]) as $it) {
             $d = json_decode((string)$it['data'], true) ?: [];
-            $slug = $map[strtolower(trim((string)($d['title'] ?? '')))] ?? null;
+            $slug = Catalog::slugify((string)($d['title'] ?? ''));
+            $slug = in_array($slug, $have, true) ? $slug : null;
             if ($slug && in_array(trim((string)($d['url'] ?? '')), ['', '#'], true)) {
                 $d['url'] = $list . '?cat[]=' . $slug;
                 ContentRepository::saveItem((int)$it['id'], (int)$s['id'], $d, (bool)$it['is_active']);

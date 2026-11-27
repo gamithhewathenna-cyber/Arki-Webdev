@@ -52,8 +52,10 @@ final class ProductRepository
             array_push($a, $like, $like, $like);
         }
         if (!empty($f['cat_ids'])) {
+            // In the category itself or in one of its subcategories.
             $in = implode(',', array_map('intval', $f['cat_ids']));
-            $w[] = "(p.category_id IN ($in) OR p.subcategory_id IN ($in))";
+            $w[] = "EXISTS (SELECT 1 FROM product_term_links cl JOIN product_terms ct ON ct.id = cl.term_id
+                            WHERE cl.product_id = p.id AND (ct.id IN ($in) OR ct.parent_id IN ($in)))";
         }
         if (!empty($f['type_ids'])) {
             $w[] = 'p.type_id IN (' . implode(',', array_map('intval', $f['type_ids'])) . ')';
@@ -138,13 +140,12 @@ final class ProductRepository
         [$where, $args] = self::where($store, []);
         $ids = "SELECT p.id FROM products p WHERE $where";
         $col = static fn(string $c): string => "SELECT DISTINCT p.$c FROM products p WHERE $where AND p.$c IS NOT NULL";
-        $catSql = $col('category_id');
-        $subSql = $col('subcategory_id');
 
+        // This storefront's own category tree, limited to categories that have products here.
         $cats = Database::all(
-            "SELECT * FROM product_terms WHERE taxonomy = 'category' AND is_active = 1
-             AND (id IN ($catSql) OR id IN ($subSql)) ORDER BY sort_order, name",
-            array_merge($args, $args)
+            "SELECT * FROM product_terms WHERE taxonomy = ? AND is_active = 1
+             AND id IN (SELECT l.term_id FROM product_term_links l WHERE l.product_id IN ($ids)) ORDER BY sort_order, name",
+            array_merge([Catalog::categoryTax($store)], $args)
         );
         // Make sure parents of used subcategories are listed.
         $have = array_map('intval', array_column($cats, 'id'));
@@ -197,12 +198,9 @@ final class ProductRepository
     public static function bySlug(string $slug, bool $preview = false): ?array
     {
         $p = Database::one(
-            'SELECT ' . self::PUBLIC_COLS . ', b.name AS brand_name, c.name AS category_name, c.slug AS category_slug,
-                    sc.name AS subcategory_name, sc.slug AS subcategory_slug, t.name AS type_name, er.name AS env_name
+            'SELECT ' . self::PUBLIC_COLS . ', b.name AS brand_name, t.name AS type_name, er.name AS env_name
              FROM products p
              LEFT JOIN product_terms b  ON b.id  = p.brand_id
-             LEFT JOIN product_terms c  ON c.id  = p.category_id
-             LEFT JOIN product_terms sc ON sc.id = p.subcategory_id
              LEFT JOIN product_terms t  ON t.id  = p.type_id
              LEFT JOIN product_terms er ON er.id = p.env_rating_id
              WHERE p.slug = ?' . ($preview ? '' : " AND p.status = 'published'"),
@@ -212,6 +210,29 @@ final class ProductRepository
             $p['sections'] = self::pageSections($p);
         }
         return $p;
+    }
+
+    /** The product's main category in a storefront (top-level name + slug), for the breadcrumb. */
+    public static function primaryCategory(int $id, string $store): ?array
+    {
+        return Database::one(
+            'SELECT COALESCE(pp.name, t.name) AS name, COALESCE(pp.slug, t.slug) AS slug
+             FROM product_term_links l
+             JOIN product_terms t ON t.id = l.term_id AND t.taxonomy = ?
+             LEFT JOIN product_terms pp ON pp.id = t.parent_id
+             WHERE l.product_id = ?
+             ORDER BY COALESCE(pp.sort_order, t.sort_order), t.sort_order LIMIT 1',
+            [Catalog::categoryTax($store), $id]
+        );
+    }
+
+    /** ADMIN: ids of all category terms (any storefront) a product is in. */
+    public static function categoryIds(int $id): array
+    {
+        return array_map('intval', array_column(Database::all(
+            "SELECT l.term_id FROM product_term_links l JOIN product_terms t ON t.id = l.term_id AND t.taxonomy LIKE 'cat\\_%' WHERE l.product_id = ?",
+            [$id]
+        ), 'term_id'));
     }
 
     public static function storefronts(int $id): array
@@ -279,12 +300,17 @@ final class ProductRepository
                 [$p['id'], $p['id']]
             );
         }
+        // Automatic: products sharing a category (in any storefront) first, then the same product type.
+        $shared = "EXISTS (SELECT 1 FROM product_term_links l1
+                           JOIN product_terms c1 ON c1.id = l1.term_id AND c1.taxonomy LIKE 'cat\\_%'
+                           JOIN product_term_links l2 ON l2.term_id = l1.term_id
+                           WHERE l1.product_id = p.id AND l2.product_id = ?)";
         return Database::all(
             'SELECT ' . self::CARD_COLS . " FROM products p LEFT JOIN product_terms t ON t.id = p.type_id
              WHERE p.status = 'published' AND p.id <> ?
-               AND ((p.category_id IS NOT NULL AND p.category_id = ?) OR (p.type_id IS NOT NULL AND p.type_id = ?))
-             ORDER BY (p.category_id = ?) DESC, p.is_featured DESC, p.sort_order LIMIT " . (int)$limit,
-            [$p['id'], $p['category_id'] ?? 0, $p['type_id'] ?? 0, $p['category_id'] ?? 0]
+               AND ($shared OR (p.type_id IS NOT NULL AND p.type_id = ?))
+             ORDER BY $shared DESC, p.is_featured DESC, p.sort_order LIMIT " . (int)$limit,
+            [$p['id'], $p['id'], $p['type_id'] ?? 0, $p['id']]
         );
     }
 
@@ -343,7 +369,8 @@ final class ProductRepository
             $w[] = 'NOT EXISTS (SELECT 1 FROM product_storefronts s WHERE s.product_id = p.id)';
         }
         if (!empty($f['category'])) {
-            $w[] = '(p.category_id = ? OR p.subcategory_id = ?)';
+            $w[] = 'EXISTS (SELECT 1 FROM product_term_links cl JOIN product_terms ct ON ct.id = cl.term_id
+                            WHERE cl.product_id = p.id AND (ct.id = ? OR ct.parent_id = ?))';
             array_push($a, (int)$f['category'], (int)$f['category']);
         }
         if (!empty($f['brand'])) {
@@ -365,12 +392,17 @@ final class ProductRepository
         $where = implode(' AND ', $w);
         $total = (int)Database::value("SELECT COUNT(*) FROM products p WHERE $where", $a);
         $rows = Database::all(
-            "SELECT p.*, b.name AS brand_name, c.name AS category_name, sc.name AS subcategory_name, t.name AS type_name,
-                    (SELECT GROUP_CONCAT(s.storefront ORDER BY s.storefront) FROM product_storefronts s WHERE s.product_id = p.id) AS stores
+            "SELECT p.*, b.name AS brand_name, t.name AS type_name,
+                    (SELECT GROUP_CONCAT(s.storefront ORDER BY s.storefront) FROM product_storefronts s WHERE s.product_id = p.id) AS stores,
+                    (SELECT GROUP_CONCAT(CONCAT(CASE ct.taxonomy WHEN 'cat_work' THEN 'Work' WHEN 'cat_learn' THEN 'Learn' ELSE 'Store' END, ': ',
+                                                IF(cp.id IS NULL, '', CONCAT(cp.name, ' › ')), ct.name)
+                                         ORDER BY ct.taxonomy DESC, cp.sort_order, ct.sort_order SEPARATOR '\n')
+                       FROM product_term_links cl
+                       JOIN product_terms ct ON ct.id = cl.term_id AND ct.taxonomy LIKE 'cat\\_%'
+                       LEFT JOIN product_terms cp ON cp.id = ct.parent_id
+                      WHERE cl.product_id = p.id) AS categories
              FROM products p
              LEFT JOIN product_terms b ON b.id = p.brand_id
-             LEFT JOIN product_terms c ON c.id = p.category_id
-             LEFT JOIN product_terms sc ON sc.id = p.subcategory_id
              LEFT JOIN product_terms t ON t.id = p.type_id
              WHERE $where ORDER BY p.sort_order, p.id DESC LIMIT " . (int)$perPage . ' OFFSET ' . (int)max(0, ($page - 1) * $perPage),
             $a

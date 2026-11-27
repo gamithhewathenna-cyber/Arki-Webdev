@@ -62,7 +62,7 @@ Built with PHP 8, MySQL, HTML5 and CSS3. It has no frameworks, no Composer and n
 |---|---|
 | **All Products** | Search, filter (storefront, category, brand, stock, status), bulk actions, Duplicate/Delete, and drag ⋮⋮ to set the display order. |
 | **Add New Product** | Ten tabs, each saved on its own: General Information, Pricing, Images & Media, Product Options, Specifications, Technical Information, Downloads, Product Family, Related Products, Inventory & Visibility. |
-| **Categories … Environmental Ratings** | The central lists that products choose from and the website filters by. Categories can have subcategories; colours have a HEX code and optional swatch image; brands have a logo. |
+| **Lists** (Work / Learn / Store Categories, Product Types, Brands, Materials, Colours, Sizes, Environmental Ratings) | The central lists that products choose from and the website filters by. **Each storefront has its own category tree** (category → subcategories); a product is ticked into categories per storefront. Colours have a HEX code and optional swatch image; brands have a logo. |
 | **Product Families** | Collections (e.g. Luna Collection). Members show each other under “Family Of Products”. |
 | **Inventory Management** | Stock for every product in one table. Low stock is highlighted. |
 | **Storefront Settings** | Listing banners for Work / Learn / Store, the call-to-action banners and the product page texts. |
@@ -152,7 +152,7 @@ Opening the page in the CMS creates its sections in the database automatically. 
 
 ### Product catalogue (for developers)
 
-* Tables: `products`, `product_terms` (all managed lists, keyed by `taxonomy`), `product_families`, `product_storefronts`, `product_images` (gallery + drawings), `product_specs`, `product_downloads`, `product_term_links` (offered sizes/colours/materials), `product_variants`, `product_related`. Definitions + demo data: `app/schema/products_db.php` (applied once by `app/Migrations.php`; the same SQL is in `database-update-products.sql`).
+* Tables: `products`, `product_terms` (all managed lists, keyed by `taxonomy`; categories are `cat_work` / `cat_learn` / `cat_store` and linked to products through `product_term_links`), `product_families`, `product_storefronts`, `product_images` (gallery + drawings), `product_specs`, `product_downloads`, `product_term_links` (offered sizes/colours/materials), `product_variants`, `product_related`. Definitions + demo data: `app/schema/products_db.php` (applied once by `app/Migrations.php`; the same SQL is in `database-update-products.sql`).
 * Queries: `app/ProductRepository.php`. Public methods never select `agent_price` – keep it that way. Lists/families: `app/Catalog.php`. Storefront pages: `app/Shop.php` + `templates/shop/`.
 * A new list type (e.g. “Finishes”) = one entry in `Catalog::TAXONOMIES`; the admin screen and menu item appear automatically.
 * Ready for later phases: carts, quotes, orders and agent accounts can reference `products.id` / `product_variants.id`, which already carry SKU, currency, agent price and stock.

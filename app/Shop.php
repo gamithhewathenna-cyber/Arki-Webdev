@@ -204,6 +204,7 @@ final class Shop
                 'from'      => $from,
                 'preview'   => $preview && $p['status'] !== 'published',
                 'gallery'   => $gallery,
+                'crumb'     => ProductRepository::primaryCategory($id, $from),
                 'avail'     => ProductRepository::availability($p),
                 'options'   => $options,
                 'variants'  => self::variantJson($p, $variants),
