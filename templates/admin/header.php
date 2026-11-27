@@ -37,8 +37,11 @@
                 <?php endforeach; ?>
             </div>
         </div>
-        <a class="<?= $active === 'settings' ? 'is-active' : '' ?>" href="<?= e(url('admin/settings.php')) ?>">Settings</a>
-        <a class="<?= $active === 'users' ? 'is-active' : '' ?>" href="<?= e(url('admin/users.php')) ?>">Administrators</a>
+        <p class="adm-nav__label" id="nav-system">System Management</p>
+        <div role="group" aria-labelledby="nav-system">
+            <a class="<?= $active === 'settings' ? 'is-active' : '' ?>" href="<?= e(url('admin/settings.php')) ?>">Website Settings</a>
+            <a class="<?= $active === 'users' ? 'is-active' : '' ?>" href="<?= e(url('admin/users.php')) ?>">Administrators</a>
+        </div>
     </nav>
     <div class="adm-side__foot">
         <a class="adm-btn adm-btn--ghost adm-btn--block" href="<?= e(url()) ?>" target="_blank" rel="noopener">View website ↗</a>

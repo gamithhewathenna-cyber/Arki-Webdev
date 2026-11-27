@@ -85,9 +85,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 
 $fav = (string)Settings::get('favicon', '');
 $hasPass = (string)Settings::get('dev_lock_password', '') !== '';
-admin_header('Settings', 'settings');
+admin_header('Website Settings', 'settings');
 ?>
-<header class="adm-head"><div><h1>Settings</h1><p class="muted">General website settings.</p></div></header>
+<header class="adm-head"><div><h1>Website Settings</h1><p class="muted">General website settings.</p></div></header>
 
 <form method="post" enctype="multipart/form-data" class="adm-form">
     <?= csrf_field() ?>

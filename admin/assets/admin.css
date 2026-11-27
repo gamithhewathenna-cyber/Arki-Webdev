@@ -145,6 +145,7 @@ body.crop-open { overflow:hidden; }
 
 /* ================= Products module ================= */
 .adm-side { overflow-y: auto; }
+.adm-nav__label { margin: 18px 0 6px; padding: 14px 12px 0; border-top: 1px solid #2a2a2a; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
 .adm-nav__group { margin: 6px 0; }
 .adm-nav__parent { font-weight: 600; }
 .adm-nav__sub { display: none; margin: 2px 0 8px 12px; padding-left: 8px; border-left: 1px solid #2c2c2c; }
