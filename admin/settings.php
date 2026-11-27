@@ -2,8 +2,47 @@
 declare(strict_types=1);
 require __DIR__ . '/_init.php';
 
+/*
+ * Website logos. These are stored in the shared Header and Footer sections
+ * (same fields as Header & Footer → Header / Footer), so editing them here
+ * or there always changes the same logo.
+ */
+admin_sync_sections('global');
+$logoGroups = [
+    'header' => [
+        'logo'     => ['type' => 'image', 'label' => 'Header logo', 'help' => 'Shown at the top left of every page. Transparent PNG, about 550 × 70 px.'],
+        'logo_alt' => ['type' => 'text', 'label' => 'Header logo description (alt text)', 'help' => 'e.g. Steelcase | ARKI Environments'],
+    ],
+    'footer' => [
+        'brand_logo'  => ['type' => 'image', 'label' => 'Footer logo', 'help' => 'Shown in the first footer column. Transparent PNG, about 300 × 90 px.'],
+        'dealer_logo' => ['type' => 'image', 'label' => 'Footer partner logo', 'help' => 'Second footer column (e.g. Steelcase Authorised Dealer). Transparent PNG.'],
+    ],
+];
+$logoSections = [];
+foreach (array_keys($logoGroups) as $key) {
+    $row = Database::one("SELECT id FROM sections WHERE page = 'global' AND section_key = ?", [$key]);
+    $logoSections[$key] = $row ? ContentRepository::section((int)$row['id']) : null;
+}
+
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     csrf_verify();
+
+    // Logos → saved into the Header / Footer sections, other fields there untouched.
+    foreach ($logoGroups as $key => $fields) {
+        $sec = $logoSections[$key];
+        if (!$sec) {
+            continue;
+        }
+        [$data, $errors, $orphans] = AdminForm::collect($fields, $sec['data']);
+        ContentRepository::saveSectionData((int)$sec['id'], array_merge($sec['data'], $data));
+        foreach ($orphans as $o) {
+            Uploader::deleteIfUnused($o);
+        }
+        foreach ($errors as $er) {
+            flash('error', $er);
+        }
+    }
+
     $name  = trim((string)($_POST['site_name'] ?? ''));
     $title = trim((string)($_POST['home_title'] ?? ''));
     Settings::set('site_name', mb_substr($name !== '' ? $name : 'Website', 0, 120));
@@ -64,6 +103,21 @@ admin_header('Settings', 'settings');
             <?php if ($fav !== ''): ?><div class="img-current img-current--sm"><img src="<?= e(upload_url($fav)) ?>" alt=""><label class="check"><input type="checkbox" name="remove_favicon" value="1"> Remove</label></div><?php endif; ?>
             <input id="favicon" name="favicon" type="file" accept="image/png,image/gif,image/webp,image/jpeg">
             <p class="help">Square PNG, 512 × 512 px recommended.</p>
+        </div>
+    </section>
+
+    <section class="adm-card">
+        <h2>Website logos</h2>
+        <p class="help adm-card__intro">These are the same logos as in Header &amp; Footer, so changing them here updates the website header and footer.</p>
+        <div class="adm-grid-2">
+            <div>
+                <h3 class="adm-h3">Header</h3>
+                <?= AdminForm::render($logoGroups['header'], $logoSections['header']['data'] ?? []) ?>
+            </div>
+            <div>
+                <h3 class="adm-h3">Footer</h3>
+                <?= AdminForm::render($logoGroups['footer'], $logoSections['footer']['data'] ?? []) ?>
+            </div>
         </div>
     </section>
 

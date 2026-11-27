@@ -56,6 +56,8 @@ code { background:#f0f0ee; padding:1px 6px; border-radius:4px; font-size:12px; }
 .adm-card--flush { padding:0; overflow:hidden; }
 .adm-card__head { display:flex; justify-content:space-between; align-items:center; padding:18px 22px; border-bottom:1px solid var(--line); }
 .adm-card__head h2 { margin:0; }
+.adm-card__intro { margin:-10px 0 20px; }
+.adm-h3 { font-size:13px; margin:0 0 14px; padding-bottom:8px; border-bottom:1px solid var(--line); text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:600; }
 .adm-empty { padding:24px; color:var(--muted); margin:0; }
 .adm-grid-2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:24px; }
 .adm-note { background:#faf7f0; border:1px solid #eadfc6; border-radius:8px; padding:12px 14px; font-size:13px; }
