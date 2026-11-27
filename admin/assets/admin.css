@@ -34,8 +34,9 @@ code { background:#f0f0ee; padding:1px 6px; border-radius:4px; font-size:12px; }
 
 /* Section tabs */
 .adm-tabs { position:sticky; top:0; z-index:5; background:var(--bg); margin:-8px 0 24px; padding-top:8px; border-bottom:1px solid var(--line); }
-.adm-tabs ul { display:flex; gap:2px; margin:0; padding:0; list-style:none; overflow-x:auto; scrollbar-width:thin; }
-.adm-tab { display:inline-flex; align-items:center; gap:7px; padding:10px 14px; white-space:nowrap; text-decoration:none; color:var(--muted); font-weight:500; border-bottom:2px solid transparent; margin-bottom:-1px; border-radius:8px 8px 0 0; transition:color .15s, background .15s; }
+/* Tabs wrap onto a second (third…) row when there are too many for one line */
+.adm-tabs ul { display:flex; flex-wrap:wrap; gap:4px 2px; margin:0; padding:0 0 6px; list-style:none; }
+.adm-tab { display:inline-flex; align-items:center; gap:7px; padding:10px 14px; white-space:nowrap; text-decoration:none; color:var(--muted); font-weight:500; border-bottom:2px solid transparent; border-radius:8px 8px 0 0; transition:color .15s, background .15s; }
 .adm-tab:hover { color:var(--ink); background:#ebebe8; }
 .adm-tab.is-active { color:var(--ink); border-bottom-color:var(--accent); background:var(--card); }
 .adm-tab--overview { font-weight:600; }
