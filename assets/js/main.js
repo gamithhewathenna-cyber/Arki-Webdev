@@ -61,6 +61,21 @@
         update();
     });
 
+    /* Favourite (heart) buttons on product cards – remembered in this browser */
+    var FAV_KEY = 'arki-favourites';
+    var favs = {};
+    try { favs = JSON.parse(localStorage.getItem(FAV_KEY) || '{}') || {}; } catch (e) { favs = {}; }
+    document.querySelectorAll('[data-fav]').forEach(function (btn) {
+        var id = btn.getAttribute('data-fav');
+        if (favs[id]) btn.setAttribute('aria-pressed', 'true');
+        btn.addEventListener('click', function () {
+            var on = btn.getAttribute('aria-pressed') !== 'true';
+            btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+            if (on) { favs[id] = 1; } else { delete favs[id]; }
+            try { localStorage.setItem(FAV_KEY, JSON.stringify(favs)); } catch (e) { /* storage disabled */ }
+        });
+    });
+
     /* Mouse drag-to-scroll for horizontal rows (touch scrolls natively) */
     document.querySelectorAll('[data-drag-scroll]').forEach(function (el) {
         var down = false, moved = false, startX = 0, startLeft = 0;

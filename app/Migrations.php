@@ -37,6 +37,7 @@ final class Migrations
             // Link the homepage hero cards to their new pages.
             '2026-11-27-link-work-card'  => static fn() => self::linkHeroCard('Work', 'work/'),
             '2026-11-27-link-learn-card' => static fn() => self::linkHeroCard('Learn', 'learn/'),
+            '2026-11-27-link-store-card' => static fn() => self::linkHeroCard('Store', 'store/'),
         ];
     }
 

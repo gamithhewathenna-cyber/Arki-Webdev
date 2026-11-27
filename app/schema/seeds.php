@@ -50,7 +50,48 @@ $inner = static function (array $banner, string $moreLabel, array $categories): 
     ];
 };
 
+$store = $inner(
+    ['heading' => 'Store', 'image' => 'uploads/demo/hero-store.jpg', 'image_alt' => 'Home office with desk and bookshelves'],
+    'View Our Store',
+    [
+        ['Tables',        'work-tables.jpg',  'Height-adjustable desk with screens'],
+        ['Seating',       'work-seating.jpg', 'Mesh task chair'],
+        ['Lounge',        'work-lounge.jpg',  'Orange lounge armchair'],
+        ['Storage',       'work-privacy.jpg', 'Storage unit'],
+        ['Teacher Tools', 'work-tools.jpg',   'Mobile whiteboard with side table'],
+    ]
+);
+$store['categories']['data']['heading'] = 'Our Categories';
+
+$products = [];
+foreach ([
+    ['Luna Chair', 'Dining Chair', '$ 450',   'White wingback chair with oak legs'],
+    ['Zen Lounge', 'Lounge Chair', '$ 1,950', 'Black shell chair with wooden legs'],
+    ['Zen Lounge', 'Lounge Chair', '$ 1,950', 'Cream bouclé swivel chair'],
+    ['Zen Lounge', 'Lounge Chair', '$ 1,950', 'Bouclé armchair with walnut legs'],
+    ['Axis Table', 'Dining Table', '$ 1,950', 'Oak dining table with tapered legs'],
+    ['Zen Lounge', 'Lounge Chair', '$ 1,950', 'Tufted cream accent chair'],
+    ['Axis Table', 'Dining Table', '$ 1,950', 'Marble and brass nesting tables'],
+    ['Axis Table', 'Dining Table', '$ 1,950', 'Round walnut side table'],
+] as $i => [$name, $type, $price, $alt]) {
+    $products[] = [
+        'name' => $name, 'type' => $type, 'price_prefix' => 'From', 'price' => $price, 'sku' => 'AE- A0136',
+        'image' => 'uploads/demo/store-product-' . ($i + 1) . '.jpg', 'image_alt' => $alt, 'url' => '#',
+    ];
+}
+
 return [
+    'store' => [
+        'banner'     => $store['banner'],
+        'intro'      => $store['intro'],
+        'categories' => $store['categories'],
+        'products'   => [
+            'data'  => ['heading' => 'Featured Products', 'link_label' => 'View All Products', 'link_url' => '#'],
+            'items' => $products,
+        ],
+        'cta'        => ['copy_from' => 'home'],
+    ],
+
     'work' => $inner(
         ['heading' => 'Work', 'image' => 'uploads/demo/hero-work.jpg', 'image_alt' => 'Open-plan office with workstations'],
         'Explore All Work Products',

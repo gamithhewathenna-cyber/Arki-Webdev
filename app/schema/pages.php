@@ -308,56 +308,83 @@ $schema = [
 ];
 
 /* =================================================================
- *  INNER PAGES – Work (/work/), Learn (/learn/) …
- *  All use the same layout: banner + intro + product categories, then
- *  the same section types as the homepage. Shared sections reuse the
- *  homepage field definitions; each page's content is separate.
- *  First-visit content comes from app/schema/seeds.php.
- *  New page with this layout = one line below + seeds + front controller.
+ *  INNER PAGES – Work (/work/), Learn (/learn/), Store (/store/) …
+ *  Built from shared section definitions; each page's content is
+ *  separate. First-visit content comes from app/schema/seeds.php.
  * ================================================================= */
 $home = $schema['home']['sections'];
+
+$bannerSection = [
+    'label'       => 'Banner',
+    'description' => 'Full-width image at the top with the page title. The header sits on top of it in white.',
+    'fields'      => [
+        'image'      => ['type' => 'image', 'label' => 'Background image', 'help' => 'A dark overlay is added so the white text stays readable.', 'crop' => ['w' => 2400, 'h' => 870]],
+        'image_alt'  => ['type' => 'text', 'label' => 'Image description (alt text)'],
+        'tagline'    => ['type' => 'text', 'label' => 'Tagline'],
+        'heading'    => ['type' => 'multiline', 'label' => 'Page title (H1)', 'required' => true],
+        'body'       => ['type' => 'textarea', 'label' => 'Text'],
+        'link_label' => ['type' => 'text', 'label' => 'Link label'],
+        'link_url'   => ['label' => 'Link URL'] + $link,
+    ],
+];
+
+$introSection = ['description' => 'Centred tagline, heading and introduction paragraphs below the banner.'] + $home['intro'];
+
+$categoriesSection = [
+    'label'       => 'Product Categories',
+    'description' => 'Row of white product cards with a name under each. With a heading, the link sits top right; without, it sits centred below.',
+    'fields'      => [
+        'heading'    => ['type' => 'text', 'label' => 'Heading (optional)', 'help' => 'e.g. Our Categories'],
+        'link_label' => ['type' => 'text', 'label' => 'Link label', 'help' => 'e.g. Explore All Work Products'],
+        'link_url'   => ['label' => 'Link URL'] + $link,
+    ],
+    'items'       => [
+        'label'  => 'Category',
+        'title'  => 'title',
+        'thumb'  => 'image',
+        'fields' => [
+            'title'     => ['type' => 'text', 'label' => 'Name', 'required' => true],
+            'image'     => ['type' => 'image', 'label' => 'Product image', 'help' => 'Product on a white or transparent background. Zoom out to leave space around it.', 'crop' => ['w' => 740, 'h' => 1000, 'fit' => true]],
+            'image_alt' => ['type' => 'text', 'label' => 'Image description (alt text)'],
+            'url'       => $link,
+        ],
+    ],
+];
+
+$productsSection = [
+    'label'       => 'Featured Products',
+    'description' => 'Heading with a link top right, then a grid of product cards (4 per row) with price and product code.',
+    'fields'      => [
+        'heading'    => ['type' => 'text', 'label' => 'Heading', 'help' => 'e.g. Featured Products'],
+        'link_label' => ['type' => 'text', 'label' => 'Link label', 'help' => 'e.g. View All Products'],
+        'link_url'   => ['label' => 'Link URL'] + $link,
+    ],
+    'items'       => [
+        'label'  => 'Product',
+        'title'  => 'name',
+        'thumb'  => 'image',
+        'fields' => [
+            'name'         => ['type' => 'text', 'label' => 'Product name', 'required' => true],
+            'type'         => ['type' => 'text', 'label' => 'Product type', 'help' => 'Small line under the name, e.g. Dining Chair'],
+            'price_prefix' => ['type' => 'text', 'label' => 'Price prefix', 'default' => 'From', 'help' => 'Small word before the price. Leave blank to hide.'],
+            'price'        => ['type' => 'text', 'label' => 'Price', 'help' => 'As it should appear, e.g. $ 1,950. Leave blank to hide.'],
+            'sku'          => ['type' => 'text', 'label' => 'Product code', 'help' => 'e.g. AE- A0136'],
+            'image'        => ['type' => 'image', 'label' => 'Image', 'crop' => ['w' => 1000, 'h' => 1000]],
+            'image_alt'    => ['type' => 'text', 'label' => 'Image description (alt text)'],
+            'url'          => $link,
+        ],
+    ],
+];
+
+/** Work / Learn layout: banner, intro, categories, then the homepage section types. */
 $innerPage = static fn(string $label, string $url): array => [
     'label'    => $label,
     'url'      => $url,
     'sortable' => true,
     'sections' => [
-
-        'banner' => [
-            'label'       => 'Banner',
-            'description' => 'Full-width image at the top with the page title. The header sits on top of it in white.',
-            'fields'      => [
-                'image'      => ['type' => 'image', 'label' => 'Background image', 'help' => 'A dark overlay is added so the white text stays readable.', 'crop' => ['w' => 2400, 'h' => 870]],
-                'image_alt'  => ['type' => 'text', 'label' => 'Image description (alt text)'],
-                'tagline'    => ['type' => 'text', 'label' => 'Tagline'],
-                'heading'    => ['type' => 'multiline', 'label' => 'Page title (H1)', 'required' => true],
-                'body'       => ['type' => 'textarea', 'label' => 'Text'],
-                'link_label' => ['type' => 'text', 'label' => 'Link label'],
-                'link_url'   => ['label' => 'Link URL'] + $link,
-            ],
-        ],
-
-        'intro' => ['description' => 'Centred tagline, heading and introduction paragraphs below the banner.'] + $home['intro'],
-
-        'categories' => [
-            'label'       => 'Product Categories',
-            'description' => 'Row of white product cards with a name under each, plus a link below.',
-            'fields'      => [
-                'link_label' => ['type' => 'text', 'label' => 'Link label', 'help' => 'e.g. Explore All Work Products'],
-                'link_url'   => ['label' => 'Link URL'] + $link,
-            ],
-            'items'       => [
-                'label'  => 'Category',
-                'title'  => 'title',
-                'thumb'  => 'image',
-                'fields' => [
-                    'title'     => ['type' => 'text', 'label' => 'Name', 'required' => true],
-                    'image'     => ['type' => 'image', 'label' => 'Product image', 'help' => 'Product on a white or transparent background. Zoom out to leave space around it.', 'crop' => ['w' => 740, 'h' => 1000, 'fit' => true]],
-                    'image_alt' => ['type' => 'text', 'label' => 'Image description (alt text)'],
-                    'url'       => $link,
-                ],
-            ],
-        ],
-
+        'banner'      => $bannerSection,
+        'intro'       => $introSection,
+        'categories'  => $categoriesSection,
         'solutions'   => $home['solutions'],
         'projects'    => $home['projects'],
         'brands'      => $home['brands'],
@@ -368,5 +395,19 @@ $innerPage = static fn(string $label, string $url): array => [
 
 $schema['work']  = $innerPage('Work Page', 'work/');
 $schema['learn'] = $innerPage('Learn Page', 'learn/');
+
+/** Store layout: banner, intro, categories (with heading), featured products, call to action. */
+$schema['store'] = [
+    'label'    => 'Store Page',
+    'url'      => 'store/',
+    'sortable' => true,
+    'sections' => [
+        'banner'     => $bannerSection,
+        'intro'      => $introSection,
+        'categories' => $categoriesSection,
+        'products'   => $productsSection,
+        'cta'        => $home['cta'],
+    ],
+];
 
 return $schema;
