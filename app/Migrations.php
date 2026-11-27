@@ -57,6 +57,19 @@ final class Migrations
                 }
             },
 
+            // Header menu "Products" → product categories mega menu (Work / Learn / Store).
+            '2026-11-28-products-mega-menu' => static function (): void {
+                $nav = Database::one("SELECT id FROM sections WHERE page = 'global' AND section_key = 'navigation'");
+                if (!$nav) return;
+                foreach (Database::all('SELECT id, data, is_active FROM section_items WHERE section_id = ?', [$nav['id']]) as $it) {
+                    $d = json_decode((string)$it['data'], true) ?: [];
+                    if (strcasecmp(trim((string)($d['label'] ?? '')), 'Products') !== 0 || !empty($d['mega'])) continue;
+                    $d['mega'] = 'products';
+                    if (in_array(trim((string)($d['url'] ?? '')), ['', '#'], true)) $d['url'] = 'store/products/';
+                    ContentRepository::saveItem((int)$it['id'], (int)$nav['id'], $d, (bool)$it['is_active']);
+                }
+            },
+
             // Point the storefront pages' links at the new product listings.
             '2026-11-28-link-product-listings' => static function (): void {
                 foreach (['work', 'learn', 'store'] as $store) {

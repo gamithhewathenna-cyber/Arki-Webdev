@@ -17,6 +17,30 @@ $parseSub = static function (?string $txt): array {
     }
     return $out;
 };
+
+/** Work / Learn / Store category trees for the "Product categories" mega menu (active categories only). */
+$megaTrees = static function (): array {
+    static $trees = null;
+    if ($trees === null) {
+        $trees = [];
+        try {
+            foreach (['work', 'learn', 'store'] as $store) {
+                $tree = [];
+                foreach (Catalog::terms(Catalog::categoryTax($store), true) as $t) {
+                    if ($t['parent_id'] === null) {
+                        $tree[(int)$t['id']] = $t + ['children' => []];
+                    } elseif (isset($tree[(int)$t['parent_id']])) {
+                        $tree[(int)$t['parent_id']]['children'][] = $t;
+                    }
+                }
+                if ($tree) $trees[$store] = array_values($tree);
+            }
+        } catch (Throwable $e) {
+            $trees = []; // product tables not installed yet
+        }
+    }
+    return $trees;
+};
 ?>
 <header class="site-header<?= $overlay ? ' site-header--overlay' : '' ?>">
     <div class="container site-header__inner">
@@ -46,10 +70,39 @@ $parseSub = static function (?string $txt): array {
             <?php if ($navItems): ?>
             <nav class="main-nav" id="main-nav" aria-label="Main">
                 <ul class="main-nav__list">
-                    <?php foreach ($navItems as $i => $it): $n = $it['data']; $sub = $parseSub($n['submenu'] ?? ''); ?>
-                    <li class="main-nav__item<?= $sub ? ' has-sub' : '' ?>">
+                    <?php foreach ($navItems as $i => $it): $n = $it['data'];
+                        $mega = ($n['mega'] ?? '') === 'products' ? $megaTrees() : [];
+                        $sub = $mega ? [] : $parseSub($n['submenu'] ?? ''); ?>
+                    <li class="main-nav__item<?= ($sub || $mega) ? ' has-sub' : '' ?><?= $mega ? ' has-mega' : '' ?>">
                         <a class="main-nav__link" href="<?= e(safe_url($n['url'] ?? '')) ?>"><?= e($n['label'] ?? '') ?></a>
-                        <?php if ($sub): ?>
+                        <?php if ($mega): ?>
+                        <button class="main-nav__subtoggle" type="button" aria-expanded="false" aria-controls="sub-<?= (int)$i ?>" aria-label="Show <?= e($n['label'] ?? '') ?> categories">
+                            <span class="icon icon--xs"><?= icon('chevron-down') ?></span>
+                        </button>
+                        <div class="main-nav__sub mega" id="sub-<?= (int)$i ?>">
+                            <div class="container mega__inner">
+                                <?php foreach ($mega as $store => $tree): ?>
+                                <div class="mega__store">
+                                    <a class="mega__title" href="<?= e(listing_url($store)) ?>"><?= e(ProductRepository::STOREFRONTS[$store]) ?></a>
+                                    <div class="mega__cols">
+                                        <?php foreach ($tree as $cat): ?>
+                                        <div class="mega__group">
+                                            <a class="mega__cat" href="<?= e(listing_url($store, ['cat' => [$cat['slug']]])) ?>"><?= e($cat['name']) ?></a>
+                                            <?php if ($cat['children']): ?>
+                                            <ul>
+                                                <?php foreach ($cat['children'] as $ch): ?>
+                                                <li><a href="<?= e(listing_url($store, ['cat' => [$ch['slug']]])) ?>"><?= e($ch['name']) ?></a></li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                            <?php endif; ?>
+                                        </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <?php elseif ($sub): ?>
                         <button class="main-nav__subtoggle" type="button" aria-expanded="false" aria-controls="sub-<?= (int)$i ?>" aria-label="Show <?= e($n['label'] ?? '') ?> menu">
                             <span class="icon icon--xs"><?= icon('chevron-down') ?></span>
                         </button>

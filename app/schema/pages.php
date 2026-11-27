@@ -244,7 +244,11 @@ $schema = [
                     'fields' => [
                         'label'   => ['type' => 'text', 'label' => 'Label', 'required' => true],
                         'url'     => ['type' => 'url', 'label' => 'URL'],
-                        'submenu' => ['type' => 'textarea', 'label' => 'Dropdown links (optional)', 'help' => 'One per line in the format:  Label | /url/'],
+                        'mega'    => ['type' => 'select', 'label' => 'Dropdown type', 'options' => [
+                            ''         => 'Simple dropdown (the links below)',
+                            'products' => 'Product categories – Work / Learn / Store (from Products → Lists)',
+                        ], 'help' => 'Product categories shows every Work, Learn and Store category automatically.'],
+                        'submenu' => ['type' => 'textarea', 'label' => 'Dropdown links (optional)', 'help' => 'One per line in the format:  Label | /url/  (not used for the product categories dropdown)'],
                     ],
                 ],
             ],
