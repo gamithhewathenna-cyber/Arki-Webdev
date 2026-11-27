@@ -308,16 +308,17 @@ $schema = [
 ];
 
 /* =================================================================
- *  WORK (inner page: /work/)
- *  Banner + intro + product categories, then the same section types
- *  as the homepage. Shared sections reuse the homepage field
- *  definitions; their content is separate (edited under "Work Page").
+ *  INNER PAGES – Work (/work/), Learn (/learn/) …
+ *  All use the same layout: banner + intro + product categories, then
+ *  the same section types as the homepage. Shared sections reuse the
+ *  homepage field definitions; each page's content is separate.
  *  First-visit content comes from app/schema/seeds.php.
+ *  New page with this layout = one line below + seeds + front controller.
  * ================================================================= */
 $home = $schema['home']['sections'];
-$schema['work'] = [
-    'label'    => 'Work Page',
-    'url'      => 'work/',
+$innerPage = static fn(string $label, string $url): array => [
+    'label'    => $label,
+    'url'      => $url,
     'sortable' => true,
     'sections' => [
 
@@ -364,5 +365,8 @@ $schema['work'] = [
         'cta'         => $home['cta'],
     ],
 ];
+
+$schema['work']  = $innerPage('Work Page', 'work/');
+$schema['learn'] = $innerPage('Learn Page', 'learn/');
 
 return $schema;

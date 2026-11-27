@@ -251,6 +251,29 @@ function throttle_clear(string $scope): void
  *  Templates
  * ------------------------------------------------------------------- */
 
+/**
+ * Render an inner page (Work, Learn …) defined in app/schema/pages.php.
+ * Used by each page's front controller, e.g. learn/index.php.
+ */
+function render_inner_page(string $page): void
+{
+    require_once APP_PATH . '/DevLock.php';
+    DevLock::enforce();
+
+    ContentRepository::sync($page);              // creates missing sections from app/schema/seeds.php
+    $sections = ContentRepository::page($page);
+    $label = (string)(ContentRepository::schema()[$page]['label'] ?? '');
+    $title = trim(preg_replace('/\s+/', ' ', (string)($sections['banner']['data']['heading'] ?? $label)));
+
+    render('layout/page', [
+        'pageTitle' => ($title !== '' ? $title . ' – ' : '') . Settings::get('site_name', 'ARKI Environments'),
+        // The header is drawn over the banner image (white logo + menu) when the banner is shown.
+        'bodyClass' => 'page-' . $page . (isset($sections['banner']) ? ' has-banner' : ''),
+        'global'    => ContentRepository::page('global'),
+        'sections'  => $sections,
+    ]);
+}
+
 /** Render a template file with an isolated variable scope. */
 function render(string $template, array $vars = []): void
 {

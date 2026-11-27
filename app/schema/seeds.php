@@ -12,16 +12,16 @@
  *   'copy_from' => 'home'  start as a copy of the same section on that page
  */
 
-$lorem = 'Lorem ipsum dolor sit amet consectetur. Et sed tellus sed purus egestas. Quam nisl sem habitasse sed id elit sed tortor neque. Nec lobortis semper pellentesque donec faucibus tempor.';
-
-return [
-    'work' => [
+/** Same starting content for every inner page – only banner + categories differ. */
+$inner = static function (array $banner, string $moreLabel, array $categories): array {
+    $items = [];
+    foreach ($categories as [$title, $file, $alt]) {
+        $items[] = ['title' => $title, 'image' => 'uploads/demo/' . $file, 'image_alt' => $alt, 'url' => '#'];
+    }
+    return [
         'banner' => [
-            'data' => [
-                'image'      => 'uploads/demo/hero-work.jpg',
-                'image_alt'  => 'Open-plan office with workstations',
+            'data' => $banner + [
                 'tagline'    => 'Lorem Ipsum Dolor Sit Amet',
-                'heading'    => 'Work',
                 'body'       => 'Lorem Ipsum Dolor Sit Amet Consectetur. Sapien Suspendisse Aliquet Amet Mi Ullamcorper Sagittis Sed Morbi. Odio Sed Blandit Magna Consectetur A Est Ac Ut.',
                 'link_label' => 'Explore Products',
                 'link_url'   => '#',
@@ -31,26 +31,47 @@ return [
             'data' => [
                 'tagline'    => 'Lorem Ipsum Dolor Sit Amet Consectetur. Egestas Eu Sapien.',
                 'heading'    => 'Lorem Ipsum Dolor Sit Amet',
-                'body'       => $lorem . "\n\nIn varius netus purus ac enim sed id aliquet. Eleifend ultricies in vitae adipiscing ornare faucibus quisque rhoncus vitae. Libero felis arcu a massa mauris et ut odio eget. Quam sollicitudin cras nibh auctor massa lorem. Aenean risus leo fames adipiscing eget a massa. Enim urna lectus sed purus lorem turpis at massa elit."
+                'body'       => "Lorem ipsum dolor sit amet consectetur. Et sed tellus sed purus egestas. Quam nisl sem habitasse sed id elit sed tortor neque. Nec lobortis semper pellentesque donec faucibus tempor."
+                              . "\n\nIn varius netus purus ac enim sed id aliquet. Eleifend ultricies in vitae adipiscing ornare faucibus quisque rhoncus vitae. Libero felis arcu a massa mauris et ut odio eget. Quam sollicitudin cras nibh auctor massa lorem. Aenean risus leo fames adipiscing eget a massa. Enim urna lectus sed purus lorem turpis at massa elit."
                               . "\n\nAmet leo elementum donec urna aliquet tempor accumsan aenean. Amet sed velit tristique pretium etiam. At leo sed mauris turpis tortor malesuada quisque.",
                 'link_label' => 'About ARKI Environments',
                 'link_url'   => '#',
             ],
         ],
         'categories' => [
-            'data'  => ['link_label' => 'Explore All Work Products', 'link_url' => '#'],
-            'items' => [
-                ['title' => 'Tables',  'image' => 'uploads/demo/work-tables.jpg',  'image_alt' => 'Height-adjustable desk with screens', 'url' => '#'],
-                ['title' => 'Seating', 'image' => 'uploads/demo/work-seating.jpg', 'image_alt' => 'Mesh task chair',                     'url' => '#'],
-                ['title' => 'Lounge',  'image' => 'uploads/demo/work-lounge.jpg',  'image_alt' => 'Orange lounge armchair',              'url' => '#'],
-                ['title' => 'Privacy', 'image' => 'uploads/demo/work-privacy.jpg', 'image_alt' => 'Private work pod',                    'url' => '#'],
-                ['title' => 'Tools',   'image' => 'uploads/demo/work-tools.jpg',   'image_alt' => 'Mobile whiteboard with side table',   'url' => '#'],
-            ],
+            'data'  => ['link_label' => $moreLabel, 'link_url' => '#'],
+            'items' => $items,
         ],
         'solutions'   => ['copy_from' => 'home'],
         'projects'    => ['copy_from' => 'home'],
         'brands'      => ['copy_from' => 'home'],
         'inspiration' => ['copy_from' => 'home'],
         'cta'         => ['copy_from' => 'home'],
-    ],
+    ];
+};
+
+return [
+    'work' => $inner(
+        ['heading' => 'Work', 'image' => 'uploads/demo/hero-work.jpg', 'image_alt' => 'Open-plan office with workstations'],
+        'Explore All Work Products',
+        [
+            ['Tables',  'work-tables.jpg',  'Height-adjustable desk with screens'],
+            ['Seating', 'work-seating.jpg', 'Mesh task chair'],
+            ['Lounge',  'work-lounge.jpg',  'Orange lounge armchair'],
+            ['Privacy', 'work-privacy.jpg', 'Private work pod'],
+            ['Tools',   'work-tools.jpg',   'Mobile whiteboard with side table'],
+        ]
+    ),
+
+    'learn' => $inner(
+        ['heading' => 'Learn', 'image' => 'uploads/demo/hero-learn.jpg', 'image_alt' => 'Classroom with desks and chairs'],
+        'Explore All Learn Products',
+        [
+            ['Tables',        'work-tables.jpg',  'Height-adjustable desk with screens'],
+            ['Seating',       'work-seating.jpg', 'Mesh task chair'],
+            ['Lounge',        'work-lounge.jpg',  'Orange lounge armchair'],
+            ['Storage',       'work-privacy.jpg', 'Storage unit'],
+            ['Teacher Tools', 'work-tools.jpg',   'Mobile whiteboard with side table'],
+        ]
+    ),
 ];

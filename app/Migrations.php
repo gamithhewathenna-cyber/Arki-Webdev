@@ -34,21 +34,25 @@ final class Migrations
     private static function list(): array
     {
         return [
-            // Link the homepage "Work" hero card to the new Work page,
-            // unless an editor has already given it a real link.
-            '2026-11-27-link-work-card' => static function (): void {
-                $hero = Database::one("SELECT id FROM sections WHERE page = 'home' AND section_key = 'hero'");
-                if (!$hero) {
-                    return;
-                }
-                foreach (Database::all('SELECT id, data, is_active FROM section_items WHERE section_id = ?', [$hero['id']]) as $it) {
-                    $d = json_decode((string)$it['data'], true) ?: [];
-                    if (strcasecmp(trim((string)($d['title'] ?? '')), 'Work') === 0 && in_array(trim((string)($d['url'] ?? '')), ['', '#'], true)) {
-                        $d['url'] = 'work/';
-                        ContentRepository::saveItem((int)$it['id'], (int)$hero['id'], $d, (bool)$it['is_active']);
-                    }
-                }
-            },
+            // Link the homepage hero cards to their new pages.
+            '2026-11-27-link-work-card'  => static fn() => self::linkHeroCard('Work', 'work/'),
+            '2026-11-27-link-learn-card' => static fn() => self::linkHeroCard('Learn', 'learn/'),
         ];
+    }
+
+    /** Give the homepage hero card with this title a link, unless an editor already set a real one. */
+    private static function linkHeroCard(string $title, string $url): void
+    {
+        $hero = Database::one("SELECT id FROM sections WHERE page = 'home' AND section_key = 'hero'");
+        if (!$hero) {
+            return;
+        }
+        foreach (Database::all('SELECT id, data, is_active FROM section_items WHERE section_id = ?', [$hero['id']]) as $it) {
+            $d = json_decode((string)$it['data'], true) ?: [];
+            if (strcasecmp(trim((string)($d['title'] ?? '')), $title) === 0 && in_array(trim((string)($d['url'] ?? '')), ['', '#'], true)) {
+                $d['url'] = $url;
+                ContentRepository::saveItem((int)$it['id'], (int)$hero['id'], $d, (bool)$it['is_active']);
+            }
+        }
     }
 }

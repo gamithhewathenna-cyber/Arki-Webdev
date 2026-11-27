@@ -113,12 +113,19 @@ config/config.php     database connection settings (blocked from web)
 
 The CMS forms are generated from `app/schema/pages.php`, so a new page needs **no database changes**:
 
-The **Work page** (`/work/`) is a complete example to copy.
+**A page with the Work / Learn layout** (banner, intro, product categories, solutions, projects, brands, inspiration, CTA), e.g. Store:
 
-1. Add a page block to `app/schema/pages.php`, e.g. `'about' => ['label' => 'About Us', 'url' => 'about/', 'sortable' => true, 'sections' => [...]]`. You can reuse homepage section definitions (`$home['solutions']`, …).
+1. `app/schema/pages.php`: add `$schema['store'] = $innerPage('Store Page', 'store/');`
+2. `app/schema/seeds.php`: add a `'store' => $inner([...banner...], 'Explore All Store Products', [...categories...])` entry, copying the `learn` one.
+3. Copy `learn/` to `store/` and change `render_inner_page('learn')` to `render_inner_page('store')`.
+4. To link a homepage card to it, add a line to `app/Migrations.php`: `'…-link-store-card' => static fn() => self::linkHeroCard('Store', 'store/')`. You can also set the card's Link URL in the CMS.
+
+**A page with a different layout:**
+
+1. Add a page block to `app/schema/pages.php`, e.g. `$schema['about'] = ['label' => 'About Us', 'url' => 'about/', 'sortable' => true, 'sections' => [...]];`. You can reuse homepage section definitions (`$home['solutions']`, …).
 2. Create a template for each new section in `templates/sections/` (or reuse an existing one). A section called `banner` puts the header over the image in white.
 3. Add starting content to `app/schema/seeds.php`. Use `'copy_from' => 'home'` to start a section as a copy of the homepage one. It's created on the first visit, so no SQL import is needed.
-4. Create the front controller, e.g. `about/index.php`, by copying `work/index.php` (it calls `ContentRepository::sync('about')`).
+4. Create the front controller `about/index.php` the same way as `learn/index.php`: `render_inner_page('about')`.
 5. The page appears in the CMS menu automatically. Add a link to it from the menu or a card (Link URL `about/`).
 
 To change content in databases that are already live (e.g. to set a link), add a one-time entry in `app/Migrations.php`.
