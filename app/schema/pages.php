@@ -11,8 +11,15 @@
  *   multiline  short text where line breaks are kept (e.g. 2-line headings)
  *   textarea   longer text; blank lines become separate paragraphs
  *   url        link (relative path, https://, mailto:, tel:, #anchor)
- *   image      uploaded image (JPG, PNG, WebP, GIF)
+ *   image      uploaded image (JPG, PNG, WebP, GIF) – must have a 'crop' spec
  *   select     choose from 'options'
+ *
+ * Image cropping (mandatory): every image field declares 'crop'. The admin
+ * opens a cropper as soon as a file is chosen and only the cropped result is
+ * uploaded; the server rejects images that don't match the crop shape.
+ *   'crop' => ['w' => 840, 'h' => 1200]                 one fixed shape (output size in px)
+ *   'crop' => [..., 'fit' => true]                      logos: may zoom out, transparent padding, saved as PNG
+ *   'crop' => ['presets' => [['Label', w, h], ...]]     let the editor pick one of several shapes
  *
  * Adding a new inner page later = add a block here + a template per section.
  */
@@ -40,7 +47,7 @@ return [
                     'fields' => [
                         'title'     => ['type' => 'text', 'label' => 'Title', 'required' => true],
                         'subtitle'  => ['type' => 'text', 'label' => 'Subtitle'],
-                        'image'     => ['type' => 'image', 'label' => 'Background image', 'help' => 'Portrait, at least 800 × 1150 px.'],
+                        'image'     => ['type' => 'image', 'label' => 'Background image', 'crop' => ['w' => 840, 'h' => 1200]],
                         'image_alt' => ['type' => 'text', 'label' => 'Image description (alt text)'],
                         'url'       => $link,
                     ],
@@ -68,7 +75,13 @@ return [
                     'title'  => 'alt',
                     'thumb'  => 'image',
                     'fields' => [
-                        'image' => ['type' => 'image', 'label' => 'Image', 'required' => true],
+                        'image' => ['type' => 'image', 'label' => 'Image', 'required' => true,
+                            'help' => 'Pick the shape that matches where the image sits: images 1–2 are the large top row, image 3 and 5 the small squares, image 4 the wide middle of the second row.',
+                            'crop' => ['presets' => [
+                                ['Large – top row', 1600, 1040],
+                                ['Small – square', 1000, 1000],
+                                ['Wide – bottom middle', 1800, 860],
+                            ]]],
                         'alt'   => ['type' => 'text', 'label' => 'Image description (alt text)'],
                         'url'   => $link,
                     ],
@@ -110,7 +123,7 @@ return [
                     'title'  => 'title',
                     'thumb'  => 'image',
                     'fields' => [
-                        'image'      => ['type' => 'image', 'label' => 'Image', 'help' => 'Portrait, at least 600 × 800 px.'],
+                        'image'      => ['type' => 'image', 'label' => 'Image', 'crop' => ['w' => 828, 'h' => 1110]],
                         'image_alt'  => ['type' => 'text', 'label' => 'Image description (alt text)'],
                         'title'      => ['type' => 'text', 'label' => 'Project name', 'required' => true],
                         'meta'       => ['type' => 'text', 'label' => 'Location / category line', 'help' => 'e.g. Melbourne, VIC · Workplace'],
@@ -133,7 +146,7 @@ return [
                     'thumb'  => 'logo',
                     'fields' => [
                         'name' => ['type' => 'text', 'label' => 'Brand name', 'required' => true],
-                        'logo' => ['type' => 'image', 'label' => 'Logo', 'help' => 'Transparent PNG works best.'],
+                        'logo' => ['type' => 'image', 'label' => 'Logo', 'help' => 'Transparent PNG works best. Zoom out to leave space around the logo.', 'crop' => ['w' => 600, 'h' => 300, 'fit' => true]],
                         'url'  => $link,
                     ],
                 ],
@@ -154,7 +167,7 @@ return [
                     'title'  => 'alt',
                     'thumb'  => 'image',
                     'fields' => [
-                        'image' => ['type' => 'image', 'label' => 'Image', 'required' => true],
+                        'image' => ['type' => 'image', 'label' => 'Image', 'required' => true, 'crop' => ['w' => 1600, 'h' => 1013]],
                         'alt'   => ['type' => 'text', 'label' => 'Image description (alt text)'],
                         'url'   => $link,
                     ],
@@ -174,7 +187,7 @@ return [
                     'fields' => [
                         'name'  => ['type' => 'text', 'label' => 'Customer name', 'required' => true],
                         'role'  => ['type' => 'text', 'label' => 'Company / role'],
-                        'photo' => ['type' => 'image', 'label' => 'Photo', 'help' => 'Square, at least 120 × 120 px.'],
+                        'photo' => ['type' => 'image', 'label' => 'Photo', 'crop' => ['w' => 400, 'h' => 400]],
                         'quote' => ['type' => 'textarea', 'label' => 'Testimonial', 'required' => true],
                     ],
                 ],
@@ -184,7 +197,7 @@ return [
                 'label'       => 'Call To Action',
                 'description' => 'Full-width image with an overlay card.',
                 'fields'      => [
-                    'image'           => ['type' => 'image', 'label' => 'Background image', 'help' => 'Landscape, at least 2000 × 900 px. Keep the main subject on the left.'],
+                    'image'           => ['type' => 'image', 'label' => 'Background image', 'help' => 'Keep the main subject on the left – the text card covers the right side.', 'crop' => ['w' => 2400, 'h' => 1125]],
                     'image_alt'       => ['type' => 'text', 'label' => 'Image description (alt text)'],
                     'tagline'         => ['type' => 'text', 'label' => 'Tagline'],
                     'heading'         => ['type' => 'multiline', 'label' => 'Heading'],
@@ -210,7 +223,7 @@ return [
                 'label'       => 'Header',
                 'description' => 'Logo and the utility links at the top right.',
                 'fields'      => [
-                    'logo'        => ['type' => 'image', 'label' => 'Logo'],
+                    'logo'        => ['type' => 'image', 'label' => 'Logo', 'help' => 'Shown at the top left of every page. Transparent PNG works best.', 'crop' => ['w' => 1060, 'h' => 200, 'fit' => true]],
                     'logo_alt'    => ['type' => 'text', 'label' => 'Logo alt text'],
                     'login_label' => ['type' => 'text', 'label' => 'Login button label'],
                     'login_url'   => ['type' => 'url', 'label' => 'Login URL'],
@@ -238,16 +251,16 @@ return [
                 'label'       => 'Footer',
                 'description' => 'Footer brand columns, column titles, payments and legal links.',
                 'fields'      => [
-                    'brand_logo'     => ['type' => 'image', 'label' => 'Column 1 – logo'],
+                    'brand_logo'     => ['type' => 'image', 'label' => 'Column 1 – logo', 'crop' => ['w' => 600, 'h' => 300, 'fit' => true]],
                     'brand_text'     => ['type' => 'textarea', 'label' => 'Column 1 – text'],
-                    'dealer_logo'    => ['type' => 'image', 'label' => 'Column 2 – logo'],
+                    'dealer_logo'    => ['type' => 'image', 'label' => 'Column 2 – logo', 'crop' => ['w' => 800, 'h' => 200, 'fit' => true]],
                     'dealer_title'   => ['type' => 'text', 'label' => 'Column 2 – title'],
                     'dealer_text'    => ['type' => 'textarea', 'label' => 'Column 2 – text'],
                     'links_title'    => ['type' => 'text', 'label' => 'Column 3 – title'],
                     'products_title' => ['type' => 'text', 'label' => 'Column 4 – title'],
                     'payments_title' => ['type' => 'text', 'label' => 'Column 5 – title'],
                     'payments_text'  => ['type' => 'textarea', 'label' => 'Column 5 – text'],
-                    'payments_image' => ['type' => 'image', 'label' => 'Column 5 – payment logos image'],
+                    'payments_image' => ['type' => 'image', 'label' => 'Column 5 – payment logos image', 'crop' => ['w' => 540, 'h' => 200, 'fit' => true]],
                     'copyright'      => ['type' => 'text', 'label' => 'Copyright text', 'help' => 'Use {year} for the current year.'],
                     'terms_label'    => ['type' => 'text', 'label' => 'Terms link label'],
                     'terms_url'      => ['type' => 'url', 'label' => 'Terms link URL'],

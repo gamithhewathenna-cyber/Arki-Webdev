@@ -8,16 +8,20 @@ require __DIR__ . '/_init.php';
  * or there always changes the same logo.
  */
 admin_sync_sections('global');
+// Field definitions (incl. crop sizes) come from the schema so both places stay identical.
+$hdr = ContentRepository::sectionSchema('global', 'header')['fields'];
+$ftr = ContentRepository::sectionSchema('global', 'footer')['fields'];
 $logoGroups = [
     'header' => [
-        'logo'     => ['type' => 'image', 'label' => 'Header logo', 'help' => 'Shown at the top left of every page. Transparent PNG, about 550 × 70 px.'],
-        'logo_alt' => ['type' => 'text', 'label' => 'Header logo description (alt text)', 'help' => 'e.g. Steelcase | ARKI Environments'],
+        'logo'     => ['label' => 'Header logo'] + $hdr['logo'],
+        'logo_alt' => ['label' => 'Header logo description (alt text)', 'help' => 'e.g. Steelcase | ARKI Environments'] + $hdr['logo_alt'],
     ],
     'footer' => [
-        'brand_logo'  => ['type' => 'image', 'label' => 'Footer logo', 'help' => 'Shown in the first footer column. Transparent PNG, about 300 × 90 px.'],
-        'dealer_logo' => ['type' => 'image', 'label' => 'Footer partner logo', 'help' => 'Second footer column (e.g. Steelcase Authorised Dealer). Transparent PNG.'],
+        'brand_logo'  => ['label' => 'Footer logo', 'help' => 'Shown in the first footer column. Transparent PNG works best.'] + $ftr['brand_logo'],
+        'dealer_logo' => ['label' => 'Footer partner logo', 'help' => 'Second footer column (e.g. Steelcase Authorised Dealer). Transparent PNG works best.'] + $ftr['dealer_logo'],
     ],
 ];
+$faviconField = ['favicon' => ['type' => 'image', 'label' => 'Favicon', 'help' => 'The small icon in the browser tab. Transparent PNG works best.', 'crop' => ['w' => 512, 'h' => 512, 'fit' => true]]];
 $logoSections = [];
 foreach (array_keys($logoGroups) as $key) {
     $row = Database::one("SELECT id FROM sections WHERE page = 'global' AND section_key = ?", [$key]);
@@ -48,22 +52,14 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     Settings::set('site_name', mb_substr($name !== '' ? $name : 'Website', 0, 120));
     Settings::set('home_title', mb_substr($title, 0, 200));
 
-    // Favicon
-    $fav = $_FILES['favicon'] ?? null;
-    if ($fav && ($fav['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
-        try {
-            $old = (string)Settings::get('favicon', '');
-            Settings::set('favicon', Uploader::image($fav));
-            if ($old !== '') {
-                Uploader::deleteIfUnused($old);
-            }
-        } catch (Throwable $ex) {
-            flash('error', 'Favicon: ' . $ex->getMessage());
-        }
-    } elseif (!empty($_POST['remove_favicon'])) {
-        $old = (string)Settings::get('favicon', '');
-        Settings::set('favicon', '');
-        Uploader::deleteIfUnused($old);
+    // Favicon (same cropped upload as every other image field)
+    [$favData, $favErrors, $favOrphans] = AdminForm::collect($faviconField, ['favicon' => (string)Settings::get('favicon', '')]);
+    Settings::set('favicon', $favData['favicon']);
+    foreach ($favOrphans as $o) {
+        Uploader::deleteIfUnused($o); // old favicon, already replaced in the setting
+    }
+    foreach ($favErrors as $er) {
+        flash('error', $er);
     }
 
     // Development lock
@@ -98,12 +94,7 @@ admin_header('Settings', 'settings');
         <h2>General</h2>
         <div class="field"><label for="site_name">Site name</label><input id="site_name" name="site_name" value="<?= e(Settings::get('site_name', '')) ?>" required></div>
         <div class="field"><label for="home_title">Homepage browser title</label><input id="home_title" name="home_title" value="<?= e(Settings::get('home_title', '')) ?>"><p class="help">Shown in the browser tab.</p></div>
-        <div class="field field--image">
-            <label for="favicon">Favicon</label>
-            <?php if ($fav !== ''): ?><div class="img-current img-current--sm"><img src="<?= e(upload_url($fav)) ?>" alt=""><label class="check"><input type="checkbox" name="remove_favicon" value="1"> Remove</label></div><?php endif; ?>
-            <input id="favicon" name="favicon" type="file" accept="image/png,image/gif,image/webp,image/jpeg">
-            <p class="help">Square PNG, 512 × 512 px recommended.</p>
-        </div>
+        <?= AdminForm::render($faviconField, ['favicon' => $fav]) ?>
     </section>
 
     <section class="adm-card">

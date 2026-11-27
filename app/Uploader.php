@@ -20,8 +20,42 @@ final class Uploader
         'image/gif'  => 'gif',
     ];
 
-    /** @return string relative path ("uploads/2026/11/abc.jpg") */
-    public static function image(array $file): string
+    /** Fallback crop shape for an image field that doesn't declare one. */
+    public const DEFAULT_CROP = ['w' => 2400, 'h' => 1600];
+
+    /**
+     * Normalise a field's 'crop' spec into a list of allowed shapes.
+     * @return array<int, array{label: string, w: int, h: int}>
+     */
+    public static function cropPresets(?array $crop): array
+    {
+        $crop = $crop ?: self::DEFAULT_CROP;
+        $list = $crop['presets'] ?? [['', $crop['w'] ?? 0, $crop['h'] ?? 0]];
+        $out = [];
+        foreach ($list as $p) {
+            $w = (int)($p['w'] ?? $p[1] ?? 0);
+            $h = (int)($p['h'] ?? $p[2] ?? 0);
+            if ($w > 0 && $h > 0) {
+                $out[] = ['label' => (string)($p['label'] ?? $p[0] ?? ''), 'w' => $w, 'h' => $h];
+            }
+        }
+        return $out ?: [['label' => '', 'w' => self::DEFAULT_CROP['w'], 'h' => self::DEFAULT_CROP['h']]];
+    }
+
+    /** Human-readable list of the required sizes, e.g. "840 × 1200 px". */
+    public static function cropText(?array $crop): string
+    {
+        return implode(' or ', array_map(
+            static fn($p) => ($p['label'] !== '' ? $p['label'] . ': ' : '') . $p['w'] . ' × ' . $p['h'] . ' px',
+            self::cropPresets($crop)
+        ));
+    }
+
+    /**
+     * @param array|null $crop the field's crop spec; the image must already be cropped to one of its shapes
+     * @return string relative path ("uploads/2026/11/abc.jpg")
+     */
+    public static function image(array $file, ?array $crop = null): string
     {
         if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
             throw new RuntimeException(self::errorMessage((int)($file['error'] ?? UPLOAD_ERR_NO_FILE)));
@@ -41,6 +75,12 @@ final class Uploader
             throw new RuntimeException('The file is not a valid image.');
         }
 
+        // Mandatory crop: the image must match one of the field's shapes.
+        $target = self::matchCrop((int)$info[0], (int)$info[1], self::cropPresets($crop));
+        if (!$target) {
+            throw new RuntimeException('The image was not cropped. Please choose it again and confirm the crop (' . self::cropText($crop) . ').');
+        }
+
         $ext  = self::TYPES[$mime];
         $dir  = 'uploads/' . date('Y/m');
         $abs  = ROOT_PATH . '/' . $dir;
@@ -51,7 +91,7 @@ final class Uploader
         $rel  = "$dir/$base.$ext";
         $dest = ROOT_PATH . '/' . $rel;
 
-        if (!self::process($file['tmp_name'], $dest, $mime, $info[0], $info[1])) {
+        if (!self::process($file['tmp_name'], $dest, $mime, $info[0], $info[1], $target)) {
             // GD unavailable or GIF – store the validated original.
             if (!move_uploaded_file($file['tmp_name'], $dest)) {
                 throw new RuntimeException('Could not save the image.');
@@ -61,8 +101,24 @@ final class Uploader
         return $rel;
     }
 
+    /**
+     * Find the crop shape the image matches (same aspect ratio, ±2% or ±1px
+     * of rounding on small images). Returns null when it matches none.
+     */
+    private static function matchCrop(int $w, int $h, array $presets): ?array
+    {
+        foreach ($presets as $p) {
+            $want = $p['w'] / $p['h'];
+            $tol  = max(0.02, 1.5 / min($w, $h));
+            if (abs(($w / $h) - $want) / $want <= $tol) {
+                return $p;
+            }
+        }
+        return null;
+    }
+
     /** Re-encode / resize with GD and create a WebP sibling. */
-    private static function process(string $src, string $dest, string $mime, int $w, int $h): bool
+    private static function process(string $src, string $dest, string $mime, int $w, int $h, ?array $target = null): bool
     {
         if (!extension_loaded('gd') || $mime === 'image/gif') {
             return false;
@@ -81,10 +137,18 @@ final class Uploader
             $w = imagesx($img);
             $h = imagesy($img);
         }
-        if (max($w, $h) > self::MAX_DIM) {
-            $ratio = self::MAX_DIM / max($w, $h);
-            $nw = (int)round($w * $ratio);
-            $nh = (int)round($h * $ratio);
+        // Larger than the crop's output size → scale down to exactly that size.
+        $nw = $w;
+        $nh = $h;
+        if ($target && $w > $target['w']) {
+            [$nw, $nh] = [$target['w'], $target['h']];
+        }
+        if (max($nw, $nh) > self::MAX_DIM) {
+            $ratio = self::MAX_DIM / max($nw, $nh);
+            $nw = (int)round($nw * $ratio);
+            $nh = (int)round($nh * $ratio);
+        }
+        if ($nw !== $w || $nh !== $h) {
             $res = imagecreatetruecolor($nw, $nh);
             imagealphablending($res, false);
             imagesavealpha($res, true);

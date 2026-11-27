@@ -52,8 +52,16 @@ final class AdminForm
                 } else {
                     $preview = '<div class="img-current is-empty"><img alt="" data-preview="' . $id . '" hidden></div>';
                 }
-                $input = $preview . '<input id="' . $id . '" name="img_' . e($key) . '" type="file" accept="image/jpeg,image/png,image/webp,image/gif" data-image-input>';
-                $help .= '<p class="help">JPG, PNG, WebP or GIF up to 10 MB. Large images are resized and a WebP copy is created automatically.</p>';
+                $crop  = $f['crop'] ?? null;
+                $spec  = [
+                    'fit'     => !empty($crop['fit']),
+                    'presets' => Uploader::cropPresets($crop),
+                    'label'   => (string)($f['label'] ?? $key),
+                ];
+                $input = $preview . '<input id="' . $id . '" name="img_' . e($key) . '" type="file" accept="image/jpeg,image/png,image/webp,image/gif"'
+                    . ' data-image-input data-crop="' . e(json_encode($spec, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) . '">';
+                $help .= '<p class="help">JPG, PNG, WebP or GIF up to 10 MB. After choosing an image you’ll crop it to <strong>'
+                    . e(Uploader::cropText($crop)) . '</strong> – the crop must be confirmed before it can be saved.</p>';
                 break;
             default:
                 $input = '<input id="' . $id . '" name="' . $name . '" type="text" value="' . e($value) . '"' . $req . '>';
@@ -83,7 +91,7 @@ final class AdminForm
                 $file    = $_FILES['img_' . $key] ?? null;
                 if ($file && ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
                     try {
-                        $data[$key] = Uploader::image($file);
+                        $data[$key] = Uploader::image($file, $f['crop'] ?? null);
                         if ($current !== '') {
                             $orphans[] = $current;
                         }
