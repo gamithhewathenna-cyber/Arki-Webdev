@@ -46,15 +46,10 @@
         $pLinks['p:inventory'] = ['Inventory Management', 'admin/products/inventory.php'];
         $pLinks['shop']        = ['Storefront Settings', 'admin/?page=shop']; ?>
         <p class="adm-nav__label" id="nav-catalogue">Catalogue</p>
-        <div class="adm-nav__group<?= $pOpen ? ' is-open' : '' ?>" role="group" aria-labelledby="nav-catalogue">
-            <a class="adm-nav__link adm-nav__parent<?= $pOpen ? ' is-active' : '' ?>" href="<?= e(url('admin/products/')) ?>">
-                <?= admin_icon('box') ?><span>Products</span><?= admin_icon('chevron') ?>
+        <div role="group" aria-labelledby="nav-catalogue">
+            <a class="adm-nav__link<?= $pOpen ? ' is-active' : '' ?>" href="<?= e(url('admin/products/')) ?>"<?= $pOpen ? ' aria-current="page"' : '' ?>>
+                <?= admin_icon('box') ?><span>Products</span>
             </a>
-            <div class="adm-nav__sub">
-                <?php foreach ($pLinks as $k => [$lbl, $href]): ?>
-                <a class="<?= $active === $k ? 'is-current' : '' ?>" href="<?= e(url($href)) ?>"<?= $active === $k ? ' aria-current="page"' : '' ?>><?= e($lbl) ?></a>
-                <?php endforeach; ?>
-            </div>
         </div>
 
         <p class="adm-nav__label" id="nav-system">System Management</p>
@@ -77,6 +72,34 @@
 </aside>
 <?php endif; ?>
 <main class="adm-main<?= $user ? '' : ' adm-main--full' ?>">
+<?php if ($user && $pOpen):
+    /* Products module: one horizontal menu across the top of every product screen.
+       The managed lists (categories, colours …) sit in a "Lists" dropdown. */
+    $listKeys = array_map(static fn($t) => 'p:' . $t, array_keys(Catalog::TAXONOMIES));
+    $lists = array_intersect_key($pLinks, array_flip($listKeys));
+    $inLists = isset($lists[$active]);
+    $topLink = static function (string $k) use ($pLinks, $active): string {
+        [$lbl, $href] = $pLinks[$k];
+        $on = $active === $k;
+        return '<a class="adm-topnav__link' . ($on ? ' is-active' : '') . ($k === 'p:new' ? ' adm-topnav__link--add' : '') . '" href="' . e(url($href)) . '"'
+            . ($on ? ' aria-current="page"' : '') . '>' . ($k === 'p:new' ? '+ ' : '') . e($lbl) . '</a>';
+    }; ?>
+<nav class="adm-topnav" aria-label="Products menu">
+    <?= $topLink('p:all') ?>
+    <?= $topLink('p:new') ?>
+    <details class="adm-topnav__menu" data-dropdown>
+        <summary class="adm-topnav__link<?= $inLists ? ' is-active' : '' ?>">Lists<?= $inLists ? ': ' . e($lists[$active][0]) : '' ?> <?= admin_icon('chevron') ?></summary>
+        <div class="adm-topnav__drop">
+            <?php foreach ($lists as $k => [$lbl, $href]): ?>
+            <a class="<?= $active === $k ? 'is-active' : '' ?>" href="<?= e(url($href)) ?>"<?= $active === $k ? ' aria-current="page"' : '' ?>><?= e($lbl) ?></a>
+            <?php endforeach; ?>
+        </div>
+    </details>
+    <?= $topLink('p:families') ?>
+    <?= $topLink('p:inventory') ?>
+    <?= $topLink('shop') ?>
+</nav>
+<?php endif; ?>
 <?php foreach (take_flashes() as $f): ?>
     <div class="adm-flash adm-flash--<?= e($f['type']) ?>" role="status"><?= e($f['message']) ?></div>
 <?php endforeach; ?>

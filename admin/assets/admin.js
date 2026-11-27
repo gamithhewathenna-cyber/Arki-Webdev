@@ -416,6 +416,21 @@
         }
     });
 
+    // Dropdown menus (<details data-dropdown>): close on outside click or Escape
+    document.addEventListener('click', function (e) {
+        document.querySelectorAll('details[data-dropdown][open]').forEach(function (d) {
+            if (!d.contains(e.target)) d.removeAttribute('open');
+        });
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape') return;
+        document.querySelectorAll('details[data-dropdown][open]').forEach(function (d) {
+            d.removeAttribute('open');
+            var s = d.querySelector('summary');
+            if (s) s.focus();
+        });
+    });
+
     // Select all rows
     document.querySelectorAll('[data-check-all]').forEach(function (all) {
         all.addEventListener('change', function () {

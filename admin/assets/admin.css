@@ -79,6 +79,34 @@ code { background: var(--soft); border: 1px solid var(--line); padding: 1px 6px;
 .adm-user__out { display: grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 9px; background: transparent; color: #8d8d96; cursor: pointer; transition: background .15s, color .15s; }
 .adm-user__out:hover { background: var(--side-2); color: #fff; }
 
+/* ---------------- Products: horizontal top menu ---------------- */
+.adm-topnav {
+    position: relative; z-index: 20; display: flex; flex-wrap: wrap; align-items: center; gap: 4px;
+    margin: -12px 0 28px; padding: 7px 8px; background: var(--card);
+    border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow);
+}
+.adm-topnav__link {
+    display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 9px;
+    font-size: 13px; font-weight: 500; color: var(--muted); text-decoration: none; white-space: nowrap;
+    cursor: pointer; transition: background .15s, color .15s;
+}
+.adm-topnav__link:hover { background: var(--soft); color: var(--ink); }
+.adm-topnav__link.is-active { background: var(--ink); color: #fff; }
+.adm-topnav__link--add { color: var(--accent-dark); }
+.adm-topnav__link--add.is-active { color: #fff; }
+.adm-topnav__menu { position: relative; }
+.adm-topnav__menu summary { list-style: none; }
+.adm-topnav__menu summary::-webkit-details-marker { display: none; }
+.adm-topnav__menu summary .adm-ico { width: 13px; height: 13px; transform: rotate(90deg); transition: transform .2s; }
+.adm-topnav__menu[open] summary .adm-ico { transform: rotate(-90deg); }
+.adm-topnav__drop {
+    position: absolute; left: 0; top: calc(100% + 8px); min-width: 230px; padding: 6px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow-lg);
+}
+.adm-topnav__drop a { display: block; padding: 8px 12px; border-radius: 8px; font-size: 13px; color: var(--text); text-decoration: none; }
+.adm-topnav__drop a:hover { background: var(--soft); color: var(--ink); }
+.adm-topnav__drop a.is-active { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
+
 /* ---------------- Main area ---------------- */
 .adm-main { flex: 1; min-width: 0; max-width: 1480px; padding: 36px clamp(18px, 3.2vw, 56px) 72px; }
 .adm-main--full { max-width: none; display: grid; place-items: center; padding: 40px 20px; background: radial-gradient(1200px 600px at 50% -10%, #ffffff 0%, var(--bg) 60%); }
