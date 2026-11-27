@@ -12,9 +12,9 @@ return [
     'db' => [
         'host' => 'localhost',               // usually "localhost" on cPanel
         'port' => 3306,
-        'name' => 'CPANELUSER_arki',         // ← your database name
-        'user' => 'CPANELUSER_arkiuser',     // ← your database user
-        'pass' => 'YOUR_DATABASE_PASSWORD',  // ← your database user's password
+        'name' => 'creaeina_arki-envirdb',     // ← your database name
+        'user' => 'creaeina_arki-enviradmin',  // ← your database user
+        'pass' => ')MvUw0N{#0ggJ7%q',          // ← your database user's password
     ],
 
     // Leave empty when the site is in the domain root (public_html).
