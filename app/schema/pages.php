@@ -1,0 +1,293 @@
+<?php
+/**
+ * Content schema – the single source of truth for what the CMS can edit.
+ *
+ * pages → sections → fields (+ optional repeatable "items").
+ * The admin builds its forms from this file and the front end renders
+ * templates/sections/{section_key}.php for each active section of a page.
+ *
+ * Field types:
+ *   text       single line
+ *   multiline  short text where line breaks are kept (e.g. 2-line headings)
+ *   textarea   longer text; blank lines become separate paragraphs
+ *   url        link (relative path, https://, mailto:, tel:, #anchor)
+ *   image      uploaded image (JPG, PNG, WebP, GIF)
+ *   select     choose from 'options'
+ *
+ * Adding a new inner page later = add a block here + a template per section.
+ */
+
+$link = ['type' => 'url', 'label' => 'Link URL', 'help' => 'e.g. /projects/ or https://… Leave blank to hide.'];
+
+return [
+
+    /* =================================================================
+     *  HOMEPAGE
+     * ================================================================= */
+    'home' => [
+        'label'    => 'Homepage',
+        'sortable' => true,
+        'sections' => [
+
+            'hero' => [
+                'label'       => 'Hero – Feature Cards',
+                'description' => 'The three large image cards at the top of the page (Work / Learn / Store).',
+                'fields'      => [],
+                'items'       => [
+                    'label'  => 'Card',
+                    'title'  => 'title',
+                    'thumb'  => 'image',
+                    'fields' => [
+                        'title'     => ['type' => 'text', 'label' => 'Title', 'required' => true],
+                        'subtitle'  => ['type' => 'text', 'label' => 'Subtitle'],
+                        'image'     => ['type' => 'image', 'label' => 'Background image', 'help' => 'Portrait, at least 800 × 1150 px.'],
+                        'image_alt' => ['type' => 'text', 'label' => 'Image description (alt text)'],
+                        'url'       => $link,
+                    ],
+                ],
+            ],
+
+            'intro' => [
+                'label'       => 'Introduction',
+                'description' => 'Centred tagline, main heading and introduction paragraphs.',
+                'fields'      => [
+                    'tagline'    => ['type' => 'text', 'label' => 'Tagline'],
+                    'heading'    => ['type' => 'multiline', 'label' => 'Heading (main page heading – H1)'],
+                    'body'       => ['type' => 'textarea', 'label' => 'Body text', 'help' => 'Leave a blank line between paragraphs.'],
+                    'link_label' => ['type' => 'text', 'label' => 'Link label'],
+                    'link_url'   => ['label' => 'Link URL'] + $link,
+                ],
+            ],
+
+            'gallery' => [
+                'label'       => 'Image Gallery',
+                'description' => 'Mosaic of images. Layout repeats every 5 images: 2 wide on the first row, 3 on the second (narrow – wide – narrow).',
+                'fields'      => [],
+                'items'       => [
+                    'label'  => 'Image',
+                    'title'  => 'alt',
+                    'thumb'  => 'image',
+                    'fields' => [
+                        'image' => ['type' => 'image', 'label' => 'Image', 'required' => true],
+                        'alt'   => ['type' => 'text', 'label' => 'Image description (alt text)'],
+                        'url'   => $link,
+                    ],
+                ],
+            ],
+
+            'solutions' => [
+                'label'       => 'Our Solutions',
+                'description' => 'Grey band with outlined solution cards.',
+                'fields'      => [
+                    'tagline' => ['type' => 'text', 'label' => 'Tagline'],
+                    'heading' => ['type' => 'multiline', 'label' => 'Heading'],
+                    'body'    => ['type' => 'textarea', 'label' => 'Intro text'],
+                ],
+                'items'       => [
+                    'label'  => 'Solution card',
+                    'title'  => 'title',
+                    'fields' => [
+                        'title'      => ['type' => 'multiline', 'label' => 'Title', 'required' => true],
+                        'text'       => ['type' => 'textarea', 'label' => 'Description'],
+                        'link_label' => ['type' => 'text', 'label' => 'Link label', 'default' => 'Explore More'],
+                        'url'        => $link,
+                    ],
+                ],
+            ],
+
+            'projects' => [
+                'label'       => 'Projects Showcase',
+                'description' => 'Intro text on the left with a scrolling row of project cards.',
+                'fields'      => [
+                    'tagline'      => ['type' => 'text', 'label' => 'Tagline'],
+                    'heading'      => ['type' => 'multiline', 'label' => 'Heading'],
+                    'body'         => ['type' => 'textarea', 'label' => 'Intro text'],
+                    'button_label' => ['type' => 'text', 'label' => 'Button label'],
+                    'button_url'   => ['label' => 'Button URL'] + $link,
+                ],
+                'items'       => [
+                    'label'  => 'Project',
+                    'title'  => 'title',
+                    'thumb'  => 'image',
+                    'fields' => [
+                        'image'      => ['type' => 'image', 'label' => 'Image', 'help' => 'Portrait, at least 600 × 800 px.'],
+                        'image_alt'  => ['type' => 'text', 'label' => 'Image description (alt text)'],
+                        'title'      => ['type' => 'text', 'label' => 'Project name', 'required' => true],
+                        'meta'       => ['type' => 'text', 'label' => 'Location / category line', 'help' => 'e.g. Melbourne, VIC · Workplace'],
+                        'link_label' => ['type' => 'text', 'label' => 'Link label', 'default' => 'View Products'],
+                        'url'        => $link,
+                    ],
+                ],
+            ],
+
+            'brands' => [
+                'label'       => 'Brand Partners',
+                'description' => 'Centred heading with a logo slider.',
+                'fields'      => [
+                    'heading' => ['type' => 'multiline', 'label' => 'Heading'],
+                    'body'    => ['type' => 'textarea', 'label' => 'Intro text'],
+                ],
+                'items'       => [
+                    'label'  => 'Brand logo',
+                    'title'  => 'name',
+                    'thumb'  => 'logo',
+                    'fields' => [
+                        'name' => ['type' => 'text', 'label' => 'Brand name', 'required' => true],
+                        'logo' => ['type' => 'image', 'label' => 'Logo', 'help' => 'Transparent PNG works best.'],
+                        'url'  => $link,
+                    ],
+                ],
+            ],
+
+            'inspiration' => [
+                'label'       => 'Inspiration',
+                'description' => 'Heading row with a button, followed by large images.',
+                'fields'      => [
+                    'tagline'      => ['type' => 'text', 'label' => 'Tagline'],
+                    'heading'      => ['type' => 'multiline', 'label' => 'Heading'],
+                    'body'         => ['type' => 'textarea', 'label' => 'Intro text'],
+                    'button_label' => ['type' => 'text', 'label' => 'Button label'],
+                    'button_url'   => ['label' => 'Button URL'] + $link,
+                ],
+                'items'       => [
+                    'label'  => 'Inspiration image',
+                    'title'  => 'alt',
+                    'thumb'  => 'image',
+                    'fields' => [
+                        'image' => ['type' => 'image', 'label' => 'Image', 'required' => true],
+                        'alt'   => ['type' => 'text', 'label' => 'Image description (alt text)'],
+                        'url'   => $link,
+                    ],
+                ],
+            ],
+
+            'testimonials' => [
+                'label'       => 'Testimonials',
+                'description' => 'Beige panel with a scrolling row of customer reviews.',
+                'fields'      => [
+                    'heading' => ['type' => 'multiline', 'label' => 'Heading'],
+                ],
+                'items'       => [
+                    'label'  => 'Testimonial',
+                    'title'  => 'name',
+                    'thumb'  => 'photo',
+                    'fields' => [
+                        'name'  => ['type' => 'text', 'label' => 'Customer name', 'required' => true],
+                        'role'  => ['type' => 'text', 'label' => 'Company / role'],
+                        'photo' => ['type' => 'image', 'label' => 'Photo', 'help' => 'Square, at least 120 × 120 px.'],
+                        'quote' => ['type' => 'textarea', 'label' => 'Testimonial', 'required' => true],
+                    ],
+                ],
+            ],
+
+            'cta' => [
+                'label'       => 'Call To Action',
+                'description' => 'Full-width image with an overlay card.',
+                'fields'      => [
+                    'image'           => ['type' => 'image', 'label' => 'Background image', 'help' => 'Landscape, at least 2000 × 900 px. Keep the main subject on the left.'],
+                    'image_alt'       => ['type' => 'text', 'label' => 'Image description (alt text)'],
+                    'tagline'         => ['type' => 'text', 'label' => 'Tagline'],
+                    'heading'         => ['type' => 'multiline', 'label' => 'Heading'],
+                    'body'            => ['type' => 'textarea', 'label' => 'Body text'],
+                    'primary_label'   => ['type' => 'text', 'label' => 'Primary button label'],
+                    'primary_url'     => ['label' => 'Primary button URL'] + $link,
+                    'secondary_label' => ['type' => 'text', 'label' => 'Secondary link label'],
+                    'secondary_url'   => ['label' => 'Secondary link URL'] + $link,
+                ],
+            ],
+        ],
+    ],
+
+    /* =================================================================
+     *  GLOBAL (shared by every page)
+     * ================================================================= */
+    'global' => [
+        'label'    => 'Header & Footer',
+        'sortable' => false,
+        'sections' => [
+
+            'header' => [
+                'label'       => 'Header',
+                'description' => 'Logo and the utility links at the top right.',
+                'fields'      => [
+                    'logo'        => ['type' => 'image', 'label' => 'Logo'],
+                    'logo_alt'    => ['type' => 'text', 'label' => 'Logo alt text'],
+                    'login_label' => ['type' => 'text', 'label' => 'Login button label'],
+                    'login_url'   => ['type' => 'url', 'label' => 'Login URL'],
+                    'search_url'  => ['type' => 'url', 'label' => 'Search URL', 'help' => 'Leave blank to hide the search icon.'],
+                    'cart_url'    => ['type' => 'url', 'label' => 'Cart URL', 'help' => 'Leave blank to hide the cart icon.'],
+                ],
+            ],
+
+            'navigation' => [
+                'label'       => 'Main Navigation',
+                'description' => 'Menu links in the header.',
+                'fields'      => [],
+                'items'       => [
+                    'label'  => 'Menu link',
+                    'title'  => 'label',
+                    'fields' => [
+                        'label'   => ['type' => 'text', 'label' => 'Label', 'required' => true],
+                        'url'     => ['type' => 'url', 'label' => 'URL'],
+                        'submenu' => ['type' => 'textarea', 'label' => 'Dropdown links (optional)', 'help' => 'One per line in the format:  Label | /url/'],
+                    ],
+                ],
+            ],
+
+            'footer' => [
+                'label'       => 'Footer',
+                'description' => 'Footer brand columns, column titles, payments and legal links.',
+                'fields'      => [
+                    'brand_logo'     => ['type' => 'image', 'label' => 'Column 1 – logo'],
+                    'brand_text'     => ['type' => 'textarea', 'label' => 'Column 1 – text'],
+                    'dealer_logo'    => ['type' => 'image', 'label' => 'Column 2 – logo'],
+                    'dealer_title'   => ['type' => 'text', 'label' => 'Column 2 – title'],
+                    'dealer_text'    => ['type' => 'textarea', 'label' => 'Column 2 – text'],
+                    'links_title'    => ['type' => 'text', 'label' => 'Column 3 – title'],
+                    'products_title' => ['type' => 'text', 'label' => 'Column 4 – title'],
+                    'payments_title' => ['type' => 'text', 'label' => 'Column 5 – title'],
+                    'payments_text'  => ['type' => 'textarea', 'label' => 'Column 5 – text'],
+                    'payments_image' => ['type' => 'image', 'label' => 'Column 5 – payment logos image'],
+                    'copyright'      => ['type' => 'text', 'label' => 'Copyright text', 'help' => 'Use {year} for the current year.'],
+                    'terms_label'    => ['type' => 'text', 'label' => 'Terms link label'],
+                    'terms_url'      => ['type' => 'url', 'label' => 'Terms link URL'],
+                    'privacy_label'  => ['type' => 'text', 'label' => 'Privacy link label'],
+                    'privacy_url'    => ['type' => 'url', 'label' => 'Privacy link URL'],
+                ],
+            ],
+
+            'footer_links' => [
+                'label'       => 'Footer Link Lists',
+                'description' => 'Links shown in footer columns 3 and 4.',
+                'fields'      => [],
+                'items'       => [
+                    'label'  => 'Footer link',
+                    'title'  => 'label',
+                    'fields' => [
+                        'column' => ['type' => 'select', 'label' => 'Column', 'options' => ['links' => 'Column 3 (Link)', 'products' => 'Column 4 (Product)']],
+                        'label'  => ['type' => 'text', 'label' => 'Label', 'required' => true],
+                        'url'    => ['type' => 'url', 'label' => 'URL'],
+                    ],
+                ],
+            ],
+
+            'footer_contacts' => [
+                'label'       => 'Footer Contact & Social Buttons',
+                'description' => 'Pill buttons above the copyright bar.',
+                'fields'      => [],
+                'items'       => [
+                    'label'  => 'Button',
+                    'title'  => 'label',
+                    'fields' => [
+                        'icon'  => ['type' => 'select', 'label' => 'Icon', 'options' => [
+                            'location' => 'Location', 'phone' => 'Phone', 'email' => 'Email',
+                            'facebook' => 'Facebook', 'instagram' => 'Instagram', 'linkedin' => 'LinkedIn', 'link' => 'Generic link',
+                        ]],
+                        'label' => ['type' => 'text', 'label' => 'Label', 'required' => true],
+                        'url'   => ['type' => 'url', 'label' => 'URL', 'help' => 'e.g. tel:+61300000000, mailto:hello@…, https://maps…'],
+                    ],
+                ],
+            ],
+        ],
+    ],
+];
