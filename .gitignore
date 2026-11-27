@@ -1,0 +1,3 @@
+# Database dump – managed manually, not in git
+database.sql
+*.sql
