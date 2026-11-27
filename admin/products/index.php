@@ -103,7 +103,7 @@ admin_header('All Products', 'p:all');
                 <td><span class="adm-pill adm-pill--<?= e($r['status']) ?>"><?= e(ProductRepository::STATUSES[$r['status']] ?? $r['status']) ?></span></td>
                 <td class="col-actions">
                     <a class="adm-btn adm-btn--sm" href="edit.php?id=<?= (int)$r['id'] ?>">Edit</a>
-                    <button class="adm-btn adm-btn--sm adm-btn--ghost" type="submit" name="single" value="duplicate:<?= (int)$r['id'] ?>" formnovalidate>Duplicate</button>
+                    <button class="adm-btn adm-btn--sm adm-btn--ghost" type="submit" name="single" value="duplicate:<?= (int)$r['id'] ?>" formnovalidate title="Duplicate">Copy</button>
                     <button class="adm-btn adm-btn--sm adm-btn--danger" type="submit" name="single" value="delete:<?= (int)$r['id'] ?>" data-confirm-click="Delete “<?= e($r['name']) ?>”? This cannot be undone.">Delete</button>
                 </td>
             </tr>

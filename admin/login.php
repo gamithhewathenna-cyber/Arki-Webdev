@@ -20,7 +20,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             flash('error', 'You are using the default password from database.sql. Please change it now under Administrators.');
         }
         if (password_verify('arki-preview', (string)Settings::get('dev_lock_password', ''))) {
-            flash('error', 'The website preview password is still the default (arki-preview). Change it under Settings.');
+            flash('error', 'The website preview password is still the default (arki-preview). Change it under Website Settings.');
         }
         redirect(url('admin/'));
     } else {
@@ -32,8 +32,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 admin_header('Log in');
 ?>
 <div class="adm-login">
-    <h1><?= e(Settings::get('site_name', 'Website')) ?></h1>
-    <p class="muted">Content Manager</p>
+    <div class="adm-login__logo"><?= admin_logo(false) ?></div>
+    <h1>Welcome back</h1>
+    <p class="muted">Log in to the <?= e(Settings::get('site_name', 'Website')) ?> Content Manager</p>
     <?php if ($error): ?><div class="adm-flash adm-flash--error" role="alert"><?= e($error) ?></div><?php endif; ?>
     <form method="post" class="adm-card">
         <?= csrf_field() ?>

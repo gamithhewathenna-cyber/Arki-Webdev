@@ -19,6 +19,45 @@ header('X-Frame-Options: DENY');
 
 $ADMIN = defined('ADMIN_PUBLIC') ? Auth::user() : Auth::require();
 
+/**
+ * The website logo (Header & Footer → Header) for the CMS.
+ * $onDark: use the white version, or turn the normal logo white with CSS.
+ */
+function admin_logo(bool $onDark): string
+{
+    static $d = null;
+    if ($d === null) {
+        $row = Database::one("SELECT data FROM sections WHERE page = 'global' AND section_key = 'header'");
+        $d = $row ? (json_decode((string)$row['data'], true) ?: []) : [];
+    }
+    $exists = static fn($p) => !empty($p) && is_file(ROOT_PATH . '/' . ltrim((string)$p, '/'));
+    $alt = (string)(($d['logo_alt'] ?? '') ?: Settings::get('site_name', 'Website'));
+    if ($onDark && $exists($d['logo_light'] ?? '')) {
+        return '<img class="adm-logo-img" src="' . e(upload_url($d['logo_light'])) . '" alt="' . e($alt) . '">';
+    }
+    if ($exists($d['logo'] ?? '')) {
+        return '<img class="adm-logo-img' . ($onDark ? ' adm-logo-img--invert' : '') . '" src="' . e(upload_url($d['logo'])) . '" alt="' . e($alt) . '">';
+    }
+    return '<span class="adm-logo-text">' . e(Settings::get('site_name', 'Website')) . '</span>';
+}
+
+/** Small line icons for the CMS menu. */
+function admin_icon(string $name): string
+{
+    $p = [
+        'home'     => '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+        'page'     => '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/>',
+        'layout'   => '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 15h18"/>',
+        'box'      => '<path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/>',
+        'settings' => '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+        'users'    => '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.5 3.3-5.5 6.5-5.5s5.9 2 6.5 5.5M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.8c2 .7 3.2 2.4 3.5 5.2"/>',
+        'external' => '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+        'logout'   => '<path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 17l5-5-5-5M15 12H3"/>',
+        'chevron'  => '<path d="m9 6 6 6-6 6"/>',
+    ][$name] ?? '';
+    return '<svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' . $p . '</svg>';
+}
+
 function admin_header(string $title, string $active = ''): void
 {
     render('admin/header', ['title' => $title, 'active' => $active, 'user' => Auth::user()]);
