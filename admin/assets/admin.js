@@ -2,6 +2,13 @@
 (function () {
     'use strict';
 
+    // Keep the active section tab visible when the tab bar scrolls sideways
+    var activeTab = document.querySelector('.adm-tabs .adm-tab.is-active');
+    if (activeTab) {
+        var bar = activeTab.closest('ul');
+        bar.scrollLeft = activeTab.offsetLeft - (bar.clientWidth - activeTab.offsetWidth) / 2;
+    }
+
     // Confirm destructive actions
     document.querySelectorAll('form[data-confirm]').forEach(function (form) {
         form.addEventListener('submit', function (e) {

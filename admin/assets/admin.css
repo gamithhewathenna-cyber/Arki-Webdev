@@ -32,6 +32,24 @@ code { background:#f0f0ee; padding:1px 6px; border-radius:4px; font-size:12px; }
 .adm-crumbs a { text-decoration:none; }
 .adm-crumbs a:hover { text-decoration:underline; }
 
+/* Section tabs */
+.adm-tabs { position:sticky; top:0; z-index:5; background:var(--bg); margin:-8px 0 24px; padding-top:8px; border-bottom:1px solid var(--line); }
+.adm-tabs ul { display:flex; gap:2px; margin:0; padding:0; list-style:none; overflow-x:auto; scrollbar-width:thin; }
+.adm-tab { display:inline-flex; align-items:center; gap:7px; padding:10px 14px; white-space:nowrap; text-decoration:none; color:var(--muted); font-weight:500; border-bottom:2px solid transparent; margin-bottom:-1px; border-radius:8px 8px 0 0; transition:color .15s, background .15s; }
+.adm-tab:hover { color:var(--ink); background:#ebebe8; }
+.adm-tab.is-active { color:var(--ink); border-bottom-color:var(--accent); background:var(--card); }
+.adm-tab--overview { font-weight:600; }
+.adm-tab__num { display:inline-grid; place-items:center; min-width:20px; height:20px; padding:0 5px; border-radius:999px; background:#e4e4e1; color:#555; font-size:11px; font-weight:600; }
+.adm-tab.is-active .adm-tab__num { background:var(--accent); color:#fff; }
+.adm-tab.is-off { opacity:.6; }
+.adm-tab__off { font-size:10px; text-transform:uppercase; letter-spacing:.05em; padding:1px 6px; border-radius:999px; background:#eee; color:#777; }
+
+.adm-subhead { display:flex; justify-content:space-between; align-items:flex-start; gap:20px; margin-bottom:18px; }
+.adm-subhead h2 { font-size:19px; margin:0 0 2px; }
+.adm-subhead p { margin:0; }
+.adm-subhead__tools { display:flex; align-items:center; gap:14px; flex-wrap:wrap; justify-content:flex-end; }
+.adm-subhead__tools form { display:inline-flex; align-items:center; gap:6px; }
+
 /* Cards */
 .adm-card { background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:24px 26px; margin-bottom:24px; }
 .adm-card--flush { padding:0; overflow:hidden; }
@@ -107,7 +125,8 @@ a.adm-strong:hover { text-decoration:underline; }
     .adm-brand { padding-bottom:12px; margin-bottom:8px; }
     .adm-nav { display:flex; flex-wrap:wrap; gap:4px; }
     .adm-side__foot { grid-template-columns:1fr auto; align-items:center; margin-top:12px; }
-    .adm-head { flex-direction:column; }
+    .adm-head, .adm-subhead { flex-direction:column; }
+    .adm-subhead__tools { justify-content:flex-start; }
     .adm-table th.col-status, .adm-table td.col-status, .col-thumb { display:none; }
     .col-actions { white-space:normal; }
     .col-actions > * { margin:2px !important; }

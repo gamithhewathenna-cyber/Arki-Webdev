@@ -27,21 +27,46 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 
 $items = isset($def['items']) ? ContentRepository::items((int)$section['id']) : [];
 
+// Position of this section on the page (for the move buttons).
+$order = array_map('intval', array_column(
+    Database::all('SELECT id FROM sections WHERE page = ? ORDER BY sort_order, id', [$section['page']]), 'id'));
+$pos = (int)array_search((int)$section['id'], $order, true);
+
 admin_header($def['label'], $section['page']);
 ?>
-<nav class="adm-crumbs"><a href="./?page=<?= e($section['page']) ?>"><?= e($pageSchema['label']) ?></a> / <?= e($def['label']) ?></nav>
 <header class="adm-head">
+    <h1><?= e($pageSchema['label']) ?></h1>
+    <?php if ($section['page'] === 'home'): ?><a class="adm-btn adm-btn--ghost" href="<?= e(url()) ?>" target="_blank" rel="noopener">Preview homepage ↗</a><?php endif; ?>
+</header>
+<?php admin_section_tabs($section['page'], (int)$section['id']); ?>
+
+<header class="adm-subhead">
     <div>
-        <h1><?= e($def['label']) ?></h1>
+        <h2><?= e($def['label']) ?></h2>
         <?php if (!empty($def['description'])): ?><p class="muted"><?= e($def['description']) ?></p><?php endif; ?>
     </div>
-    <?php if (!$section['is_active']): ?><span class="adm-badge">Hidden on website</span><?php endif; ?>
+    <div class="adm-subhead__tools">
+        <?php if ($pageSchema['sortable']): ?>
+        <form method="post" action="action.php" class="inline" title="Position on the page">
+            <?= csrf_field() ?><input type="hidden" name="do" value="move_section"><input type="hidden" name="id" value="<?= (int)$section['id'] ?>">
+            <span class="muted small">Position <?= $pos + 1 ?> of <?= count($order) ?></span>
+            <button class="adm-icon" name="dir" value="-1" title="Move up" <?= $pos === 0 ? 'disabled' : '' ?>>↑</button>
+            <button class="adm-icon" name="dir" value="1" title="Move down" <?= $pos === count($order) - 1 ? 'disabled' : '' ?>>↓</button>
+        </form>
+        <?php endif; ?>
+        <form method="post" action="action.php" class="inline">
+            <?= csrf_field() ?><input type="hidden" name="do" value="toggle_section"><input type="hidden" name="id" value="<?= (int)$section['id'] ?>">
+            <button class="adm-badge <?= $section['is_active'] ? 'adm-badge--on' : '' ?>" title="Click to <?= $section['is_active'] ? 'hide this section on' : 'show this section on' ?> the website">
+                <?= $section['is_active'] ? 'Visible on website' : 'Hidden on website' ?>
+            </button>
+        </form>
+    </div>
 </header>
 
 <?php if ($def['fields']): ?>
 <form method="post" enctype="multipart/form-data" class="adm-card adm-form">
     <?= csrf_field() ?>
-    <h2>Section content</h2>
+    <h2>Section text &amp; images</h2>
     <?= AdminForm::render($def['fields'], $section['data']) ?>
     <div class="adm-actions"><button class="adm-btn" type="submit">Save changes</button></div>
 </form>

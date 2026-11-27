@@ -6,15 +6,7 @@ $schema = ContentRepository::schema();
 $page   = isset($_GET['page']) && isset($schema[$_GET['page']]) ? (string)$_GET['page'] : 'home';
 $pageSchema = $schema[$page];
 
-// Create rows for any section that exists in the schema but not yet in the database
-// (lets developers add new sections later without touching SQL).
-$existing = array_column(Database::all('SELECT section_key FROM sections WHERE page = ?', [$page]), 'section_key');
-foreach (array_keys($pageSchema['sections']) as $key) {
-    if (!in_array($key, $existing, true)) {
-        $next = (int)Database::value('SELECT COALESCE(MAX(sort_order),0)+1 FROM sections WHERE page = ?', [$page]);
-        Database::run('INSERT INTO sections (page, section_key, data, is_active, sort_order, updated_at) VALUES (?, ?, ?, 1, ?, NOW())', [$page, $key, '{}', $next]);
-    }
-}
+admin_sync_sections($page);
 
 $rows = Database::all(
     'SELECT s.*, (SELECT COUNT(*) FROM section_items i WHERE i.section_id = s.id) AS item_count
@@ -28,11 +20,12 @@ admin_header($pageSchema['label'], $page);
     <div>
         <h1><?= e($pageSchema['label']) ?></h1>
         <p class="muted"><?= $page === 'home'
-            ? 'Edit, reorder or hide the sections of the homepage. Changes are live as soon as you save.'
-            : 'Content shared by every page of the website.' ?></p>
+            ? 'Pick a section from the tabs to edit it, or reorder and show/hide sections below. Changes are live as soon as you save.'
+            : 'Content shared by every page of the website. Pick a section from the tabs to edit it.' ?></p>
     </div>
     <?php if ($page === 'home'): ?><a class="adm-btn adm-btn--ghost" href="<?= e(url()) ?>" target="_blank" rel="noopener">Preview homepage ↗</a><?php endif; ?>
 </header>
+<?php admin_section_tabs($page, 'overview'); ?>
 
 <div class="adm-card adm-card--flush">
     <table class="adm-table">

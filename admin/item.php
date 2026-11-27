@@ -35,11 +35,10 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 $title = ($item ? 'Edit ' : 'Add ') . strtolower($itemDef['label']);
 admin_header($title, $section['page']);
 ?>
-<nav class="adm-crumbs">
-    <a href="./?page=<?= e($section['page']) ?>"><?= e(ContentRepository::schema()[$section['page']]['label']) ?></a> /
-    <a href="<?= e($back) ?>"><?= e($def['label']) ?></a> / <?= e($title) ?>
-</nav>
-<header class="adm-head"><h1><?= e(ucfirst($title)) ?></h1></header>
+<header class="adm-head"><h1><?= e(ContentRepository::schema()[$section['page']]['label']) ?></h1></header>
+<?php admin_section_tabs($section['page'], (int)$section['id']); ?>
+<nav class="adm-crumbs"><a href="<?= e($back) ?>">← <?= e($def['label']) ?></a></nav>
+<header class="adm-subhead"><h2><?= e(ucfirst($title)) ?></h2></header>
 
 <form method="post" enctype="multipart/form-data" class="adm-card adm-form">
     <?= csrf_field() ?>
