@@ -26,13 +26,14 @@
 
 $link = ['type' => 'url', 'label' => 'Link URL', 'help' => 'e.g. /projects/ or https://… Leave blank to hide.'];
 
-return [
+$schema = [
 
     /* =================================================================
      *  HOMEPAGE
      * ================================================================= */
     'home' => [
         'label'    => 'Homepage',
+        'url'      => '',
         'sortable' => true,
         'sections' => [
 
@@ -224,6 +225,7 @@ return [
                 'description' => 'Logo and the utility links at the top right.',
                 'fields'      => [
                     'logo'        => ['type' => 'image', 'label' => 'Logo', 'help' => 'Shown at the top left of every page. Transparent PNG works best.', 'crop' => ['w' => 1060, 'h' => 200, 'fit' => true]],
+                    'logo_light'  => ['type' => 'image', 'label' => 'Logo – white version', 'help' => 'Used over dark banner images (e.g. the Work page). Leave empty to show the normal logo in white automatically.', 'crop' => ['w' => 1060, 'h' => 200, 'fit' => true]],
                     'logo_alt'    => ['type' => 'text', 'label' => 'Logo alt text'],
                     'login_label' => ['type' => 'text', 'label' => 'Login button label'],
                     'login_url'   => ['type' => 'url', 'label' => 'Login URL'],
@@ -304,3 +306,63 @@ return [
         ],
     ],
 ];
+
+/* =================================================================
+ *  WORK (inner page: /work/)
+ *  Banner + intro + product categories, then the same section types
+ *  as the homepage. Shared sections reuse the homepage field
+ *  definitions; their content is separate (edited under "Work Page").
+ *  First-visit content comes from app/schema/seeds.php.
+ * ================================================================= */
+$home = $schema['home']['sections'];
+$schema['work'] = [
+    'label'    => 'Work Page',
+    'url'      => 'work/',
+    'sortable' => true,
+    'sections' => [
+
+        'banner' => [
+            'label'       => 'Banner',
+            'description' => 'Full-width image at the top with the page title. The header sits on top of it in white.',
+            'fields'      => [
+                'image'      => ['type' => 'image', 'label' => 'Background image', 'help' => 'A dark overlay is added so the white text stays readable.', 'crop' => ['w' => 2400, 'h' => 870]],
+                'image_alt'  => ['type' => 'text', 'label' => 'Image description (alt text)'],
+                'tagline'    => ['type' => 'text', 'label' => 'Tagline'],
+                'heading'    => ['type' => 'multiline', 'label' => 'Page title (H1)', 'required' => true],
+                'body'       => ['type' => 'textarea', 'label' => 'Text'],
+                'link_label' => ['type' => 'text', 'label' => 'Link label'],
+                'link_url'   => ['label' => 'Link URL'] + $link,
+            ],
+        ],
+
+        'intro' => ['description' => 'Centred tagline, heading and introduction paragraphs below the banner.'] + $home['intro'],
+
+        'categories' => [
+            'label'       => 'Product Categories',
+            'description' => 'Row of white product cards with a name under each, plus a link below.',
+            'fields'      => [
+                'link_label' => ['type' => 'text', 'label' => 'Link label', 'help' => 'e.g. Explore All Work Products'],
+                'link_url'   => ['label' => 'Link URL'] + $link,
+            ],
+            'items'       => [
+                'label'  => 'Category',
+                'title'  => 'title',
+                'thumb'  => 'image',
+                'fields' => [
+                    'title'     => ['type' => 'text', 'label' => 'Name', 'required' => true],
+                    'image'     => ['type' => 'image', 'label' => 'Product image', 'help' => 'Product on a white or transparent background. Zoom out to leave space around it.', 'crop' => ['w' => 740, 'h' => 1000, 'fit' => true]],
+                    'image_alt' => ['type' => 'text', 'label' => 'Image description (alt text)'],
+                    'url'       => $link,
+                ],
+            ],
+        ],
+
+        'solutions'   => $home['solutions'],
+        'projects'    => $home['projects'],
+        'brands'      => $home['brands'],
+        'inspiration' => $home['inspiration'],
+        'cta'         => $home['cta'],
+    ],
+];
+
+return $schema;

@@ -47,9 +47,9 @@ Built with PHP 8, MySQL, HTML5 and CSS3. It has no frameworks, no Composer and n
 **About images**
 
 * Uploads accept JPG, PNG, WebP and GIF up to 10 MB.
-* Images over 2400 px are resized automatically.
+* **Cropping is mandatory.** As soon as you choose an image, a cropper opens with the exact shape for that spot on the website. Drag to position, zoom with the slider or mouse wheel, then click **Crop & use image**. Without a confirmed crop the image can't be saved.
+* Each image field shows its final size (e.g. 840 × 1200 px). Gallery images let you pick a shape. Logos and the favicon can be zoomed out and are saved as transparent PNGs.
 * A WebP copy is created automatically, and browsers that support WebP are served it.
-* Each image field shows the recommended size.
 * Images in `uploads/demo/` are **low-resolution placeholders cut from the design mockup**. Replace them with the final photography and logos through the CMS.
 
 **Line breaks:** in heading fields, press Enter to force a line break (e.g. "Quality Brands. ⏎ Considered Solutions."). In body text, leave a blank line between paragraphs.
@@ -113,9 +113,29 @@ config/config.php     database connection settings (blocked from web)
 
 The CMS forms are generated from `app/schema/pages.php`, so a new page needs **no database changes**:
 
-1. Add a page block to `app/schema/pages.php`, e.g. `'about' => ['label' => 'About Us', 'sortable' => true, 'sections' => [...]]`.
-2. Create a template for each section in `templates/sections/` (or reuse an existing one).
-3. Create the front controller, e.g. `about/index.php`, using the same pattern as `index.php`: `render('layout/page', ['sections' => ContentRepository::page('about'), …])`.
-4. Add a menu link to the page in **Header & Footer**.
+The **Work page** (`/work/`) is a complete example to copy.
+
+1. Add a page block to `app/schema/pages.php`, e.g. `'about' => ['label' => 'About Us', 'url' => 'about/', 'sortable' => true, 'sections' => [...]]`. You can reuse homepage section definitions (`$home['solutions']`, …).
+2. Create a template for each new section in `templates/sections/` (or reuse an existing one). A section called `banner` puts the header over the image in white.
+3. Add starting content to `app/schema/seeds.php`. Use `'copy_from' => 'home'` to start a section as a copy of the homepage one. It's created on the first visit, so no SQL import is needed.
+4. Create the front controller, e.g. `about/index.php`, by copying `work/index.php` (it calls `ContentRepository::sync('about')`).
+5. The page appears in the CMS menu automatically. Add a link to it from the menu or a card (Link URL `about/`).
+
+To change content in databases that are already live (e.g. to set a link), add a one-time entry in `app/Migrations.php`.
 
 Opening the page in the CMS creates its sections in the database automatically. Field types available: `text`, `multiline`, `textarea`, `url`, `image`, `select`.
+
+### Image fields must be cropped (required for all future development)
+
+Every image upload goes through the mandatory cropper, and the server rejects images that don't match the crop shape. When you add **any** new image field (new page, section, item or setting):
+
+1. Give it a `'crop'` spec in `app/schema/pages.php`. Use the aspect ratio the image is displayed at in `assets/css/main.css`, at about 2× its on-screen size:
+   ```php
+   'image' => ['type' => 'image', 'label' => 'Banner', 'crop' => ['w' => 2400, 'h' => 900]],
+   'logo'  => ['type' => 'image', 'label' => 'Logo',   'crop' => ['w' => 600, 'h' => 300, 'fit' => true]], // transparent PNG, may zoom out
+   'photo' => ['type' => 'image', 'label' => 'Photo',  'crop' => ['presets' => [['Portrait', 800, 1000], ['Square', 1000, 1000]]]],
+   ```
+2. Always render and save it with `AdminForm::render()` / `AdminForm::collect()`. Never write a plain `<input type="file">`. These two functions pass the crop shape to the cropper (`admin/assets/admin.js`) and to `Uploader::image($file, $crop)`.
+3. For uploads that aren't part of a page section (e.g. the favicon in `admin/settings.php`), define a field array with `'crop'` and use the same `AdminForm` calls.
+
+A field without `'crop'` falls back to 2400 × 1600, which is almost never the right shape, so always set one.

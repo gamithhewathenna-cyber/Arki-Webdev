@@ -38,5 +38,8 @@ require APP_PATH . '/Auth.php';
 
 Database::connect($config['db']);
 
+require APP_PATH . '/Migrations.php';
+Migrations::run();
+
 start_secure_session((string)($config['session_name'] ?? 'arki_session'));
 send_security_headers();

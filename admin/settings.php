@@ -13,7 +13,8 @@ $hdr = ContentRepository::sectionSchema('global', 'header')['fields'];
 $ftr = ContentRepository::sectionSchema('global', 'footer')['fields'];
 $logoGroups = [
     'header' => [
-        'logo'     => ['label' => 'Header logo'] + $hdr['logo'],
+        'logo'       => ['label' => 'Header logo'] + $hdr['logo'],
+        'logo_light' => ['label' => 'Header logo – white version (over banner images)'] + $hdr['logo_light'],
         'logo_alt' => ['label' => 'Header logo description (alt text)', 'help' => 'e.g. Steelcase | ARKI Environments'] + $hdr['logo_alt'],
     ],
     'footer' => [

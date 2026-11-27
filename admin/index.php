@@ -19,11 +19,11 @@ admin_header($pageSchema['label'], $page);
 <header class="adm-head">
     <div>
         <h1><?= e($pageSchema['label']) ?></h1>
-        <p class="muted"><?= $page === 'home'
+        <p class="muted"><?= $page !== 'global'
             ? 'Pick a section from the tabs to edit it, or reorder and show/hide sections below. Changes are live as soon as you save.'
             : 'Content shared by every page of the website. Pick a section from the tabs to edit it.' ?></p>
     </div>
-    <?php if ($page === 'home'): ?><a class="adm-btn adm-btn--ghost" href="<?= e(url()) ?>" target="_blank" rel="noopener">Preview homepage ↗</a><?php endif; ?>
+    <?php if (isset($pageSchema['url'])): ?><a class="adm-btn adm-btn--ghost" href="<?= e(url($pageSchema['url'])) ?>" target="_blank" rel="noopener">Preview page ↗</a><?php endif; ?>
 </header>
 <?php admin_section_tabs($page, 'overview'); ?>
 

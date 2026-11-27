@@ -26,6 +26,61 @@ final class ContentRepository
         return self::schema()[$page]['sections'][$key] ?? null;
     }
 
+    /**
+     * Create database rows for sections that exist in the schema but not yet
+     * in the database, filled from app/schema/seeds.php. Lets new pages and
+     * sections go live without any SQL import. Cheap no-op once complete.
+     */
+    public static function sync(string $page): void
+    {
+        $schema = self::schema()[$page] ?? null;
+        if (!$schema) {
+            return;
+        }
+        $existing = array_column(Database::all('SELECT section_key FROM sections WHERE page = ?', [$page]), 'section_key');
+        $missing = array_diff(array_keys($schema['sections']), $existing);
+        if (!$missing) {
+            return;
+        }
+        $seeds = (require APP_PATH . '/schema/seeds.php')[$page] ?? [];
+
+        foreach ($missing as $key) {
+            $seed  = $seeds[$key] ?? [];
+            $data  = $seed['data'] ?? [];
+            $items = $seed['items'] ?? [];
+            $active = [];
+
+            if (!empty($seed['copy_from'])) {
+                $src = Database::one('SELECT * FROM sections WHERE page = ? AND section_key = ?', [$seed['copy_from'], $key]);
+                if ($src) {
+                    $data  = json_decode((string)$src['data'], true) ?: [];
+                    $items = [];
+                    foreach (Database::all('SELECT data, is_active FROM section_items WHERE section_id = ? ORDER BY sort_order, id', [$src['id']]) as $it) {
+                        $items[]  = json_decode((string)$it['data'], true) ?: [];
+                        $active[] = (int)$it['is_active'];
+                    }
+                }
+            }
+
+            $next = (int)Database::value('SELECT COALESCE(MAX(sort_order),0)+1 FROM sections WHERE page = ?', [$page]);
+            // IGNORE: if two requests race, only one creates the section (unique page+section_key).
+            $st = Database::run(
+                'INSERT IGNORE INTO sections (page, section_key, data, is_active, sort_order, updated_at) VALUES (?, ?, ?, 1, ?, NOW())',
+                [$page, $key, self::json($data), $next]
+            );
+            if ($st->rowCount() === 0) {
+                continue;
+            }
+            $sid = Database::lastId();
+            foreach (array_values($items) as $i => $it) {
+                Database::run(
+                    'INSERT INTO section_items (section_id, data, is_active, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())',
+                    [$sid, self::json($it), $active[$i] ?? 1, $i + 1]
+                );
+            }
+        }
+    }
+
     /** All sections of a page, ordered, each with decoded data and items. */
     public static function page(string $page, bool $activeOnly = true): array
     {

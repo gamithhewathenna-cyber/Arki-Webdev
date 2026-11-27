@@ -13,8 +13,12 @@
 <aside class="adm-side">
     <a class="adm-brand" href="<?= e(url('admin/')) ?>"><?= e(Settings::get('site_name', 'Website')) ?><small>Content Manager</small></a>
     <nav class="adm-nav">
-        <a class="<?= $active === 'home' ? 'is-active' : '' ?>" href="<?= e(url('admin/')) ?>">Homepage</a>
-        <a class="<?= $active === 'global' ? 'is-active' : '' ?>" href="<?= e(url('admin/?page=global')) ?>">Header &amp; Footer</a>
+        <?php /* One menu entry per page in app/schema/pages.php (Homepage, Work Page, … then Header & Footer). */
+        $schemaPages = ContentRepository::schema();
+        uksort($schemaPages, static fn($a, $b) => ($a === 'global') <=> ($b === 'global'));
+        foreach ($schemaPages as $pKey => $pDef): ?>
+        <a class="<?= $active === $pKey ? 'is-active' : '' ?>" href="<?= e(url($pKey === 'home' ? 'admin/' : 'admin/?page=' . rawurlencode($pKey))) ?>"><?= e($pDef['label']) ?></a>
+        <?php endforeach; ?>
         <a class="<?= $active === 'settings' ? 'is-active' : '' ?>" href="<?= e(url('admin/settings.php')) ?>">Settings</a>
         <a class="<?= $active === 'users' ? 'is-active' : '' ?>" href="<?= e(url('admin/users.php')) ?>">Administrators</a>
     </nav>

@@ -7,11 +7,12 @@
 </head>
 <body class="<?= e($bodyClass) ?>">
 <a class="skip-link" href="#main">Skip to content</a>
-<?php render('layout/header', ['s' => $global['header'] ?? null, 'nav' => $global['navigation'] ?? null]); ?>
+<?php $hasBanner = isset($sections['banner']); ?>
+<?php render('layout/header', ['s' => $global['header'] ?? null, 'nav' => $global['navigation'] ?? null, 'overlay' => $hasBanner]); ?>
 
 <main id="main">
 <?php foreach ($sections as $key => $section): ?>
-<?php render('sections/' . preg_replace('/[^a-z0-9_\-]/', '', (string)$key), ['s' => $section]); ?>
+<?php render('sections/' . preg_replace('/[^a-z0-9_\-]/', '', (string)$key), ['s' => $section, 'hasBanner' => $hasBanner]); ?>
 <?php endforeach; ?>
 </main>
 

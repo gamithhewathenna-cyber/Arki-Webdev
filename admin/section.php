@@ -36,7 +36,7 @@ admin_header($def['label'], $section['page']);
 ?>
 <header class="adm-head">
     <h1><?= e($pageSchema['label']) ?></h1>
-    <?php if ($section['page'] === 'home'): ?><a class="adm-btn adm-btn--ghost" href="<?= e(url()) ?>" target="_blank" rel="noopener">Preview homepage ↗</a><?php endif; ?>
+    <?php if (isset($pageSchema['url'])): ?><a class="adm-btn adm-btn--ghost" href="<?= e(url($pageSchema['url'])) ?>" target="_blank" rel="noopener">Preview page ↗</a><?php endif; ?>
 </header>
 <?php admin_section_tabs($section['page'], (int)$section['id']); ?>
 

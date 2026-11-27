@@ -1,7 +1,12 @@
 <?php
-/** @var array|null $s header section  @var array|null $nav navigation section */
+/** @var array|null $s header section  @var array|null $nav navigation section  @var bool $overlay header over a banner image */
 $d = $s['data'] ?? [];
 $navItems = $nav['items'] ?? [];
+$overlay = !empty($overlay);
+// Over a dark banner: use the white logo if uploaded, otherwise the normal logo turned white by CSS.
+$lightLogo = $overlay && !empty($d['logo_light']) && is_file(ROOT_PATH . '/' . ltrim((string)$d['logo_light'], '/'));
+$logoPath  = $lightLogo ? $d['logo_light'] : ($d['logo'] ?? '');
+$logoClass = 'site-header__logo' . ($overlay && !$lightLogo ? ' site-header__logo--invert' : '');
 
 $parseSub = static function (?string $txt): array {
     $out = [];
@@ -13,10 +18,10 @@ $parseSub = static function (?string $txt): array {
     return $out;
 };
 ?>
-<header class="site-header">
+<header class="site-header<?= $overlay ? ' site-header--overlay' : '' ?>">
     <div class="container site-header__inner">
         <a class="site-header__brand" href="<?= e(url()) ?>" aria-label="<?= e(($d['logo_alt'] ?? '') ?: 'Home') ?>">
-            <?= picture($d['logo'] ?? '', (string)($d['logo_alt'] ?? ''), ['class' => 'site-header__logo', 'eager' => true]) ?: '<span class="site-header__wordmark">' . e(Settings::get('site_name', 'ARKI')) . '</span>' ?>
+            <?= picture($logoPath, (string)($d['logo_alt'] ?? ''), ['class' => $logoClass, 'eager' => true]) ?: '<span class="site-header__wordmark">' . e(Settings::get('site_name', 'ARKI')) . '</span>' ?>
         </a>
 
         <div class="site-header__right">

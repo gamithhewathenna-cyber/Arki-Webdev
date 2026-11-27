@@ -35,17 +35,7 @@ function admin_footer(): void
  */
 function admin_sync_sections(string $page): void
 {
-    $schema = ContentRepository::schema()[$page] ?? null;
-    if (!$schema) {
-        return;
-    }
-    $existing = array_column(Database::all('SELECT section_key FROM sections WHERE page = ?', [$page]), 'section_key');
-    foreach (array_keys($schema['sections']) as $key) {
-        if (!in_array($key, $existing, true)) {
-            $next = (int)Database::value('SELECT COALESCE(MAX(sort_order),0)+1 FROM sections WHERE page = ?', [$page]);
-            Database::run('INSERT INTO sections (page, section_key, data, is_active, sort_order, updated_at) VALUES (?, ?, ?, 1, ?, NOW())', [$page, $key, '{}', $next]);
-        }
-    }
+    ContentRepository::sync($page); // starting content comes from app/schema/seeds.php
 }
 
 /** Short tab name for a section: "Hero – Feature Cards" → "Hero". */
