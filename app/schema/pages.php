@@ -353,26 +353,56 @@ $categoriesSection = [
 
 $productsSection = [
     'label'       => 'Featured Products',
-    'description' => 'Heading with a link top right, then a grid of product cards (4 per row) with price and product code.',
+    'description' => 'Heading with a link top right, then product cards loaded from Products (4 per row). Manage the products themselves under Products.',
     'fields'      => [
         'heading'    => ['type' => 'text', 'label' => 'Heading', 'help' => 'e.g. Featured Products'],
         'link_label' => ['type' => 'text', 'label' => 'Link label', 'help' => 'e.g. View All Products'],
         'link_url'   => ['label' => 'Link URL'] + $link,
+        'source'     => ['type' => 'select', 'label' => 'Which products', 'options' => [
+            'featured'   => 'Featured products',
+            'new'        => 'New arrivals',
+            'bestseller' => 'Best sellers',
+            'newest'     => 'Newest products',
+        ]],
+        'limit'      => ['type' => 'select', 'label' => 'How many', 'options' => ['4' => '4 (one row)', '8' => '8 (two rows)', '12' => '12 (three rows)']],
     ],
-    'items'       => [
-        'label'  => 'Product',
-        'title'  => 'name',
-        'thumb'  => 'image',
-        'fields' => [
-            'name'         => ['type' => 'text', 'label' => 'Product name', 'required' => true],
-            'type'         => ['type' => 'text', 'label' => 'Product type', 'help' => 'Small line under the name, e.g. Dining Chair'],
-            'price_prefix' => ['type' => 'text', 'label' => 'Price prefix', 'default' => 'From', 'help' => 'Small word before the price. Leave blank to hide.'],
-            'price'        => ['type' => 'text', 'label' => 'Price', 'help' => 'As it should appear, e.g. $ 1,950. Leave blank to hide.'],
-            'sku'          => ['type' => 'text', 'label' => 'Product code', 'help' => 'e.g. AE- A0136'],
-            'image'        => ['type' => 'image', 'label' => 'Image', 'crop' => ['w' => 1000, 'h' => 1000]],
+];
+
+$ctaFields = $home['cta']['fields'];
+
+/* Product listing + product detail pages: banners, call to action, headings */
+$schema['shop'] = [
+    'label'    => 'Storefront Settings',
+    'nav'      => false,           // shown under Products in the CMS menu
+    'sortable' => false,
+    'sections' => [
+        'banner_work'  => ['tab' => 'Work Banner', 'label' => 'Work – Products Banner',  'description' => 'Banner at the top of the Work product listing (/work/products/). Hide it with the Visible switch.'] + ['fields' => [
+            'image'        => ['type' => 'image', 'label' => 'Background image', 'help' => 'The text sits on the left – keep that side calm.', 'crop' => ['w' => 2400, 'h' => 600]],
             'image_alt'    => ['type' => 'text', 'label' => 'Image description (alt text)'],
-            'url'          => $link,
-        ],
+            'tagline'      => ['type' => 'text', 'label' => 'Subtitle'],
+            'heading'      => ['type' => 'multiline', 'label' => 'Main heading (H1)'],
+            'body'         => ['type' => 'textarea', 'label' => 'Description'],
+            'button_label' => ['type' => 'text', 'label' => 'Button text'],
+            'button_url'   => ['label' => 'Button link'] + $link,
+        ]],
+    ],
+];
+$schema['shop']['sections']['banner_learn'] = ['tab' => 'Learn Banner', 'label' => 'Learn – Products Banner', 'description' => 'Banner at the top of the Learn product listing (/learn/products/).'] + $schema['shop']['sections']['banner_work'];
+$schema['shop']['sections']['banner_store'] = ['tab' => 'Store Banner', 'label' => 'Store – Products Banner', 'description' => 'Banner at the top of the Store product listing (/store/products/).'] + $schema['shop']['sections']['banner_work'];
+$schema['shop']['sections']['listing_cta']  = ['tab' => 'Listing CTA', 'label' => 'Product Listing – Call To Action', 'description' => 'Image banner below the product grid on all three listing pages.', 'fields' => $ctaFields];
+$schema['shop']['sections']['product_cta']  = ['tab' => 'Product Page CTA', 'label' => 'Product Page – Call To Action', 'description' => 'Default banner on every product page. A product can override it under Inventory & Visibility.', 'fields' => $ctaFields];
+$schema['shop']['sections']['product_page'] = [
+    'tab'         => 'Product Page Texts',
+    'label'       => 'Product Page – Headings',
+    'description' => 'Texts used on every product page.',
+    'fields'      => [
+        'eyebrow'            => ['type' => 'text', 'label' => 'Small line above the product name', 'help' => 'e.g. More Than A Furniture Store'],
+        'agent_label'        => ['type' => 'text', 'label' => 'Agent / dealer price text', 'help' => 'Shown instead of the agent price, e.g. Login To View'],
+        'family_heading'     => ['type' => 'text', 'label' => 'Family of products – heading'],
+        'related_heading'    => ['type' => 'text', 'label' => 'Related products – heading'],
+        'related_text'       => ['type' => 'textarea', 'label' => 'Related products – text'],
+        'related_link_label' => ['type' => 'text', 'label' => 'Related products – link label'],
+        'related_link_url'   => ['label' => 'Related products – link URL'] + $link,
     ],
 ];
 

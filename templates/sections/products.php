@@ -1,4 +1,15 @@
-<?php /** @var array $s */ $d = $s['data']; if (empty($s['items'])) return; ?>
+<?php
+/** Featured products (Store page) – loaded from the product database. @var array $s @var string $pageKey */
+$d = $s['data'];
+$store = in_array($pageKey ?? '', ['work', 'learn'], true) ? $pageKey : 'store';
+$limit = in_array((string)($d['limit'] ?? ''), ['4', '8', '12'], true) ? (int)$d['limit'] : 8;
+try {
+    $items = ProductRepository::highlighted($store, (string)($d['source'] ?? 'featured'), $limit);
+} catch (Throwable $e) {
+    $items = []; // product tables not created yet
+}
+if (!$items) return;
+?>
 <section class="section section-products" aria-label="<?= e(($d['heading'] ?? '') ?: 'Products') ?>">
     <div class="container">
         <?php if (!empty($d['heading']) || !empty($d['link_label'])): ?>
@@ -9,27 +20,8 @@
             <?php endif; ?>
         </header>
         <?php endif; ?>
-
         <ul class="product-grid">
-            <?php foreach ($s['items'] as $it): $p = $it['data']; $href = !empty($p['url']) ? safe_url($p['url']) : ''; ?>
-            <li class="product-card">
-                <?php if ($href !== ''): ?><a class="product-card__link" href="<?= e($href) ?>"<?= link_attrs($p['url']) ?>><span class="sr-only"><?= e($p['name'] ?? '') ?></span></a><?php endif; ?>
-                <div class="product-card__media"><?= picture($p['image'] ?? '', (string)($p['image_alt'] ?? '')) ?></div>
-                <button class="product-card__fav" type="button" aria-pressed="false" data-fav="<?= (int)$it['id'] ?>" aria-label="Save <?= e($p['name'] ?? 'product') ?> to favourites"><?= icon('heart') ?></button>
-                <div class="product-card__body">
-                    <div class="product-card__row">
-                        <h3 class="product-card__name"><?= e($p['name'] ?? '') ?></h3>
-                        <?php if (!empty($p['price'])): ?>
-                        <p class="product-card__price"><?php if (!empty($p['price_prefix'])): ?><small><?= e($p['price_prefix']) ?></small> <?php endif; ?><?= e($p['price']) ?></p>
-                        <?php endif; ?>
-                    </div>
-                    <div class="product-card__row product-card__row--meta">
-                        <?php if (!empty($p['type'])): ?><p class="product-card__type"><?= e($p['type']) ?></p><?php endif; ?>
-                        <?php if (!empty($p['sku'])): ?><p class="product-card__sku"><?= e($p['sku']) ?></p><?php endif; ?>
-                    </div>
-                </div>
-            </li>
-            <?php endforeach; ?>
+            <?php foreach ($items as $p) render('shop/card', ['p' => $p, 'from' => $store]); ?>
         </ul>
     </div>
 </section>

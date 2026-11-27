@@ -201,7 +201,8 @@ final class Uploader
         }
         $needle = '%' . str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], json_encode($rel, JSON_UNESCAPED_SLASHES)) . '%';
         $used = (int)Database::value('SELECT COUNT(*) FROM sections WHERE data LIKE ?', [$needle])
-              + (int)Database::value('SELECT COUNT(*) FROM section_items WHERE data LIKE ?', [$needle]);
+              + (int)Database::value('SELECT COUNT(*) FROM section_items WHERE data LIKE ?', [$needle])
+              + self::productReferences($rel);
         if ($used > 0) {
             return;
         }
@@ -211,6 +212,98 @@ final class Uploader
                 @unlink($abs);
             }
         }
+    }
+
+    /** How often a file is used by the product catalogue (0 if those tables don't exist yet). */
+    private static function productReferences(string $rel): int
+    {
+        $json = '%' . str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], json_encode($rel, JSON_UNESCAPED_SLASHES)) . '%';
+        $checks = [
+            ['SELECT COUNT(*) FROM products WHERE ? IN (image, video_file, video_thumb, collection_image) OR cta_override LIKE ?', [$rel, $json]],
+            ['SELECT COUNT(*) FROM product_images WHERE path = ?', [$rel]],
+            ['SELECT COUNT(*) FROM product_variants WHERE image = ?', [$rel]],
+            ['SELECT COUNT(*) FROM product_downloads WHERE file_path = ?', [$rel]],
+            ['SELECT COUNT(*) FROM product_terms WHERE image = ?', [$rel]],
+            ['SELECT COUNT(*) FROM product_families WHERE image = ?', [$rel]],
+            ['SELECT COUNT(*) FROM settings WHERE setting_value = ?', [$rel]],
+        ];
+        $n = 0;
+        foreach ($checks as [$sql, $args]) {
+            try {
+                $n += (int)Database::value($sql, $args);
+            } catch (Throwable $e) {
+                // table not created yet
+            }
+        }
+        return $n;
+    }
+
+    /** Allowed document / video uploads: real MIME type => [extension, max bytes]. */
+    public const FILE_TYPES = [
+        'document' => [
+            'application/pdf' => ['pdf', 25 * 1024 * 1024],
+            'application/msword' => ['doc', 25 * 1024 * 1024],
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => ['docx', 25 * 1024 * 1024],
+            'application/vnd.ms-excel' => ['xls', 25 * 1024 * 1024],
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => ['xlsx', 25 * 1024 * 1024],
+            'application/zip' => ['zip', 50 * 1024 * 1024],
+        ],
+        'video' => [
+            'video/mp4' => ['mp4', 100 * 1024 * 1024],
+            'video/webm' => ['webm', 100 * 1024 * 1024],
+        ],
+    ];
+
+    /**
+     * Store a validated document or video upload (type checked by content,
+     * random file name, kept in uploads/files/YYYY/MM).
+     * @return array{path: string, name: string, size: int}
+     */
+    public static function file(array $file, string $kind): array
+    {
+        $types = self::FILE_TYPES[$kind] ?? [];
+        if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            throw new RuntimeException(self::errorMessage((int)($file['error'] ?? UPLOAD_ERR_NO_FILE)));
+        }
+        if (!is_uploaded_file($file['tmp_name'])) {
+            throw new RuntimeException('Invalid upload.');
+        }
+        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
+        // Office files are zip containers; trust the extension only between these related types.
+        $origExt = strtolower(pathinfo((string)$file['name'], PATHINFO_EXTENSION));
+        if ($mime === 'application/zip' || $mime === 'application/octet-stream') {
+            foreach ($types as $m => [$ext]) {
+                if ($ext === $origExt && in_array($ext, ['docx', 'xlsx', 'zip'], true)) {
+                    $mime = $m;
+                    break;
+                }
+            }
+        }
+        if (!isset($types[$mime])) {
+            $allowed = implode(', ', array_map(static fn($t) => strtoupper($t[0]), $types));
+            throw new RuntimeException('This file type is not allowed. Allowed: ' . $allowed . '.');
+        }
+        [$ext, $max] = $types[$mime];
+        if ($file['size'] > $max) {
+            throw new RuntimeException('The file is larger than ' . round($max / 1048576) . ' MB.');
+        }
+        $dir = 'uploads/files/' . date('Y/m');
+        if (!is_dir(ROOT_PATH . '/' . $dir) && !mkdir(ROOT_PATH . '/' . $dir, 0755, true)) {
+            throw new RuntimeException('Upload folder is not writable.');
+        }
+        $rel = $dir . '/' . bin2hex(random_bytes(8)) . '.' . $ext;
+        if (!move_uploaded_file($file['tmp_name'], ROOT_PATH . '/' . $rel)) {
+            throw new RuntimeException('Could not save the file.');
+        }
+        @chmod(ROOT_PATH . '/' . $rel, 0644);
+        $name = preg_replace('/[^\w\-. ()]+/u', '', basename((string)$file['name'])) ?: ('file.' . $ext);
+        return ['path' => $rel, 'name' => mb_substr($name, 0, 190), 'size' => (int)$file['size']];
+    }
+
+    /** True when an upload field actually received a file. */
+    public static function has(?array $file): bool
+    {
+        return $file !== null && ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE;
     }
 
     private static function errorMessage(int $code): string

@@ -40,7 +40,9 @@ Built with PHP 8, MySQL, HTML5 and CSS3. It has no frameworks, no Composer and n
 | Menu | What it manages |
 |---|---|
 | **Homepage** | Every homepage section. You can edit text, images, links and buttons, reorder sections (↑ ↓) and show or hide them. Sections with cards, slides or reviews let you add, edit, copy, reorder, hide and delete each item. |
+| **Work / Learn / Store Page** | The three storefront landing pages (`/work/`, `/learn/`, `/store/`), section by section. |
 | **Header & Footer** | The logo, Login/Search/Cart links, main menu (including dropdown links), footer columns, footer links, contact/social buttons, payment logos, copyright and legal links. |
+| **Products** | The product catalogue (see below). |
 | **Settings** | Site name, browser title, favicon and the **development password lock**. |
 | **Administrators** | Add or remove CMS users and change your own password. |
 
@@ -53,6 +55,22 @@ Built with PHP 8, MySQL, HTML5 and CSS3. It has no frameworks, no Composer and n
 * Images in `uploads/demo/` are **low-resolution placeholders cut from the design mockup**. Replace them with the final photography and logos through the CMS.
 
 **Line breaks:** in heading fields, press Enter to force a line break (e.g. "Quality Brands. ⏎ Considered Solutions."). In body text, leave a blank line between paragraphs.
+
+### Products
+
+| Submenu | What it does |
+|---|---|
+| **All Products** | Search, filter (storefront, category, brand, stock, status), bulk actions, Duplicate/Delete, and drag ⋮⋮ to set the display order. |
+| **Add New Product** | Ten tabs, each saved on its own: General Information, Pricing, Images & Media, Product Options, Specifications, Technical Information, Downloads, Product Family, Related Products, Inventory & Visibility. |
+| **Categories … Environmental Ratings** | The central lists that products choose from and the website filters by. Categories can have subcategories; colours have a HEX code and optional swatch image; brands have a logo. |
+| **Product Families** | Collections (e.g. Luna Collection). Members show each other under “Family Of Products”. |
+| **Inventory Management** | Stock for every product in one table. Low stock is highlighted. |
+| **Storefront Settings** | Listing banners for Work / Learn / Store, the call-to-action banners and the product page texts. |
+
+* **One product, three storefronts.** Tick **Work** and/or **Learn**; the main **Store** always shows every published product. Pricing and stock are shared.
+* Only **Published** products appear on the website. Logged-in administrators can preview drafts via *View on website*.
+* **Agent / dealer prices** are stored but never sent to the website – visitors see “Login To View”. Add To Quote, Add To Wishlist and the heart icons are shown but inactive until those features are built.
+* Website pages: `/work/products/`, `/learn/products/`, `/store/products/` (filters, sorting, 9 per page) and `/product/?p=product-name`.
 
 ## 4. Development-stage protection
 
@@ -131,6 +149,14 @@ The CMS forms are generated from `app/schema/pages.php`, so a new page needs **n
 To change content in databases that are already live (e.g. to set a link), add a one-time entry in `app/Migrations.php`.
 
 Opening the page in the CMS creates its sections in the database automatically. Field types available: `text`, `multiline`, `textarea`, `url`, `image`, `select`.
+
+### Product catalogue (for developers)
+
+* Tables: `products`, `product_terms` (all managed lists, keyed by `taxonomy`), `product_families`, `product_storefronts`, `product_images` (gallery + drawings), `product_specs`, `product_downloads`, `product_term_links` (offered sizes/colours/materials), `product_variants`, `product_related`. Definitions + demo data: `app/schema/products_db.php` (applied once by `app/Migrations.php`; the same SQL is in `database-update-products.sql`).
+* Queries: `app/ProductRepository.php`. Public methods never select `agent_price` – keep it that way. Lists/families: `app/Catalog.php`. Storefront pages: `app/Shop.php` + `templates/shop/`.
+* A new list type (e.g. “Finishes”) = one entry in `Catalog::TAXONOMIES`; the admin screen and menu item appear automatically.
+* Ready for later phases: carts, quotes, orders and agent accounts can reference `products.id` / `product_variants.id`, which already carry SKU, currency, agent price and stock.
+* Product image crop sizes are set once in `P_CROP` in `admin/products/_lib.php`.
 
 ### Image fields must be cropped (required for all future development)
 

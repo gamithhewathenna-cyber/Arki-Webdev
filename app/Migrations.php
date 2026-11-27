@@ -38,7 +38,67 @@ final class Migrations
             '2026-11-27-link-work-card'  => static fn() => self::linkHeroCard('Work', 'work/'),
             '2026-11-27-link-learn-card' => static fn() => self::linkHeroCard('Learn', 'learn/'),
             '2026-11-27-link-store-card' => static fn() => self::linkHeroCard('Store', 'store/'),
+
+            // Product catalogue: tables + demo products (app/schema/products_db.php).
+            '2026-11-28-products-schema' => static function (): void {
+                foreach (self::statements((string)require APP_PATH . '/schema/products_db.php') as $sql) {
+                    Database::pdo()->exec($sql);
+                }
+            },
+
+            // Point the storefront pages' links at the new product listings.
+            '2026-11-28-link-product-listings' => static function (): void {
+                foreach (['work', 'learn', 'store'] as $store) {
+                    ContentRepository::sync($store); // make sure the page's sections exist
+                    $list = $store . '/products/';
+                    self::setSectionLink($store, 'banner', 'link_url', $list);
+                    self::setSectionLink($store, 'categories', 'link_url', $list);
+                    self::setSectionLink($store, 'products', 'link_url', $list);
+                    self::linkCategoryCards($store, $list);
+                }
+            },
         ];
+    }
+
+    /** Split an SQL script into statements (separated by ";" at the end of a line). */
+    public static function statements(string $sql): array
+    {
+        $out = [];
+        foreach (preg_split('/;[ \t]*\R/', $sql . "\n") as $stmt) {
+            $stmt = trim(preg_replace('/^\s*--.*$/m', '', $stmt));
+            if ($stmt !== '') {
+                $out[] = rtrim($stmt, ';');
+            }
+        }
+        return $out;
+    }
+
+    /** Set a link field of a page section if it is still empty or "#". */
+    private static function setSectionLink(string $page, string $key, string $field, string $url): void
+    {
+        $s = Database::one('SELECT id, data FROM sections WHERE page = ? AND section_key = ?', [$page, $key]);
+        if (!$s) return;
+        $d = json_decode((string)$s['data'], true) ?: [];
+        if (in_array(trim((string)($d[$field] ?? '')), ['', '#'], true)) {
+            $d[$field] = $url;
+            ContentRepository::saveSectionData((int)$s['id'], $d);
+        }
+    }
+
+    /** Link category cards (Tables, Seating …) to the filtered product listing. */
+    private static function linkCategoryCards(string $page, string $list): void
+    {
+        $map = ['tables' => 'desks-tables', 'seating' => 'seating', 'lounge' => 'lounge', 'privacy' => 'privacy', 'storage' => 'storage-accessories'];
+        $s = Database::one("SELECT id FROM sections WHERE page = ? AND section_key = 'categories'", [$page]);
+        if (!$s) return;
+        foreach (Database::all('SELECT id, data, is_active FROM section_items WHERE section_id = ?', [$s['id']]) as $it) {
+            $d = json_decode((string)$it['data'], true) ?: [];
+            $slug = $map[strtolower(trim((string)($d['title'] ?? '')))] ?? null;
+            if ($slug && in_array(trim((string)($d['url'] ?? '')), ['', '#'], true)) {
+                $d['url'] = $list . '?cat[]=' . $slug;
+                ContentRepository::saveItem((int)$it['id'], (int)$s['id'], $d, (bool)$it['is_active']);
+            }
+        }
     }
 
     /** Give the homepage hero card with this title a link, unless an editor already set a real one. */

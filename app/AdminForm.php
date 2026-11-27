@@ -45,29 +45,40 @@ final class AdminForm
                 $input .= '</select>';
                 break;
             case 'image':
-                $preview = '';
-                if ($value !== '' && is_file(ROOT_PATH . '/' . ltrim($value, '/'))) {
-                    $preview = '<div class="img-current"><img src="' . e(upload_url($value)) . '" alt="" data-preview="' . $id . '">'
-                        . '<label class="check"><input type="checkbox" name="remove[' . e($key) . ']" value="1"> Remove image</label></div>';
-                } else {
-                    $preview = '<div class="img-current is-empty"><img alt="" data-preview="' . $id . '" hidden></div>';
-                }
-                $crop  = $f['crop'] ?? null;
-                $spec  = [
-                    'fit'     => !empty($crop['fit']),
-                    'presets' => Uploader::cropPresets($crop),
-                    'label'   => (string)($f['label'] ?? $key),
-                ];
-                $input = $preview . '<input id="' . $id . '" name="img_' . e($key) . '" type="file" accept="image/jpeg,image/png,image/webp,image/gif"'
-                    . ' data-image-input data-crop="' . e(json_encode($spec, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) . '">';
-                $help .= '<p class="help">JPG, PNG, WebP or GIF up to 10 MB. After choosing an image you’ll crop it to <strong>'
-                    . e(Uploader::cropText($crop)) . '</strong> – the crop must be confirmed before it can be saved.</p>';
+                $input = self::imageInput('img_' . $key, $id, $f['crop'] ?? null, $value, 'remove[' . $key . ']', (string)($f['label'] ?? $key));
+                $help .= self::imageHelp($f['crop'] ?? null);
                 break;
             default:
                 $input = '<input id="' . $id . '" name="' . $name . '" type="text" value="' . e($value) . '"' . $req . '>';
         }
 
         return '<div class="field field--' . e($f['type'] ?? 'text') . '"><label for="' . $id . '">' . $label . '</label>' . $input . $help . '</div>';
+    }
+
+    /**
+     * Image upload with preview and the mandatory cropper (used by every
+     * image field in the CMS, including the product screens).
+     *   $inputName   name of the file input (read it back with Uploader::image($_FILES[$inputName], $crop))
+     *   $removeName  name of a "Remove image" checkbox, or null for none
+     */
+    public static function imageInput(string $inputName, string $id, ?array $crop, string $current, ?string $removeName, string $label): string
+    {
+        if ($current !== '' && is_file(ROOT_PATH . '/' . ltrim($current, '/'))) {
+            $preview = '<div class="img-current"><img src="' . e(upload_url($current)) . '" alt="" data-preview="' . e($id) . '">'
+                . ($removeName ? '<label class="check"><input type="checkbox" name="' . e($removeName) . '" value="1"> Remove image</label>' : '')
+                . '</div>';
+        } else {
+            $preview = '<div class="img-current is-empty"><img alt="" data-preview="' . e($id) . '" hidden></div>';
+        }
+        $spec = ['fit' => !empty($crop['fit']), 'presets' => Uploader::cropPresets($crop), 'label' => $label];
+        return $preview . '<input id="' . e($id) . '" name="' . e($inputName) . '" type="file" accept="image/jpeg,image/png,image/webp"'
+            . ' data-image-input data-crop="' . e(json_encode($spec, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) . '">';
+    }
+
+    public static function imageHelp(?array $crop): string
+    {
+        return '<p class="help">JPG, PNG or WebP up to 10 MB. After choosing an image you’ll crop it to <strong>'
+            . e(Uploader::cropText($crop)) . '</strong> – the crop must be confirmed before it can be saved. Images are optimised automatically.</p>';
     }
 
     /**

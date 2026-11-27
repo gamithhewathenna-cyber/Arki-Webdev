@@ -14,11 +14,29 @@
     <a class="adm-brand" href="<?= e(url('admin/')) ?>"><?= e(Settings::get('site_name', 'Website')) ?><small>Content Manager</small></a>
     <nav class="adm-nav">
         <?php /* One menu entry per page in app/schema/pages.php (Homepage, Work Page, … then Header & Footer). */
-        $schemaPages = ContentRepository::schema();
+        $schemaPages = array_filter(ContentRepository::schema(), static fn($d) => ($d['nav'] ?? true) !== false);
         uksort($schemaPages, static fn($a, $b) => ($a === 'global') <=> ($b === 'global'));
         foreach ($schemaPages as $pKey => $pDef): ?>
         <a class="<?= $active === $pKey ? 'is-active' : '' ?>" href="<?= e(url($pKey === 'home' ? 'admin/' : 'admin/?page=' . rawurlencode($pKey))) ?>"><?= e($pDef['label']) ?></a>
         <?php endforeach; ?>
+
+        <?php /* Products module */
+        $pOpen = str_starts_with((string)$active, 'p:') || $active === 'shop';
+        $pLinks = ['p:all' => ['All Products', 'admin/products/'], 'p:new' => ['Add New Product', 'admin/products/edit.php']];
+        foreach (Catalog::TAXONOMIES as $tax => $def) {
+            $pLinks['p:' . $tax] = [$def['label'], 'admin/products/terms.php?tax=' . $tax];
+        }
+        $pLinks['p:families']  = ['Product Families', 'admin/products/families.php'];
+        $pLinks['p:inventory'] = ['Inventory Management', 'admin/products/inventory.php'];
+        $pLinks['shop']        = ['Storefront Settings', 'admin/?page=shop']; ?>
+        <div class="adm-nav__group<?= $pOpen ? ' is-open' : '' ?>">
+            <a class="adm-nav__parent<?= $pOpen ? ' is-active' : '' ?>" href="<?= e(url('admin/products/')) ?>">Products</a>
+            <div class="adm-nav__sub">
+                <?php foreach ($pLinks as $k => [$lbl, $href]): ?>
+                <a class="<?= $active === $k ? 'is-current' : '' ?>" href="<?= e(url($href)) ?>"><?= e($lbl) ?></a>
+                <?php endforeach; ?>
+            </div>
+        </div>
         <a class="<?= $active === 'settings' ? 'is-active' : '' ?>" href="<?= e(url('admin/settings.php')) ?>">Settings</a>
         <a class="<?= $active === 'users' ? 'is-active' : '' ?>" href="<?= e(url('admin/users.php')) ?>">Administrators</a>
     </nav>

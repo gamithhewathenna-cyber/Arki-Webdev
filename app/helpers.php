@@ -132,6 +132,73 @@ function icon(string $name): string
     return $icons[$name] ?? '';
 }
 
+/* ---------------------------------------------------------------------
+ *  Products
+ * ------------------------------------------------------------------- */
+
+/** "$ 1,950" – decimals only when needed. Empty string for no price. */
+function money($amount, string $currency = 'AUD'): string
+{
+    if ($amount === null || $amount === '') {
+        return '';
+    }
+    $symbols = ['AUD' => '$', 'NZD' => '$', 'USD' => '$', 'EUR' => '€', 'GBP' => '£'];
+    $n = (float)$amount;
+    return ($symbols[$currency] ?? $currency) . ' ' . number_format($n, floor($n) == $n ? 0 : 2);
+}
+
+/** Price markup for cards and the product page: optional "From", sale price with the old price struck through. */
+function price_html(array $p): string
+{
+    $retail = $p['retail_price'] ?? null;
+    $sale = $p['sale_price'] ?? null;
+    if ($retail === null && $sale === null) {
+        return '';
+    }
+    $cur = (string)($p['currency'] ?? 'AUD');
+    $html = !empty($p['price_from']) ? '<small>From</small> ' : '';
+    if ($sale !== null && $retail !== null && (float)$sale < (float)$retail) {
+        $html .= '<del>' . e(money($retail, $cur)) . '</del> ' . e(money($sale, $cur));
+    } else {
+        $html .= e(money($sale ?? $retail, $cur));
+    }
+    return $html;
+}
+
+/** Link to a product page (keeps the storefront the visitor came from). */
+function product_url(string $slug, string $from = 'store'): string
+{
+    return url('product/?p=' . rawurlencode($slug) . ($from !== 'store' && $from !== '' ? '&from=' . rawurlencode($from) : ''));
+}
+
+/** Link to a storefront's product listing, with optional query parameters. */
+function listing_url(string $store, array $params = []): string
+{
+    $q = http_build_query(array_filter($params, static fn($v) => $v !== '' && $v !== null && $v !== []));
+    return url($store . '/products/') . ($q !== '' ? '?' . $q : '');
+}
+
+/** Embed URL for a YouTube / Vimeo link (null when not recognised). */
+function video_embed_url(?string $u): ?string
+{
+    $u = trim((string)$u);
+    if (preg_match('~(?:youtube\.com/(?:watch\?(?:.*&)?v=|embed/|shorts/)|youtu\.be/)([\w-]{11})~i', $u, $m)) {
+        return 'https://www.youtube-nocookie.com/embed/' . $m[1] . '?autoplay=1&rel=0';
+    }
+    if (preg_match('~vimeo\.com/(?:video/)?(\d+)~i', $u, $m)) {
+        return 'https://player.vimeo.com/video/' . $m[1] . '?autoplay=1';
+    }
+    return null;
+}
+
+/** URL of an uploaded image's WebP copy, or '' when there is none. */
+function webp_url(?string $path): string
+{
+    $path = ltrim((string)$path, '/');
+    $webp = preg_replace('/\.(jpe?g|png)$/i', '.webp', $path);
+    return ($webp !== $path && is_file(ROOT_PATH . '/' . $webp)) ? url($webp) : '';
+}
+
 /** Long thin arrow used after "View all …" links. */
 function more_arrow(): string
 {
@@ -179,7 +246,8 @@ function send_security_headers(): void
     header('X-Frame-Options: SAMEORIGIN');
     header('Referrer-Policy: strict-origin-when-cross-origin');
     header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()');
-    header("Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self'; script-src 'self'; font-src 'self'; connect-src 'self'; frame-ancestors 'self'; form-action 'self'; base-uri 'self'; object-src 'none'");
+    // frame-src: product videos from YouTube (privacy mode) / Vimeo; media-src: uploaded product videos.
+    header("Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self'; script-src 'self'; font-src 'self'; connect-src 'self'; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; frame-ancestors 'self'; form-action 'self'; base-uri 'self'; object-src 'none'");
     if (is_https()) {
         header('Strict-Transport-Security: max-age=31536000');
     }
@@ -278,6 +346,7 @@ function render_inner_page(string $page): void
         'bodyClass' => 'page-' . $page . (isset($sections['banner']) ? ' has-banner' : ''),
         'global'    => ContentRepository::page('global'),
         'sections'  => $sections,
+        'pageKey'   => $page,
     ]);
 }
 

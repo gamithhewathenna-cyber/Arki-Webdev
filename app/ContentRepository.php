@@ -51,7 +51,7 @@ final class ContentRepository
             $active = [];
 
             if (!empty($seed['copy_from'])) {
-                $src = Database::one('SELECT * FROM sections WHERE page = ? AND section_key = ?', [$seed['copy_from'], $key]);
+                $src = Database::one('SELECT * FROM sections WHERE page = ? AND section_key = ?', [$seed['copy_from'], $seed['copy_key'] ?? $key]);
                 if ($src) {
                     $data  = json_decode((string)$src['data'], true) ?: [];
                     $items = [];

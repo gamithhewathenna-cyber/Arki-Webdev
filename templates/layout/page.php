@@ -12,8 +12,9 @@
 
 <main id="main">
 <?php foreach ($sections as $key => $section): ?>
-<?php render('sections/' . preg_replace('/[^a-z0-9_\-]/', '', (string)$key), ['s' => $section, 'hasBanner' => $hasBanner]); ?>
+<?php render('sections/' . preg_replace('/[^a-z0-9_\-]/', '', (string)$key), ['s' => $section, 'hasBanner' => $hasBanner, 'pageKey' => $pageKey ?? 'home']); ?>
 <?php endforeach; ?>
+<?php if (!empty($content)) render($content, $contentVars ?? []); /* product listing / product page */ ?>
 </main>
 
 <?php render('layout/footer', [

@@ -35,6 +35,10 @@ require APP_PATH . '/helpers.php';
 require APP_PATH . '/Settings.php';
 require APP_PATH . '/ContentRepository.php';
 require APP_PATH . '/Auth.php';
+require APP_PATH . '/Catalog.php';
+require APP_PATH . '/ProductRepository.php';
+require APP_PATH . '/HtmlSanitizer.php';
+require APP_PATH . '/Shop.php';
 
 Database::connect($config['db']);
 

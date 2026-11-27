@@ -364,24 +364,25 @@
         Cropper.open(input, file, spec);
     }
 
-    document.querySelectorAll('input[type=file][data-crop]').forEach(function (input) {
-        input.addEventListener('change', function () {
-            var file = input.files && input.files[0];
-            input.dataset.cropped = '0';
-            if (!file) { clearInput(input); return; }
-            if (!/^image\/(jpeg|png|webp|gif)$/.test(file.type)) {
-                alert('Please choose a JPG, PNG, WebP or GIF image.');
-                clearInput(input);
-                return;
-            }
-            if (file.size > MAX_BYTES) {
-                alert('This image is larger than 10 MB. Please choose a smaller file.');
-                clearInput(input);
-                return;
-            }
-            input._source = file;   // keep the original so "Crop again" starts from full quality
-            openFor(input, file);
-        });
+    // Listen on the whole page so image fields added later (gallery, variations …) are covered too.
+    document.addEventListener('change', function (e) {
+        var input = e.target;
+        if (!input.matches || !input.matches('input[type=file][data-crop]')) return;
+        var file = input.files && input.files[0];
+        input.dataset.cropped = '0';
+        if (!file) { clearInput(input); return; }
+        if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
+            alert('Please choose a JPG, PNG or WebP image.');
+            clearInput(input);
+            return;
+        }
+        if (file.size > MAX_BYTES) {
+            alert('This image is larger than 10 MB. Please choose a smaller file.');
+            clearInput(input);
+            return;
+        }
+        input._source = file;   // keep the original so "Crop again" starts from full quality
+        openFor(input, file);
     });
 
     // A form can't be submitted while a chosen image is still uncropped.
@@ -396,6 +397,250 @@
                 openFor(pending, pending._source || pending.files[0]);
             }
         });
+    });
+
+    /* =================================================================
+     *  Products module helpers
+     * ================================================================= */
+
+    // Confirm on individual buttons (e.g. Delete inside the bulk form)
+    document.addEventListener('click', function (e) {
+        var b = e.target.closest && e.target.closest('[data-confirm-click]');
+        if (b && !window.confirm(b.getAttribute('data-confirm-click'))) e.preventDefault();
+        var apply = e.target.closest && e.target.closest('[data-bulk-apply]');
+        if (apply) {
+            var sel = document.getElementById('bulk-action');
+            var n = document.querySelectorAll('[data-bulk-item]:checked').length;
+            if (!sel.value || !n) { e.preventDefault(); alert('Choose an action and tick at least one product.'); return; }
+            if (sel.value === 'delete' && !window.confirm('Delete ' + n + ' product(s)? This cannot be undone.')) e.preventDefault();
+        }
+    });
+
+    // Select all rows
+    document.querySelectorAll('[data-check-all]').forEach(function (all) {
+        all.addEventListener('change', function () {
+            document.querySelectorAll('[data-bulk-item]').forEach(function (c) { c.checked = all.checked; });
+        });
+    });
+
+    // ---- Drag-and-drop ordering (mouse) + keyboard (arrow keys on the ⋮⋮ handle) ----
+    var dragItem = null;
+    var markDirty = function (el) {
+        var form = el.closest('form');
+        if (form) form.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+    var sorted = function (list) {
+        markDirty(list);
+        if (!list.dataset.sortableSave) return;
+        var body = new FormData();
+        body.append('_csrf', list.dataset.csrf || '');
+        body.append('reorder', list.dataset.sortableTable || '');
+        list.querySelectorAll('[data-sortable-item]').forEach(function (it) { body.append('ids[]', it.dataset.id); });
+        fetch(list.dataset.sortableSave, { method: 'POST', body: body, credentials: 'same-origin' })
+            .then(function (r) { return r.json(); })
+            .then(function (j) { toast(j && j.ok ? 'Order saved' : 'Order could not be saved', !(j && j.ok)); })
+            .catch(function () { toast('Order could not be saved', true); });
+    };
+    var toast = function (msg, bad) {
+        var t = document.createElement('div');
+        t.className = 'adm-toast' + (bad ? ' is-bad' : '');
+        t.textContent = msg;
+        t.setAttribute('role', 'status');
+        document.body.appendChild(t);
+        setTimeout(function () { t.remove(); }, 2200);
+    };
+    document.addEventListener('pointerdown', function (e) {
+        var h = e.target.closest && e.target.closest('[data-drag-handle]');
+        if (h) h.closest('[data-sortable-item]').draggable = true;
+    });
+    document.addEventListener('dragstart', function (e) {
+        var item = e.target.closest && e.target.closest('[data-sortable-item]');
+        if (!item || !item.draggable) return;
+        dragItem = item;
+        item.classList.add('is-dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        try { e.dataTransfer.setData('text/plain', ''); } catch (err) { /* old browsers */ }
+    });
+    document.addEventListener('dragover', function (e) {
+        if (!dragItem) return;
+        var list = dragItem.parentElement;
+        var over = e.target.closest && e.target.closest('[data-sortable-item]');
+        if (!list.contains(e.target)) return;
+        e.preventDefault();
+        if (!over || over === dragItem || over.parentElement !== list) return;
+        var r = over.getBoundingClientRect();
+        var grid = list.getAttribute('data-sortable') === 'grid';
+        var after = grid ? e.clientX > r.left + r.width / 2 : e.clientY > r.top + r.height / 2;
+        list.insertBefore(dragItem, after ? over.nextSibling : over);
+    });
+    document.addEventListener('drop', function (e) { if (dragItem) e.preventDefault(); });
+    document.addEventListener('dragend', function () {
+        if (!dragItem) return;
+        var list = dragItem.parentElement;
+        dragItem.classList.remove('is-dragging');
+        dragItem.draggable = false;
+        dragItem = null;
+        sorted(list);
+    });
+    document.addEventListener('keydown', function (e) {
+        var h = e.target.closest && e.target.closest('[data-drag-handle]');
+        if (!h) return;
+        var item = h.closest('[data-sortable-item]'), list = item.parentElement, moved = false;
+        if ((e.key === 'ArrowUp' || e.key === 'ArrowLeft') && item.previousElementSibling) { list.insertBefore(item, item.previousElementSibling); moved = true; }
+        if ((e.key === 'ArrowDown' || e.key === 'ArrowRight') && item.nextElementSibling) { list.insertBefore(item.nextElementSibling, item); moved = true; }
+        if (moved) { e.preventDefault(); h.focus(); sorted(list); }
+    });
+
+    // ---- Repeating rows: specifications, variations, downloads, new images ----
+    var keySeq = 0;
+    document.addEventListener('click', function (e) {
+        var add = e.target.closest && e.target.closest('[data-repeater-add]');
+        if (add) {
+            var box = add.closest('[data-repeater]');
+            var tpl = box.querySelector('template[data-repeater-template]');
+            var list = box.querySelector('[data-repeater-list]');
+            var key = 'n' + Date.now().toString(36) + (keySeq++);
+            var holder = document.createElement('div');
+            holder.innerHTML = tpl.innerHTML.replace(/__KEY__/g, key);
+            var row = holder.firstElementChild;
+            list.appendChild(row);
+            markDirty(list);
+            var first = row.querySelector('input[type=file][data-crop]');
+            if (add.hasAttribute('data-repeater-pick') && first) { first.click(); }
+            else { var f = row.querySelector('input:not([type=hidden]), select, textarea'); if (f) f.focus(); }
+            return;
+        }
+        var rm = e.target.closest && e.target.closest('[data-repeater-remove]');
+        if (rm) {
+            var r = rm.closest('[data-repeater-row]');
+            var flag = r.querySelector('[data-delete-flag]');
+            if (r.hasAttribute('data-existing') && flag) {
+                flag.value = '1';                 // saved row: mark for deletion on save
+                r.hidden = true;
+            } else {
+                r.remove();
+            }
+            var any = document.querySelector('form.adm-form');
+            if (any) markDirty(any);
+        }
+    });
+
+    // ---- Category → only matching subcategories ----
+    var catSel = document.querySelector('select[name=category_id]');
+    var subSel = document.querySelector('select[name=subcategory_id]');
+    if (catSel && subSel) {
+        var filterSubs = function () {
+            Array.prototype.forEach.call(subSel.options, function (o) {
+                if (!o.dataset.parent) return;
+                var show = !catSel.value || o.dataset.parent === catSel.value;
+                o.hidden = !show;
+                o.disabled = !show;
+                if (!show && o.selected) subSel.value = '';
+            });
+        };
+        catSel.addEventListener('change', filterSubs);
+        filterSubs();
+    }
+
+    // ---- Related products picker ----
+    var relAdd = document.querySelector('[data-related-add]');
+    var relList = document.querySelector('[data-related-list]');
+    if (relAdd && relList) {
+        var syncOptions = function () {
+            var chosen = Array.prototype.map.call(relList.querySelectorAll('input[name="related[]"]'), function (i) { return i.value; });
+            Array.prototype.forEach.call(relAdd.options, function (o) { if (o.value) o.disabled = chosen.indexOf(o.value) !== -1; });
+        };
+        relAdd.addEventListener('change', function () {
+            var o = relAdd.options[relAdd.selectedIndex];
+            if (!o || !o.value) return;
+            var li = document.createElement('li');
+            li.className = 'rep__row';
+            li.setAttribute('data-sortable-item', '');
+            li.setAttribute('data-repeater-row', '');
+            li.innerHTML = '<button type="button" class="adm-handle" data-drag-handle title="Drag to reorder" aria-label="Move">⋮⋮</button>'
+                + '<input type="hidden" name="related[]"><span class="rep__label"></span>'
+                + '<button type="button" class="adm-icon adm-icon--danger" data-repeater-remove aria-label="Remove">✕</button>';
+            li.querySelector('input').value = o.value;
+            li.querySelector('.rep__label').textContent = o.textContent;
+            relList.appendChild(li);
+            relAdd.value = '';
+            syncOptions();
+            markDirty(relList);
+            var manual = document.querySelector('input[name=related_mode][value=manual]');
+            if (manual) manual.checked = true;
+        });
+        relList.addEventListener('click', function () { setTimeout(syncOptions, 0); });
+        syncOptions();
+    }
+
+    // ---- HEX colour picker ↔ text field; swatches in lists ----
+    document.querySelectorAll('[data-hex-picker]').forEach(function (pick) {
+        var text = pick.parentElement.querySelector('input[name=hex]');
+        pick.addEventListener('input', function () { text.value = pick.value; text.dispatchEvent(new Event('input', { bubbles: true })); });
+        text.addEventListener('input', function () { if (/^#[0-9a-f]{6}$/i.test(text.value)) pick.value = text.value; });
+    });
+    document.querySelectorAll('.adm-swatch[data-hex]').forEach(function (s) {
+        if (/^#[0-9a-f]{3,6}$/i.test(s.dataset.hex)) s.style.backgroundColor = s.dataset.hex;
+    });
+
+    // ---- Simple rich-text editor (bold, italic, headings, lists, links) ----
+    document.querySelectorAll('textarea[data-richtext]').forEach(function (ta) {
+        var wrap = document.createElement('div');
+        wrap.className = 'rte';
+        var bar = document.createElement('div');
+        bar.className = 'rte__bar';
+        bar.setAttribute('role', 'toolbar');
+        bar.setAttribute('aria-label', 'Text formatting');
+        var area = document.createElement('div');
+        area.className = 'rte__area';
+        area.contentEditable = 'true';
+        area.setAttribute('role', 'textbox');
+        area.setAttribute('aria-multiline', 'true');
+        area.setAttribute('aria-label', ta.labels && ta.labels[0] ? ta.labels[0].textContent : 'Description');
+        area.innerHTML = ta.value;
+        [
+            ['bold', 'B', 'Bold'], ['italic', 'I', 'Italic'], ['underline', 'U', 'Underline'],
+            ['h3', 'H', 'Heading'], ['p', '¶', 'Paragraph'],
+            ['insertUnorderedList', '• List', 'Bullet list'], ['insertOrderedList', '1. List', 'Numbered list'],
+            ['link', 'Link', 'Add link'], ['unlink', 'Unlink', 'Remove link'], ['removeFormat', 'Clear', 'Clear formatting']
+        ].forEach(function (c) {
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.textContent = c[1];
+            b.title = c[2];
+            b.setAttribute('aria-label', c[2]);
+            b.addEventListener('mousedown', function (e) { e.preventDefault(); });
+            b.addEventListener('click', function () {
+                area.focus();
+                if (c[0] === 'h3' || c[0] === 'p') {
+                    document.execCommand('formatBlock', false, c[0]);
+                } else if (c[0] === 'link') {
+                    var url = window.prompt('Link address (https://…, /page/, mailto:…)');
+                    if (url) document.execCommand('createLink', false, url);
+                } else {
+                    document.execCommand(c[0], false, null);
+                }
+                sync();
+            });
+            bar.appendChild(b);
+        });
+        var sync = function () {
+            ta.value = area.innerHTML;
+            ta.dispatchEvent(new Event('input', { bubbles: true }));
+        };
+        area.addEventListener('input', sync);
+        area.addEventListener('paste', function (e) {
+            // Paste as plain text to keep the description clean.
+            e.preventDefault();
+            var text = (e.clipboardData || window.clipboardData).getData('text/plain');
+            document.execCommand('insertText', false, text);
+        });
+        try { document.execCommand('defaultParagraphSeparator', false, 'p'); } catch (err) { /* ignore */ }
+        wrap.appendChild(bar);
+        wrap.appendChild(area);
+        ta.hidden = true;
+        ta.parentNode.insertBefore(wrap, ta);
+        if (ta.form) ta.form.addEventListener('submit', function () { ta.value = area.innerHTML; });
     });
 
     // Warn before leaving a form with unsaved changes

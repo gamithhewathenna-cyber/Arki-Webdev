@@ -63,31 +63,56 @@ $store = $inner(
 );
 $store['categories']['data']['heading'] = 'Our Categories';
 
-$products = [];
-foreach ([
-    ['Luna Chair', 'Dining Chair', '$ 450',   'White wingback chair with oak legs'],
-    ['Zen Lounge', 'Lounge Chair', '$ 1,950', 'Black shell chair with wooden legs'],
-    ['Zen Lounge', 'Lounge Chair', '$ 1,950', 'Cream bouclé swivel chair'],
-    ['Zen Lounge', 'Lounge Chair', '$ 1,950', 'Bouclé armchair with walnut legs'],
-    ['Axis Table', 'Dining Table', '$ 1,950', 'Oak dining table with tapered legs'],
-    ['Zen Lounge', 'Lounge Chair', '$ 1,950', 'Tufted cream accent chair'],
-    ['Axis Table', 'Dining Table', '$ 1,950', 'Marble and brass nesting tables'],
-    ['Axis Table', 'Dining Table', '$ 1,950', 'Round walnut side table'],
-] as $i => [$name, $type, $price, $alt]) {
-    $products[] = [
-        'name' => $name, 'type' => $type, 'price_prefix' => 'From', 'price' => $price, 'sku' => 'AE- A0136',
-        'image' => 'uploads/demo/store-product-' . ($i + 1) . '.jpg', 'image_alt' => $alt, 'url' => '#',
-    ];
-}
+$shopBanner = [
+    'data' => [
+        'image'        => 'uploads/demo/shop-banner.jpg',
+        'image_alt'    => 'Living room with green sofa and timber coffee table',
+        'tagline'      => 'Designed For Work. Built For People.',
+        'heading'      => "Lorem Ipsum Dolor\nSit Amet Magna",
+        'body'         => 'Lorem Ipsum Dolor Sit Amet Consectetur. Magna Sed Quis Nibh Scelerisque Nisl Urna Rhoncus Condimentum Odio. Eu Quis Egestas Malesuada Aenean Sem Elementum.',
+        'button_label' => 'Explore Products',
+        'button_url'   => '#products',
+    ],
+];
 
 return [
+    'shop' => [
+        'banner_work'  => $shopBanner,
+        'banner_learn' => $shopBanner,
+        'banner_store' => $shopBanner,
+        'listing_cta'  => ['copy_from' => 'home', 'copy_key' => 'cta'],
+        'product_cta'  => [
+            'data' => [
+                'image'           => 'uploads/demo/cta-bg.jpg',
+                'image_alt'       => 'Bright living space with sofa and round coffee tables',
+                'tagline'         => 'More Than A Furniture Store',
+                'heading'         => "Ready To Put Ideas\nInto Practice?",
+                'body'            => "If something here sparked a thought for your own space, we'd love to help you make it real.",
+                'primary_label'   => 'Get In Touch',
+                'primary_url'     => '#',
+                'secondary_label' => '',
+                'secondary_url'   => '',
+            ],
+        ],
+        'product_page' => [
+            'data' => [
+                'eyebrow'            => 'More Than A Furniture Store',
+                'agent_label'        => 'Login To View',
+                'family_heading'     => 'Family Of Products',
+                'related_heading'    => 'Related Products',
+                'related_text'       => 'Lorem ipsum dolor sit amet consectetur. Condimentum convallis nulla nec ultrices convallis non turpis. Euismod lacus nunc in id justo ac sed. Sit habitant donec massa semper nibh maecenas.',
+                'related_link_label' => 'Explore Our Projects',
+                'related_link_url'   => '#',
+            ],
+        ],
+    ],
+
     'store' => [
         'banner'     => $store['banner'],
         'intro'      => $store['intro'],
         'categories' => $store['categories'],
         'products'   => [
-            'data'  => ['heading' => 'Featured Products', 'link_label' => 'View All Products', 'link_url' => '#'],
-            'items' => $products,
+            'data' => ['heading' => 'Featured Products', 'link_label' => 'View All Products', 'link_url' => 'store/products/', 'source' => 'featured', 'limit' => '8'],
         ],
         'cta'        => ['copy_from' => 'home'],
     ],
