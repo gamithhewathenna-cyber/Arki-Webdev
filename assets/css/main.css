@@ -41,6 +41,13 @@
 }
 
 /* 2. Fonts (self-hosted, no third-party requests) -------------------- */
+@font-face {   /* light – used by the top notification bar */
+    font-family: "Noto Serif";
+    font-style: normal;
+    font-weight: 300;
+    font-display: swap;
+    src: url("../fonts/noto-serif-latin-300-normal.woff2") format("woff2");
+}
 @font-face {
     font-family: "Noto Serif";
     font-style: normal;
@@ -1421,13 +1428,15 @@ a.promo__media:focus-visible { outline: 3px solid #fff; outline-offset: -6px; }
 :root { --topbar-h: 36px; }
 .topbar {
     position: relative; z-index: 56; height: var(--topbar-h); overflow: hidden;
-    background: #000; color: #fff; font-size: var(--fs-xs); letter-spacing: .04em; line-height: 1;
+    background: #000; color: rgba(255, 255, 255, .82); line-height: 1;
+    font-size: min(.69rem, 11px); font-weight: 300; letter-spacing: .07em;   /* small and light (Noto Serif Light) */
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;   /* thinner white-on-black text */
 }
 .topbar__track { display: flex; width: max-content; height: 100%; }
 .topbar__group { display: flex; align-items: center; flex: none; height: 100%; margin: 0; padding: 0; list-style: none; }
 .topbar__item { position: relative; display: flex; align-items: center; height: 100%; padding: 0 clamp(26px, 2.4vw, 44px); white-space: nowrap; }
 .topbar__item::after { content: ""; position: absolute; right: -2px; top: 50%; width: 4px; height: 4px; margin-top: -2px; border-radius: 50%; background: var(--c-gold); }
-.topbar__item a { color: #fff; text-decoration: none; transition: color .2s; }
+.topbar__item a { color: inherit; text-decoration: none; transition: color .2s; }
 .topbar__item a:hover, .topbar__item a:focus-visible { color: var(--c-gold); text-decoration: underline; text-underline-offset: 3px; }
 .topbar.is-ready .topbar__track { animation: topbar-slide var(--topbar-dur, 40s) linear infinite; }
 .topbar:hover .topbar__track, .topbar:focus-within .topbar__track { animation-play-state: paused; }   /* stop to read or click */
