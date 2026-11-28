@@ -57,3 +57,10 @@ send_security_headers();
 // Website accounts: resolve the signed-in customer/agent now (a "Remember me"
 // sign-in may need to set a cookie, which must happen before any output).
 UserAuth::user();
+
+// House style: the public website never shows the long dash (—). Every public page
+// is passed through this filter, so it also covers text typed in the CMS later.
+// The CMS itself (/admin/) is left untouched.
+if (!preg_match('#/admin(/|$)#', strtr((string)($_SERVER['SCRIPT_NAME'] ?? ''), chr(92), '/'))) {
+    ob_start(static fn(string $html): string => str_replace(['—', '&mdash;', '&#8212;', '&#x2014;'], '-', $html));
+}

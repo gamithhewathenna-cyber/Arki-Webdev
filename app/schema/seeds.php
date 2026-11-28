@@ -199,7 +199,7 @@ return [
                 'tagline'         => 'Our Story',
                 'heading'         => 'Who We Are',
                 'body'            => "Arki began with a simple belief: that the right environment changes how people feel, focus and work together. From our showrooms in Sydney and Brisbane, we partner with organisations and schools across Australia to plan, furnish and finish spaces that work as hard as the people in them."
-                                   . "\n\nAs one of a select global network of Steelcase dealers, we connect our clients to decades of international research — and deliver it with the care and accountability of a local team.",
+                                   . "\n\nAs one of a select global network of Steelcase dealers, we connect our clients to decades of international research - and deliver it with the care and accountability of a local team.",
                 'beliefs_heading' => 'Our beliefs',
                 'image'           => 'uploads/demo/gal-1.jpg',
                 'image_alt'       => 'Living room with a grey sofa and rattan pendant lights',
@@ -220,7 +220,7 @@ return [
                 'body'      => 'We make creating a great space simple, guiding you through every stage so nothing is left to chance.',
             ],
             'items' => [
-                ['icon' => 'discover', 'title' => 'Discover',          'text' => 'We listen first — to your people, your goals and the way you want to work.'],
+                ['icon' => 'discover', 'title' => 'Discover',          'text' => 'We listen first - to your people, your goals and the way you want to work.'],
                 ['icon' => 'layers',   'title' => 'Design & specify',  'text' => 'We plan and specify the right layout, products and finishes for your space and budget.'],
                 ['icon' => 'truck',    'title' => 'Deliver & install', 'text' => 'We manage delivery and installation so it lands on time and in place.'],
                 ['icon' => 'support',  'title' => 'Support',           'text' => 'We’re here after handover, with warranty, care and advice for years to come.'],
@@ -230,8 +230,8 @@ return [
             'copy_from' => 'home',   // the homepage logos, with these texts
             'data'      => [
                 'heading' => "The Best,\nBrought Together",
-                'body'    => "We bring together leading global brands — including Steelcase, Orangebox and Smith System — alongside trusted local Australian makers. It means we can shape the right solution for any space, rather than forcing a space to fit one range."
-                           . "\n\nAs an authorised Steelcase dealer, we give our clients direct access to Steelcase’s global research, innovation and quality — backed locally by our own team.",
+                'body'    => "We bring together leading global brands - including Steelcase, Orangebox and Smith System - alongside trusted local Australian makers. It means we can shape the right solution for any space, rather than forcing a space to fit one range."
+                           . "\n\nAs an authorised Steelcase dealer, we give our clients direct access to Steelcase’s global research, innovation and quality - backed locally by our own team.",
             ],
         ],
         'inspiration' => [
@@ -239,10 +239,10 @@ return [
             'data'      => [
                 'tagline'      => 'Inspiration',
                 'heading'      => "Design Backed\nBy Evidence",
-                'body'         => 'The way we work is always changing — and the spaces we work in should keep up. Through Steelcase’s ongoing global research, we help clients make confident, future-focused decisions grounded in how people really behave, not guesswork.',
+                'body'         => 'The way we work is always changing - and the spaces we work in should keep up. Through Steelcase’s ongoing global research, we help clients make confident, future-focused decisions grounded in how people really behave, not guesswork.',
                 'button_label' => 'Explore Our Insights',
                 'note_heading' => 'Designing Responsibly',
-                'note_text'    => 'We favour products designed to last and to be responsibly made, reducing waste and the need to replace. Longevity is our first act of sustainability — and we’ll always help clients choose options that tread more lightly.',
+                'note_text'    => 'We favour products designed to last and to be responsibly made, reducing waste and the need to replace. Longevity is our first act of sustainability - and we’ll always help clients choose options that tread more lightly.',
             ],
         ],
         'showrooms' => [

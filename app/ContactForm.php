@@ -102,7 +102,7 @@ final class ContactForm
             . 'Topic:   ' . ($d['topic'] ?: '–') . "\n"
             . 'Updates: ' . ($d['newsletter'] ? 'Yes, wants occasional updates' : 'No') . "\n\n"
             . "Message:\n{$d['message']}\n\n"
-            . "— Also saved in the CMS under Enquiries.\n";
+            . "- Also saved in the CMS under Enquiries.\n";
         $headers = [
             'From: ' . $clean($site) . ' <no-reply@' . $host . '>',
             'Reply-To: ' . $clean($name) . ' <' . $clean($d['email']) . '>',
