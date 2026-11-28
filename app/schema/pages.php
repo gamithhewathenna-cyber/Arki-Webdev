@@ -430,18 +430,20 @@ $innerPage = static fn(string $label, string $url): array => [
 $schema['work']  = $innerPage('Work Page', 'work/');
 $schema['learn'] = $innerPage('Learn Page', 'learn/');
 
-/* Work page: the category cards are built automatically from Products – one card per
-   Work category, with a random image of a Work product in it (no manual cards). */
-$schema['work']['sections']['categories'] = [
+/* Work and Learn pages: the category cards are built automatically from Products – one card
+   per category of that storefront, with a random image of one of its products (no manual cards). */
+$autoCategories = static fn(string $name): array => [
     'label'       => 'Product Categories (automatic)',
-    'description' => 'One card per Work category (Products → Lists → Work Categories), each showing a random image of a published Work product in that category – a new mix on every visit. Categories without products are left out. Only the texts below are edited here.',
+    'description' => "One card per $name category (Products → Lists → $name Categories), each showing a random image of a published $name product in that category – a new mix on every visit. Categories without products are left out. Only the texts below are edited here.",
     'auto'        => true,
     'fields'      => [
         'heading'    => ['type' => 'text', 'label' => 'Heading (optional)', 'help' => 'e.g. Our Categories'],
-        'link_label' => ['type' => 'text', 'label' => 'Link label', 'help' => 'e.g. Explore All Work Products'],
+        'link_label' => ['type' => 'text', 'label' => 'Link label', 'help' => "e.g. Explore All $name Products"],
         'link_url'   => ['label' => 'Link URL'] + $link,
     ],
 ];
+$schema['work']['sections']['categories']  = $autoCategories('Work');
+$schema['learn']['sections']['categories'] = $autoCategories('Learn');
 
 /** Store layout: banner, intro, categories (with heading), featured products, call to action. */
 $schema['store'] = [
