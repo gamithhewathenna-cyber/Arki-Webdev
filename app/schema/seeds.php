@@ -293,7 +293,6 @@ return [
             'data' => [
                 'image'        => 'uploads/demo/popup-demo.jpg',
                 'image_alt'    => 'Bright living space with sofa and round coffee tables',
-                'button_label' => 'Explore Our Store',
                 'button_url'   => 'store/',
                 'scroll'       => '15',
                 'frequency'    => 'session',

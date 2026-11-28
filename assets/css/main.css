@@ -1402,14 +1402,9 @@ html:has(.promo[open]) { overflow: hidden; }   /* page stays still behind the po
 .promo__close svg { width: 16px; height: 16px; }
 .promo__close:hover { background: #fff; transform: rotate(90deg); }
 .promo__close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-.promo__btn {
-    position: absolute; left: 50%; bottom: clamp(16px, 2.6vw, 30px); transform: translateX(-50%); z-index: 1;
-    padding: .85em 1.9em; border-radius: 999px; background: var(--c-ink); color: #fff;
-    font-size: var(--fs-sm); letter-spacing: .04em; white-space: nowrap;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, .25); transition: background-color .2s, transform .25s var(--ease);
-}
-.promo__btn:hover { background: #333; transform: translateX(-50%) translateY(-2px); }
-.promo__btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.promo__media { transition: opacity .2s; }
+a.promo__media:hover { opacity: .94; }
+a.promo__media:focus-visible { outline: 3px solid #fff; outline-offset: -6px; }
 @media (prefers-reduced-motion: no-preference) {
     .promo[open] { animation: promo-in .5s var(--ease) both; }
     .promo[open]::backdrop { animation: promo-fade .5s ease both; }

@@ -387,7 +387,7 @@ $schema['shop'] = [
             'heading'      => ['type' => 'multiline', 'label' => 'Main heading (H1)'],
             'body'         => ['type' => 'textarea', 'label' => 'Description'],
             'button_label' => ['type' => 'text', 'label' => 'Button text'],
-            'button_url'   => ['label' => 'Button link'] + $link,
+            'button_url'   => ['label' => 'Image link', 'help' => 'Where a click on the image goes, e.g. /store/ or https://… Leave blank for no link.'] + $link,
         ]],
     ],
 ];
@@ -523,7 +523,7 @@ $schema['contact'] = [
                     'map_address'  => ['type' => 'text', 'label' => 'Map location', 'help' => 'Address to show on the Google map, e.g. 13 Bowden Street, Alexandria NSW 2015. Leave empty to show the image below instead.'],
                     'map_image'    => ['type' => 'image', 'label' => 'Map image (optional)', 'help' => 'Only used when no map location is given.', 'crop' => ['w' => 1180, 'h' => 820]],
                     'button_label' => ['type' => 'text', 'label' => 'Button text', 'default' => 'Book An Appointment'],
-                    'button_url'   => ['label' => 'Button link'] + $link,
+                    'button_url'   => ['label' => 'Image link', 'help' => 'Where a click on the image goes, e.g. /store/ or https://… Leave blank for no link.'] + $link,
                 ],
             ],
         ],
@@ -642,12 +642,11 @@ $schema['popup'] = [
         'popup' => [
             'tab'         => 'Promo Popup',
             'label'       => 'Promo Popup',
-            'description' => 'A 700 × 500 image in a popup with a close button and a link button. It opens once the visitor has scrolled part of the way down a page. Use the Visible switch to turn the popup on or off.',
+            'description' => 'A 700 × 500 image in a popup with a close button – the whole image is a link. It opens once the visitor has scrolled part of the way down a page. Use the Visible switch to turn the popup on or off.',
             'fields'      => [
-                'image'        => ['type' => 'image', 'label' => 'Popup image', 'required' => true, 'help' => '700 × 500 px. Keep important text away from the bottom edge – the button sits there.', 'crop' => ['w' => 700, 'h' => 500]],
+                'image'        => ['type' => 'image', 'label' => 'Popup image', 'required' => true, 'help' => '700 × 500 px. Keep important text away from the top-right corner – the close button sits there.', 'crop' => ['w' => 700, 'h' => 500]],
                 'image_alt'    => ['type' => 'text', 'label' => 'Image description (alt text)', 'help' => 'What the image says, e.g. 20% off all lounge chairs this month.'],
-                'button_label' => ['type' => 'text', 'label' => 'Button text', 'help' => 'e.g. Shop The Sale. Leave blank to hide the button.'],
-                'button_url'   => ['label' => 'Button link'] + $link,
+                'button_url'   => ['label' => 'Image link', 'help' => 'Where a click on the image goes, e.g. /store/ or https://… Leave blank for no link.'] + $link,
                 'scroll'       => ['type' => 'select', 'label' => 'Open after scrolling', 'options' => ['15' => '15% of the page', '10' => '10% of the page', '25' => '25% of the page', '50' => '50% of the page']],
                 'frequency'    => ['type' => 'select', 'label' => 'How often', 'options' => [
                     'session' => 'Once per visit (until the browser is closed)',
