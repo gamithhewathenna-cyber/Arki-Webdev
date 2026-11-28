@@ -528,4 +528,78 @@ $schema['contact'] = [
     ],
 ];
 
+/* =================================================================
+ *  ABOUT US (/about/)
+ * ================================================================= */
+$aboutBanner = $bannerSection;
+$aboutBanner['fields']['align'] = ['type' => 'select', 'label' => 'Text position', 'options' => ['left' => 'Left', 'center' => 'Centred']];
+
+$aboutInspiration = $home['inspiration'];
+$aboutInspiration['description'] = 'Heading, text and button, two images, then an optional grey box with a short statement.';
+$aboutInspiration['fields']['note_heading'] = ['type' => 'text', 'label' => 'Grey box – heading', 'help' => 'e.g. Designing Responsibly. Leave empty to hide the box.'];
+$aboutInspiration['fields']['note_text']    = ['type' => 'textarea', 'label' => 'Grey box – text'];
+
+$aboutShowrooms = $schema['contact']['sections']['showrooms'];
+$aboutShowrooms['description'] = 'Showroom cards (address, hours, map) with a short note below.';
+$aboutShowrooms['fields'] = ['style' => ['type' => 'select', 'label' => 'Style', 'options' => ['light' => 'Light – no background image', 'dark' => 'Dark image band (like the Contact page)']]] + $aboutShowrooms['fields'];
+$aboutShowrooms['fields']['image']['help'] = 'Only used with the dark style.';
+
+$schema['about'] = [
+    'label'    => 'About Page',
+    'url'      => 'about/',
+    'sortable' => true,
+    'sections' => [
+        'banner' => $aboutBanner,
+
+        'story' => [
+            'tab'         => 'Who We Are',
+            'label'       => 'Our Story – Who We Are',
+            'description' => 'Text with a list of beliefs on the left, a large rounded image on the right.',
+            'fields'      => [
+                'tagline'         => ['type' => 'text', 'label' => 'Tagline', 'help' => 'e.g. Our Story'],
+                'heading'         => ['type' => 'multiline', 'label' => 'Heading'],
+                'body'            => ['type' => 'textarea', 'label' => 'Text', 'help' => 'Leave a blank line between paragraphs.'],
+                'beliefs_heading' => ['type' => 'text', 'label' => 'List heading', 'help' => 'e.g. Our beliefs'],
+                'image'           => ['type' => 'image', 'label' => 'Image', 'crop' => ['w' => 1200, 'h' => 1220]],
+                'image_alt'       => ['type' => 'text', 'label' => 'Image description (alt text)'],
+            ],
+            'items'       => [
+                'label'  => 'Belief',
+                'title'  => 'title',
+                'fields' => [
+                    'title' => ['type' => 'text', 'label' => 'Title', 'required' => true],
+                    'text'  => ['type' => 'text', 'label' => 'Short text'],
+                ],
+            ],
+        ],
+
+        'process' => [
+            'tab'         => 'How We Work',
+            'label'       => 'How We Work – Steps',
+            'description' => 'Dark image band with the heading on the left and white step cards (2 × 2) on the right.',
+            'fields'      => [
+                'image'     => ['type' => 'image', 'label' => 'Background image', 'help' => 'Shown dark behind the heading.', 'crop' => ['w' => 2400, 'h' => 1100]],
+                'image_alt' => ['type' => 'text', 'label' => 'Image description (alt text)'],
+                'tagline'   => ['type' => 'text', 'label' => 'Tagline', 'help' => 'e.g. How We Work'],
+                'heading'   => ['type' => 'multiline', 'label' => 'Heading'],
+                'body'      => ['type' => 'textarea', 'label' => 'Text'],
+            ],
+            'items'       => [
+                'label'  => 'Step',
+                'title'  => 'title',
+                'fields' => [
+                    'icon'  => ['type' => 'select', 'label' => 'Icon', 'options' => ['discover' => 'Magnifier (discover)', 'layers' => 'Layers (design)', 'truck' => 'Truck (delivery)', 'support' => 'Headset (support)', 'check-circle' => 'Tick']],
+                    'title' => ['type' => 'text', 'label' => 'Title', 'required' => true],
+                    'text'  => ['type' => 'textarea', 'label' => 'Text'],
+                ],
+            ],
+        ],
+
+        'brands'      => $home['brands'],
+        'inspiration' => $aboutInspiration,
+        'showrooms'   => $aboutShowrooms,
+        'cta'         => $home['cta'],
+    ],
+];
+
 return $schema;

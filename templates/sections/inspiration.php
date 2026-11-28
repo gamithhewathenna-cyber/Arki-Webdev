@@ -21,5 +21,12 @@
             <?php endforeach; ?>
         </div>
         <?php endif; ?>
+
+        <?php if (!empty($d['note_heading']) || !empty($d['note_text'])): /* About page: grey statement box */ ?>
+        <div class="inspiration-note">
+            <?php if (!empty($d['note_heading'])): ?><h3 class="inspiration-note__title"><?= e($d['note_heading']) ?></h3><?php endif; ?>
+            <?php if (!empty($d['note_text'])): ?><div class="inspiration-note__text"><?= paragraphs($d['note_text']) ?></div><?php endif; ?>
+        </div>
+        <?php endif; ?>
     </div>
 </section>

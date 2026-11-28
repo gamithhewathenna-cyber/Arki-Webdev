@@ -53,7 +53,8 @@ final class ContentRepository
             if (!empty($seed['copy_from'])) {
                 $src = Database::one('SELECT * FROM sections WHERE page = ? AND section_key = ?', [$seed['copy_from'], $seed['copy_key'] ?? $key]);
                 if ($src) {
-                    $data  = json_decode((string)$src['data'], true) ?: [];
+                    // copied content; any 'data' given in the seed replaces those fields
+                    $data  = array_merge(json_decode((string)$src['data'], true) ?: [], $seed['data'] ?? []);
                     $items = [];
                     foreach (Database::all('SELECT data, is_active FROM section_items WHERE section_id = ? ORDER BY sort_order, id', [$src['id']]) as $it) {
                         $items[]  = json_decode((string)$it['data'], true) ?: [];

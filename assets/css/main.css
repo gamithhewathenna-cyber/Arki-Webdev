@@ -1242,3 +1242,79 @@ html { scroll-padding-top: calc(var(--stuck-h, 0px) + 16px); }
     .js .reveal { opacity: 1 !important; transform: none !important; }
     .site-header.is-stuck { position: static; box-shadow: none; }
 }
+
+/* ==========================================================================
+   About page (/about/)
+   ========================================================================== */
+
+/* Banner with the text on the left (Banner → Text position: Left) */
+.section-banner--left .section-banner__inner { align-items: flex-start; text-align: left; }
+.section-banner--left .section-banner__bg::after { background: linear-gradient(90deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.35) 45%, rgba(0,0,0,.08) 80%); }
+.section-banner--left .section-banner__title { font-size: clamp(2rem, 1rem + 2.4vw, 3.6rem); }
+
+/* Our Story – Who We Are */
+.story { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 160px); align-items: center; }
+.story__body { max-width: 640px; }
+.story__list-title { margin-top: clamp(24px, 2.4vw, 44px); font-size: var(--fs-base); color: var(--c-ink); }
+.beliefs { display: grid; gap: clamp(12px, 1vw, 20px); margin-top: 1rem; }
+.beliefs__item { display: flex; gap: 14px; align-items: flex-start; }
+.beliefs__icon { flex: none; width: 15px; height: 15px; margin-top: 3px; color: var(--c-ink); }
+.beliefs__icon svg { width: 100%; height: 100%; }
+.beliefs__title { margin: 0; font-size: var(--fs-sm); font-weight: 600; color: var(--c-ink); }
+.beliefs__text { margin: .15em 0 0; font-size: var(--fs-sm); line-height: 1.6; color: var(--c-muted); }
+.story__media { aspect-ratio: 1200 / 1220; border-radius: clamp(14px, 1.6vw, 28px); margin: 0; }
+
+/* How We Work – dark image on the left ~80%, white step cards on the right */
+.section-process { position: relative; isolation: isolate; padding-block: clamp(48px, 5vw, 120px); }
+.process__bg { position: absolute; top: 0; bottom: 0; left: 0; width: 80%; z-index: -1; overflow: hidden; background: #1b1b1b; }
+.process__bg picture, .process__bg img { width: 100%; height: 100%; }
+.process__bg img { object-fit: cover; }
+.process__bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,.72) 0%, rgba(0,0,0,.55) 60%, rgba(0,0,0,.4) 100%); }
+.process { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(28px, 4vw, 100px); align-items: center; }
+.process__intro { color: #fff; max-width: 440px; }
+.process__tagline { margin: 0 0 .4rem; font-size: var(--fs-sm); letter-spacing: .1em; }
+.process__title { color: #fff; font-size: var(--fs-h2); line-height: 1.2; letter-spacing: .01em; }
+.process__text { margin-top: 1rem; font-size: var(--fs-sm); line-height: 1.7; color: rgba(255, 255, 255, .82); }
+.process__text p { margin: 0; }
+.process-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(12px, 1.4vw, 28px); }
+.process-card {
+    padding: clamp(18px, 1.8vw, 36px) clamp(18px, 1.8vw, 34px);
+    border-radius: clamp(14px, 1.4vw, 24px); background: #fff;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, .12);
+}
+.process-card:nth-child(even) { transform: translateY(-12px); }   /* gentle stagger like the design */
+.js .process-card.reveal:nth-child(even) { transform: translateY(22px); }
+.js .process-card.reveal.is-in:nth-child(even) { transform: translateY(-12px); }
+.process-card__icon { display: inline-flex; width: clamp(22px, 1.8vw, 32px); height: clamp(22px, 1.8vw, 32px); color: var(--c-gold); }
+.process-card__icon svg { width: 100%; height: 100%; }
+.process-card__title { margin-top: .7rem; font-size: var(--fs-base); color: var(--c-ink); }
+.process-card__text { margin: .4rem 0 0; font-size: var(--fs-sm); line-height: 1.6; color: var(--c-muted); }
+
+/* Inspiration – grey statement box under the images */
+.inspiration-note { margin-top: clamp(20px, 2.4vw, 48px); padding: clamp(22px, 2.4vw, 48px) clamp(20px, 4vw, 100px); border-radius: clamp(14px, 1.4vw, 24px); background: #e8e8e8; text-align: center; }
+.inspiration-note__title { font-size: var(--fs-h3); color: var(--c-heading); }
+.inspiration-note__text { margin: .6rem auto 0; max-width: 900px; font-size: var(--fs-sm); line-height: 1.7; color: var(--c-muted); }
+.inspiration-note__text p { margin: 0; }
+
+/* Showrooms – light style (no background image) */
+.showrooms--light { background: transparent; color: var(--c-ink); }
+.showrooms--light .showrooms__title { color: var(--c-heading); }
+.showrooms--light .showrooms__text { color: var(--c-text); }
+.showrooms--light .showroom { border-color: #d9b98a; background: rgba(255, 255, 255, .55); padding-bottom: clamp(18px, 1.9vw, 40px); }
+.showrooms--light .showroom__city { color: var(--c-heading); }
+.showrooms--light .showroom__label { color: var(--c-muted); }
+.showrooms--light .showroom__map { background: #e4e4e4; }
+.showrooms__footnote { margin: clamp(18px, 1.8vw, 36px) 0 0; font-size: var(--fs-sm); color: var(--c-muted); }
+.showrooms__footnote span { color: #c0392b; margin-right: .2em; }
+
+@media (max-width: 900px) {
+    .story { grid-template-columns: 1fr; }
+    .story__media { order: -1; max-width: 560px; }
+    .process__bg { width: 100%; }
+    .process { grid-template-columns: 1fr; }
+    .process-card:nth-child(even),
+    .js .process-card.reveal.is-in:nth-child(even) { transform: none; }
+}
+@media (max-width: 560px) {
+    .process-grid { grid-template-columns: 1fr; }
+}

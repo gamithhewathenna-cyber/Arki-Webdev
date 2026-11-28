@@ -1,5 +1,5 @@
 <?php /** @var array $s */ $d = $s['data']; ?>
-<section class="section-banner">
+<section class="section-banner<?= ($d['align'] ?? '') === 'left' ? ' section-banner--left' : '' ?>">
     <div class="section-banner__bg"><?= picture($d['image'] ?? '', (string)($d['image_alt'] ?? ''), ['eager' => true]) ?></div>
     <div class="container section-banner__inner">
         <?php if (!empty($d['tagline'])): ?><p class="section-banner__tagline"><?= e($d['tagline']) ?></p><?php endif; ?>

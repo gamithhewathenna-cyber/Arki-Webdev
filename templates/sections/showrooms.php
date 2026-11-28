@@ -1,6 +1,8 @@
-<?php /** Contact page: dark "Come And See Us" band with showroom cards. @var array $s */ $d = $s['data']; ?>
-<section class="showrooms">
-    <div class="showrooms__bg"><?= picture($d['image'] ?? '', (string)($d['image_alt'] ?? '')) ?></div>
+<?php /** "Come And See Us" showroom cards – dark image band (Contact page) or light (About page). @var array $s */
+$d = $s['data'];
+$light = ($d['style'] ?? 'dark') === 'light'; ?>
+<section class="showrooms<?= $light ? ' showrooms--light' : '' ?>">
+    <?php if (!$light): ?><div class="showrooms__bg"><?= picture($d['image'] ?? '', (string)($d['image_alt'] ?? '')) ?></div><?php endif; ?>
     <div class="container">
         <?php if (!empty($d['heading'])): ?><h2 class="showrooms__title"><?= lines($d['heading']) ?></h2><?php endif; ?>
         <?php if (!empty($d['body'])): ?><div class="showrooms__text"><?= paragraphs($d['body']) ?></div><?php endif; ?>
@@ -39,7 +41,9 @@
         </ul>
         <?php endif; ?>
 
-        <?php if (!empty($d['note_title']) || !empty($d['note_text'])): ?>
+        <?php if ($light && (!empty($d['note_title']) || !empty($d['note_text']))): ?>
+        <p class="showrooms__footnote"><span aria-hidden="true">*</span> <?php if (!empty($d['note_title'])): ?><strong><?= e($d['note_title']) ?></strong> <?php endif; ?><?= e($d['note_text'] ?? '') ?></p>
+        <?php elseif (!empty($d['note_title']) || !empty($d['note_text'])): ?>
         <div class="showrooms__note">
             <span class="showrooms__note-icon"><?= icon('truck') ?></span>
             <div class="showrooms__note-text">
