@@ -316,4 +316,100 @@
             if (e.key === 'ArrowLeft') { el.scrollBy({ left: -300, behavior: 'smooth' }); }
         });
     });
+
+    /* Sticky header ------------------------------------------------------ */
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (header) {
+        var overlayHeader = header.classList.contains('site-header--overlay');
+        var spacer = null;
+        if (!overlayHeader) { // a normal header leaves a gap behind when it turns fixed – fill it
+            spacer = document.createElement('div');
+            spacer.className = 'site-header-spacer';
+            spacer.setAttribute('aria-hidden', 'true');
+            header.parentNode.insertBefore(spacer, header);
+        }
+        var naturalH = 0, naturalBottom = 0, stuck = false, ticking = false;
+        var measure = function () {
+            if (stuck) return;
+            var r = header.getBoundingClientRect();
+            naturalH = header.offsetHeight;
+            naturalBottom = r.bottom + window.pageYOffset;
+        };
+        var setStuck = function (on) {
+            if (on === stuck) return;
+            stuck = on;
+            if (spacer) {
+                spacer.style.height = naturalH + 'px';
+                spacer.classList.toggle('is-on', on);
+            }
+            header.classList.remove('header-intro');
+            header.classList.toggle('is-stuck', on);
+            document.documentElement.style.setProperty('--stuck-h', on ? header.offsetHeight + 'px' : '0px');
+            if (!on) measure();
+        };
+        var onScroll = function () {
+            ticking = false;
+            var y = window.pageYOffset;
+            if (!stuck && y > naturalBottom + 40) setStuck(true);
+            else if (stuck && y <= 2) setStuck(false);
+        };
+        measure();
+        onScroll();
+        window.addEventListener('scroll', function () {
+            if (!ticking) { ticking = true; window.requestAnimationFrame(onScroll); }
+        }, { passive: true });
+        window.addEventListener('resize', function () {
+            if (stuck) document.documentElement.style.setProperty('--stuck-h', header.offsetHeight + 'px');
+            else measure();
+        });
+        if (!reduceMotion && !stuck) {
+            header.classList.add('header-intro');
+            setTimeout(function () { header.classList.remove('header-intro'); }, 900);
+        }
+    }
+
+    /* Reveal-on-scroll animations ---------------------------------------- */
+    if (!reduceMotion && 'IntersectionObserver' in window) {
+        var main = document.querySelector('main');
+        var blocks = [];
+        if (main) {
+            main.querySelectorAll(':scope > section, :scope > div > section, :scope > .container > section, :scope > div > .container > section').forEach(function (el) { blocks.push(el); });
+        }
+        var footer = document.querySelector('.site-footer');
+        if (footer) blocks.push(footer);
+
+        // Cards inside grids / sliders come in one after another
+        var items = [];
+        document.querySelectorAll('.hero-grid, .category-grid, .product-grid, .family-grid, .solutions-grid, .inspiration-grid, .gallery-grid, .showroom-grid, .related-slider__track, .cart-list').forEach(function (grid) {
+            Array.prototype.forEach.call(grid.children, function (el, i) {
+                el.style.setProperty('--reveal-delay', Math.min(i, 7) * 90 + 'ms');
+                items.push(el);
+            });
+        });
+
+        var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (en) {
+                if (en.isIntersecting) {
+                    en.target.classList.add('is-in');
+                    io.unobserve(en.target);
+                }
+            });
+        }, { rootMargin: '0px 0px -6% 0px', threshold: 0 });
+
+        blocks.forEach(function (el) {
+            // a section holding a card grid only fades – its cards do the moving
+            if (el.querySelector('.hero-grid, .category-grid, .product-grid, .family-grid, .solutions-grid, .inspiration-grid, .gallery-grid, .showroom-grid, .related-slider__track')) el.classList.add('reveal--fade');
+            el.classList.add('reveal');
+            io.observe(el);
+        });
+        items.forEach(function (el) { el.classList.add('reveal'); io.observe(el); });
+
+        // Safety net: never leave anything hidden (e.g. very long pages, odd browsers)
+        setTimeout(function () {
+            document.querySelectorAll('.reveal:not(.is-in)').forEach(function (el) {
+                var r = el.getBoundingClientRect();
+                if (r.top < window.innerHeight && r.bottom > 0) el.classList.add('is-in');
+            });
+        }, 2500);
+    }
 })();

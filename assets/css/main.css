@@ -950,7 +950,7 @@ a.contact-button:hover { background: var(--c-ink); color: #fff; }
 .cart-update:hover { background: var(--c-ink); color: #fff; }
 .js .cart-update { display: none; }
 
-.cart-summary { padding: clamp(22px, 2.2vw, 44px); border-radius: clamp(18px, 2vw, 36px); background: #d9d9d9; position: sticky; top: 20px; }
+.cart-summary { padding: clamp(22px, 2.2vw, 44px); border-radius: clamp(18px, 2vw, 36px); background: #d9d9d9; position: sticky; top: calc(var(--stuck-h, 0px) + 20px); }
 .cart-summary__title { font-size: clamp(1.3rem, 1rem + .6vw, 1.8rem); color: var(--c-ink); }
 .cart-summary__rows { display: grid; gap: .7rem; margin: 1.2rem 0 0; font-size: var(--fs-sm); }
 .cart-summary__rows div { display: flex; justify-content: space-between; gap: 16px; }
@@ -1165,4 +1165,78 @@ a.contact-button:hover { background: var(--c-ink); color: #fff; }
     .btn-login { padding: 5px 9px; gap: 4px; }
     .btn-login .icon--xxs { display: none; }
     .testimonial-panel { border-radius: var(--radius-lg); }
+}
+
+/* ==========================================================================
+   Sticky header + page motion
+   ========================================================================== */
+
+/* Sticky header – main.js adds .is-stuck once the page scrolls past the header */
+.site-header-spacer { display: none; }
+.site-header-spacer.is-on { display: block; }
+.site-header.is-stuck {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 60;
+    padding-top: 10px; padding-bottom: 10px; color: var(--c-ink);
+    background: rgba(244, 244, 244, .95);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    backdrop-filter: blur(14px) saturate(1.2);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, .06), 0 10px 30px rgba(0, 0, 0, .06);
+}
+.admin-preview-bar ~ .site-header.is-stuck { top: 0; }
+/* blur cannot stack inside the blurred bar, so the dropdown goes almost solid there */
+.site-header.is-stuck .main-nav__sub.mega { background: rgba(255, 255, 255, .98); }
+.site-header__logo { transition: width .35s var(--ease); }
+.site-header__right { transition: gap .35s var(--ease); }
+.site-header.is-stuck .site-header__logo { width: clamp(140px, 13vw, 380px); }
+.site-header.is-stuck .site-header__right { gap: 8px; }
+.site-header.is-stuck .site-header__brand { padding-bottom: 2px; }
+/* A header that sat over a banner turns dark-on-light once it sticks */
+.site-header--overlay.is-stuck .icon-btn,
+.site-header--overlay.is-stuck .nav-toggle { color: var(--c-ink); }
+.site-header--overlay.is-stuck .btn-login { background: var(--c-ink); color: #fff; }
+.site-header--overlay.is-stuck .btn-login:hover { background: #333; }
+.site-header--overlay.is-stuck .cart-badge { background: var(--c-ink); color: #fff; }
+.site-header.is-stuck .site-header__logo--invert { filter: none; }
+.site-header.is-stuck .site-header__logo--light { filter: brightness(0); }
+@media (min-width: 901px) {
+    .site-header--overlay.is-stuck .main-nav__link,
+    .site-header--overlay.is-stuck .main-nav__subtoggle { color: var(--c-ink); }
+}
+@media (max-width: 900px) {
+    .site-header.is-stuck .site-header__logo { width: clamp(110px, 30vw, 150px); }
+    .site-header.is-stuck .main-nav { max-height: calc(100vh - var(--stuck-h, 64px)); overflow-y: auto; overscroll-behavior: contain; }
+}
+html { scroll-padding-top: calc(var(--stuck-h, 0px) + 16px); }
+
+@media (prefers-reduced-motion: no-preference) {
+    /* Soft cross-fade between pages (Chrome / Edge / Safari; others just load normally) */
+    @view-transition { navigation: auto; }
+    ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .35s; }
+
+    /* Header drops in on page load, and slides down when it becomes sticky */
+    .site-header.header-intro { animation: header-in .8s var(--ease) both; }
+    .site-header.is-stuck { animation: header-slide .45s var(--ease) both; }
+    @keyframes header-in { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: none; } }
+    @keyframes header-slide { from { transform: translateY(-100%); } to { transform: none; } }
+
+    /* Sections and cards fade up as they come into view (main.js adds .reveal / .is-in) */
+    .js .reveal {
+        opacity: 0; transform: translateY(34px);
+        transition: opacity .9s var(--ease), transform 1s var(--ease);
+        transition-delay: var(--reveal-delay, 0ms);
+    }
+    .js .reveal.is-in { opacity: 1; transform: none; }
+    .js .reveal--fade { transform: none; }
+
+    /* Banner photos settle in with a slow zoom */
+    .js .section-banner.reveal .section-banner__bg img,
+    .js .section-cta.reveal .section-cta__bg img,
+    .js .shop-banner.reveal img { transform: scale(1.08); transition: transform 2.2s var(--ease); }
+    .js .section-banner.reveal.is-in .section-banner__bg img,
+    .js .section-cta.reveal.is-in .section-cta__bg img,
+    .js .shop-banner.reveal.is-in img { transform: none; }
+}
+@media print {
+    .js .reveal { opacity: 1 !important; transform: none !important; }
+    .site-header.is-stuck { position: static; box-shadow: none; }
 }

@@ -6,7 +6,7 @@ $overlay = !empty($overlay);
 // Over a dark banner: use the white logo if uploaded, otherwise the normal logo turned white by CSS.
 $lightLogo = $overlay && !empty($d['logo_light']) && is_file(ROOT_PATH . '/' . ltrim((string)$d['logo_light'], '/'));
 $logoPath  = $lightLogo ? $d['logo_light'] : ($d['logo'] ?? '');
-$logoClass = 'site-header__logo' . ($overlay && !$lightLogo ? ' site-header__logo--invert' : '');
+$logoClass = 'site-header__logo' . ($overlay && !$lightLogo ? ' site-header__logo--invert' : '') . ($lightLogo ? ' site-header__logo--light' : '');
 
 $parseSub = static function (?string $txt): array {
     $out = [];
