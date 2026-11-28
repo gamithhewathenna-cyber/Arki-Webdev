@@ -48,21 +48,21 @@ $curMax = $ui['max'] ?? $pMax;
                     <button class="shop-filters__close" type="button" data-filters-close aria-label="Close filters"><?= icon('close') ?></button>
                 </div>
 
-                <?php /* Section: locked on the Work / Learn listings, switchable on the Store listing */
-                $sectionNow = $store === 'store' ? (($ui['section'] ?? '') ?: 'all') : $store;
+                <?php /* Section: locked on every listing – Work, Learn, or All Products on the Store listing (not clickable) */
+                $sectionNow = $store === 'store' ? 'all' : $store;
                 $sectionOpts = ['work' => 'Work', 'learn' => 'Learn', 'all' => 'All Products'];
-                $locked = $store !== 'store'; ?>
-                <fieldset class="filter-group filter-group--section<?= $locked ? ' is-locked' : '' ?>">
+                $sectionText = $store === 'store' ? 'all products' : ProductRepository::STOREFRONTS[$store] . ' products only'; ?>
+                <fieldset class="filter-group filter-group--section is-locked">
                     <legend class="filter-group__title">Section</legend>
                     <ul class="filter-list">
                         <?php foreach ($sectionOpts as $k => $l): ?>
-                        <li><label class="filter-check filter-check--right"<?= $locked ? ' title="This page shows ' . e(ProductRepository::STOREFRONTS[$store]) . ' products only"' : '' ?>>
+                        <li><label class="filter-check filter-check--right" title="This page shows <?= e($sectionText) ?>">
                             <span><?= e($l) ?></span>
-                            <input type="radio" name="section" value="<?= $k ?>"<?= $k === $sectionNow ? ' checked' : '' ?><?= $locked ? ' disabled' : ' data-autosubmit' ?>>
+                            <input type="radio" name="section" value="<?= $k ?>"<?= $k === $sectionNow ? ' checked' : '' ?> disabled>
                         </label></li>
                         <?php endforeach; ?>
                     </ul>
-                    <?php if ($locked): ?><p class="sr-only">Showing <?= e(ProductRepository::STOREFRONTS[$store]) ?> products only. Use the Store to browse all products.</p><?php endif; ?>
+                    <p class="sr-only">Showing <?= e($sectionText) ?>.</p>
                 </fieldset>
 
                 <div class="filter-group">

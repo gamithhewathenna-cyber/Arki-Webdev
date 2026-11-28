@@ -28,12 +28,9 @@ final class Shop
         ContentRepository::sync('shop');
         $shop = ContentRepository::page('shop');
 
-        // Section: Work and Learn pages are locked to their own products;
-        // the Store page can switch between All Products, Work and Learn.
+        // Section: every listing is locked to its own section – Work and Learn show their
+        // own products, the Store (All Products) always shows everything. No switching.
         $section = $store;
-        if ($store === 'store' && in_array($_GET['section'] ?? '', ['work', 'learn'], true)) {
-            $section = (string)$_GET['section'];
-        }
 
         $options = ProductRepository::filterOptions($store, $section);
         $filters = self::readFilters($options);
