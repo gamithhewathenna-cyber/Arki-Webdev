@@ -227,7 +227,7 @@ a.media:hover img { transform: scale(1.03); }
 
 .main-nav__list { display: flex; align-items: center; gap: clamp(20px, 3.2vw, 46px); }
 .main-nav__item { position: relative; display: flex; align-items: center; gap: 6px; }
-.main-nav__link { font-size: var(--fs-sm); color: var(--c-ink); padding: 4px 0; position: relative; }
+.main-nav__link { font-size: max(var(--fs-sm), 15px); color: var(--c-ink); padding: 4px 0; position: relative; }
 .main-nav__link::after {
     content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
     background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform .25s var(--ease);
@@ -1071,7 +1071,7 @@ a.contact-button:hover { background: var(--c-ink); color: #fff; }
     .nav-open .nav-toggle__close { display: inline-flex; }
     .main-nav__list { flex-direction: column; align-items: stretch; gap: 0; }
     .main-nav__item { flex-wrap: wrap; justify-content: space-between; border-bottom: 1px solid #e4e4e4; }
-    .main-nav__link { padding: 14px 0; font-size: var(--fs-md); flex: 1; }
+    .main-nav__link { padding: 14px 0; font-size: 1.125rem; flex: 1; }
     .main-nav__link::after { display: none; }
     .main-nav__subtoggle { padding: 14px 4px; }
     .main-nav__sub {
@@ -1081,9 +1081,9 @@ a.contact-button:hover { background: var(--c-ink); color: #fff; }
     .has-sub:hover > .main-nav__sub, .has-sub:focus-within > .main-nav__sub { display: none; }
     .has-sub.is-open > .main-nav__sub { display: block; }
     .main-nav__sub a { padding: 8px 0; }
-    .main-nav__sub.mega { left: auto; right: auto; width: auto; padding: 4px 0 16px; border: 0; border-radius: 0; box-shadow: none; background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
+    .main-nav__sub.mega { left: auto; right: auto; width: 100%; padding: 4px 0 16px; border: 0; border-radius: 0; box-shadow: none; background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
     .mega__inner { grid-template-columns: 1fr; gap: 22px; padding: 0 !important; }
-    .main-nav__sub.mega .mega__title { margin-bottom: .6rem; font-size: .92rem; }
+    .main-nav__sub.mega .mega__title { margin-bottom: .6rem; font-size: 1.05rem; }
     .mega__group { margin-bottom: 1rem; }
 
     .category-grid { grid-template-columns: repeat(3, 1fr); row-gap: 28px; }
