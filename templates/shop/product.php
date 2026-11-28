@@ -76,11 +76,16 @@ $fmtSize = static fn(int $b) => $b >= 1048576 ? round($b / 1048576, 1) . ' MB' :
                     <div><dt>Retail Price</dt><dd class="product-facts__price" data-variant-price><?= $price ?></dd></div>
                     <?php endif; ?>
                     <?php /* Agent pricing is never sent to the browser – login arrives in a later phase. */ ?>
-                    <div><dt>Agent/Dealer Price</dt><dd class="product-facts__muted"><?= e(($settings['agent_label'] ?? '') ?: 'Login To View') ?></dd></div>
+                    <div><dt>Agent/Dealer Price</dt><?php if ($agentPrice !== null): ?><dd class="product-facts__price"><?= e(money($agentPrice, $p['currency'])) ?></dd><?php else: ?><dd class="product-facts__muted"><?php if (UserAuth::check()): ?>On request<?php else: ?><a href="<?= e(url('account/login/?next=' . rawurlencode((string)($_SERVER['REQUEST_URI'] ?? '')))) ?>"><?= e(($settings['agent_label'] ?? '') ?: 'Login To View') ?></a><?php endif; ?></dd><?php endif; ?></div>
                     <div><dt>Stock Availability</dt><dd><span class="stock" data-variant-stock data-key="<?= e($avail['key']) ?>"><span class="stock__dot" aria-hidden="true"></span><span class="stock__label"><?= e($avail['label']) ?></span></span>
                         <?php if (!empty($p['lead_time']) && $avail['key'] !== 'in_stock'): ?><span class="product-facts__lead">Lead time: <?= e($p['lead_time']) ?></span><?php endif; ?></dd></div>
                 </dl>
 
+                <?php /* Options, quantity and Add To Cart post to the cart (prices are worked out on the server). */ ?>
+                <form class="product-buy" method="post" action="<?= e(url('cart/')) ?>">
+                <?= csrf_field() ?>
+                <input type="hidden" name="do" value="add">
+                <input type="hidden" name="product_id" value="<?= (int)$p['id'] ?>">
                 <?php if ($options['size'] || $options['colour'] || $options['material']): ?>
                 <div class="product-options" data-product-options>
                     <h2 class="product-options__title">Product options</h2>
@@ -120,7 +125,7 @@ $fmtSize = static fn(int $b) => $b >= 1048576 ? round($b / 1048576, 1) . ' MB' :
                         <?php endif; ?>
                         <div class="qty" data-qty>
                             <label class="sr-only" for="qty">Quantity</label>
-                            <input id="qty" type="number" min="1" max="999" value="1" inputmode="numeric">
+                            <input id="qty" name="qty" type="number" min="1" max="999" value="1" inputmode="numeric">
                             <span class="qty__btns"><button type="button" data-qty-step="1" aria-label="More">▴</button><button type="button" data-qty-step="-1" aria-label="Less">▾</button></span>
                         </div>
                     </div>
@@ -129,17 +134,18 @@ $fmtSize = static fn(int $b) => $b >= 1048576 ? round($b / 1048576, 1) . ' MB' :
                 <div class="product-options product-options--qty">
                     <div class="qty" data-qty>
                         <label class="sr-only" for="qty">Quantity</label>
-                        <input id="qty" type="number" min="1" max="999" value="1" inputmode="numeric">
+                        <input id="qty" name="qty" type="number" min="1" max="999" value="1" inputmode="numeric">
                         <span class="qty__btns"><button type="button" data-qty-step="1" aria-label="More">▴</button><button type="button" data-qty-step="-1" aria-label="Less">▾</button></span>
                     </div>
                 </div>
                 <?php endif; ?>
 
-                <?php /* Quotes and wishlists arrive in a later phase: buttons shown, not active yet. */ ?>
+                <?php /* Wishlist arrives in a later phase: button shown, not active yet. */ ?>
                 <div class="product-actions">
-                    <button class="btn btn--dark product-actions__quote" type="button" disabled aria-disabled="true" title="Coming soon">Add To Quote</button>
+                    <button class="btn btn--dark product-actions__quote" type="submit"<?= $p['status'] !== 'published' ? ' disabled' : '' ?>>Add To Cart</button>
                     <button class="btn product-actions__wish" type="button" disabled aria-disabled="true" title="Coming soon"><?= icon('heart') ?> Add To Wishlist</button>
                 </div>
+                </form>
                 <?php if ($variants): ?>
                 <script type="application/json" id="product-variants"><?= json_encode($variants, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES) ?></script>
                 <?php endif; ?>

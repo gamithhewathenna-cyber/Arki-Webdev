@@ -200,6 +200,50 @@ function webp_url(?string $path): string
     return ($webp !== $path && is_file(ROOT_PATH . '/' . $webp)) ? url($webp) : '';
 }
 
+/**
+ * Form field in the website's pill style (same as the contact form):
+ * label inside the box, error message underneath, show/hide for passwords.
+ * $form = ['errors' => [...], 'old' => [...]] from the page's last submit.
+ * Options: type, required, autocomplete, max, value, help.
+ */
+function form_field(string $name, string $label, array $form, array $o = []): string
+{
+    $type = $o['type'] ?? 'text';
+    $id = 'ff-' . $name;
+    $err = $form['errors'][$name] ?? '';
+    $bad = $err !== '';
+    $value = $type === 'password' ? '' : (string)($o['value'] ?? ($form['old'][$name] ?? ''));
+    $describe = trim(($bad && trim($err) !== '' ? $id . '-err ' : '') . (!empty($o['help']) ? $id . '-help' : ''));
+    $html = '<div class="cf-field' . ($type === 'password' ? ' cf-field--password' : '') . ($bad ? ' is-invalid' : '') . '">'
+        . '<input id="' . $id . '" name="' . e($name) . '" type="' . e($type) . '" placeholder=" " value="' . e($value) . '"'
+        . (!empty($o['required']) ? ' required aria-required="true"' : '')
+        . ' autocomplete="' . e($o['autocomplete'] ?? 'off') . '" maxlength="' . (int)($o['max'] ?? 190) . '"'
+        . ($bad ? ' aria-invalid="true"' : '') . ($describe !== '' ? ' aria-describedby="' . $describe . '"' : '') . '>'
+        . '<label for="' . $id . '">' . e($label) . (!empty($o['required']) ? ' <span class="cf-req" aria-hidden="true">*</span>' : '') . '</label>';
+    if ($type === 'password') {
+        $html .= '<button class="cf-reveal" type="button" data-reveal="' . $id . '" aria-controls="' . $id . '" aria-pressed="false">Show</button>';
+    }
+    if ($bad && trim($err) !== '') {
+        $html .= '<p class="cf-error" id="' . $id . '-err">' . e($err) . '</p>';
+    }
+    if (!empty($o['help'])) {
+        $html .= '<p class="cf-help" id="' . $id . '-help">' . e($o['help']) . '</p>';
+    }
+    return $html . '</div>';
+}
+
+/** Success / error banner for a form (role=status/alert, receives focus). */
+function form_notice(array $form, string $errorKey = 'form'): string
+{
+    if (!empty($form['errors'][$errorKey])) {
+        return '<div class="cf-notice cf-notice--error" role="alert" tabindex="-1" data-focus><p>' . e($form['errors'][$errorKey]) . '</p></div>';
+    }
+    if (!empty($form['notice']) && $errorKey === 'form') {
+        return '<div class="cf-notice cf-notice--ok" role="status" tabindex="-1" data-focus><p>' . e($form['notice']) . '</p></div>';
+    }
+    return '';
+}
+
 /** Long thin arrow used after "View all …" links. */
 function more_arrow(): string
 {

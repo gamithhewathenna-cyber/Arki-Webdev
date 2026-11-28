@@ -66,6 +66,25 @@ code { background: var(--soft); border: 1px solid var(--line); padding: 1px 6px;
 .adm-switch input:focus-visible + .adm-switch__track { outline: 2px solid var(--accent); outline-offset: 2px; }
 .adm-card h2 .adm-pill { margin-left: 8px; vertical-align: 2px; font-weight: 500; }
 
+/* Website accounts */
+.adm-statusbar { display: flex; flex-wrap: wrap; gap: 6px; margin: -8px 0 16px; }
+.adm-statusbar a { padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line-strong); background: #fff; font-size: 13px; font-weight: 500; color: var(--muted); text-decoration: none; }
+.adm-statusbar a span { margin-left: 4px; color: #9a9aa2; font-weight: 400; }
+.adm-statusbar a:hover { color: var(--ink); }
+.adm-statusbar a.is-active { background: var(--ink); border-color: var(--ink); color: #fff; }
+.adm-statusbar a.is-active span { color: #cfcfcf; }
+.adm-statusbar a.has-pending:not(.is-active) { border-color: var(--accent); color: var(--accent-dark); }
+.adm-pill--acc-active { background: var(--ok-soft); color: var(--ok); }
+.adm-pill--acc-pending { background: var(--accent-soft); color: var(--accent-dark); }
+.adm-pill--acc-rejected { background: var(--danger-soft); color: var(--danger); }
+.adm-pill--acc-inactive { background: #ececec; color: #777; }
+.adm-table--accounts tr.is-pending td { background: #fffaf0; }
+.adm-approve { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; border-color: #ecdcbc; background: var(--accent-soft); }
+.adm-approve p { margin: 2px 0 0; }
+.adm-split--wide { grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr); }
+.adm-facts--stack { grid-template-columns: 1fr; margin-top: 8px; }
+.adm-danger-zone { margin-top: 8px; display: flex; justify-content: flex-end; }
+
 /* Enquiries */
 .adm-nowrap { white-space: nowrap; }
 .adm-table--enquiries tr.is-new td { background: #fffaf0; }

@@ -57,6 +57,13 @@ final class Migrations
                 }
             },
 
+            // Customer / agent accounts, carts, email outbox (app/schema/accounts_db.php).
+            '2026-11-28-accounts-cart' => static function (): void {
+                foreach (self::statements((string)require APP_PATH . '/schema/accounts_db.php') as $sql) {
+                    Database::pdo()->exec($sql);
+                }
+            },
+
             // The visitor password lock is replaced by Under Construction Mode (off).
             '2026-11-28-construction-mode' => static function (): void {
                 Database::run("DELETE FROM settings WHERE setting_key IN ('dev_lock_enabled', 'dev_lock_password')");

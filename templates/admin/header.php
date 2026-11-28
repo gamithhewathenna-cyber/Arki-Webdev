@@ -62,6 +62,17 @@
             </a>
         </div>
 
+        <?php $pendingAgents = 0;
+        try { $pendingAgents = (int)Database::value("SELECT COUNT(*) FROM users WHERE account_type = 'agent' AND status = 'pending'"); } catch (Throwable $e) { /* table not created yet */ } ?>
+        <p class="adm-nav__label" id="nav-accounts">Accounts</p>
+        <div role="group" aria-labelledby="nav-accounts">
+            <?= $navLink('acc:customer', 'Customers', 'admin/accounts.php?type=customer', 'users') ?>
+            <a class="adm-nav__link<?= $active === 'acc:agent' ? ' is-active' : '' ?>" href="<?= e(url('admin/accounts.php?type=agent')) ?>"<?= $active === 'acc:agent' ? ' aria-current="page"' : '' ?>>
+                <?= admin_icon('badge') ?><span>Agents</span>
+                <?php if ($pendingAgents): ?><em class="adm-nav__count" title="<?= $pendingAgents ?> waiting for approval"><?= $pendingAgents ?></em><?php endif; ?>
+            </a>
+        </div>
+
         <p class="adm-nav__label" id="nav-system">System Management</p>
         <div role="group" aria-labelledby="nav-system">
             <?= $navLink('settings', 'Website Settings', 'admin/settings.php', 'settings') ?>

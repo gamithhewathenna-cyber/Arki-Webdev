@@ -215,6 +215,7 @@ final class Shop
                 'preview'   => $preview && $p['status'] !== 'published',
                 'gallery'   => $gallery,
                 'crumb'     => ProductRepository::primaryCategory($id, $from),
+                'agentPrice' => ProductRepository::agentPriceFor($id), // null unless an approved agent is signed in
                 'avail'     => ProductRepository::availability($p),
                 'options'   => $options,
                 'variants'  => self::variantJson($p, $variants),

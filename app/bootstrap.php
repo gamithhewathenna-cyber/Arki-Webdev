@@ -41,6 +41,10 @@ require APP_PATH . '/HtmlSanitizer.php';
 require APP_PATH . '/Shop.php';
 require APP_PATH . '/ContactForm.php';
 require APP_PATH . '/Construction.php';
+require APP_PATH . '/Mailer.php';
+require APP_PATH . '/UserAuth.php';
+require APP_PATH . '/Cart.php';
+require APP_PATH . '/Account.php';
 
 Database::connect($config['db']);
 
@@ -49,3 +53,7 @@ Migrations::run();
 
 start_secure_session((string)($config['session_name'] ?? 'arki_session'));
 send_security_headers();
+
+// Website accounts: resolve the signed-in customer/agent now (a "Remember me"
+// sign-in may need to set a cookie, which must happen before any output).
+UserAuth::user();

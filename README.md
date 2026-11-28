@@ -44,6 +44,7 @@ Built with PHP 8, MySQL, HTML5 and CSS3. It has no frameworks, no Composer and n
 | **Products** | The product catalogue (see below). |
 | **Contact Page** | The Contact Us page (`/contact/`): intro, contact buttons, form texts, the email address that receives a copy of each enquiry, and the showrooms with their Google maps. |
 | **Enquiries** | Every message sent through the contact form: read, reply by email, mark as replied, archive, delete, download as CSV. Protected against spam (hidden trap field, max 5 messages per visitor per 30 minutes). |
+| **Customers / Agents** (Accounts) | Website accounts. Customers can use their account straight after registering; agents wait as **Pending** until you approve or reject them. View, edit, activate / deactivate, set a new password, delete. Registration date, last login and status are shown. |
 | **Website Settings** | Site name, browser title, favicon, logos and **Under Construction Mode**. |
 | **Administrators** | Add or remove CMS users and change your own password. |
 
@@ -172,3 +173,12 @@ Every image upload goes through the mandatory cropper, and the server rejects im
 3. For uploads that aren't part of a page section (e.g. the favicon in `admin/settings.php`), define a field array with `'crop'` and use the same `AdminForm` calls.
 
 A field without `'crop'` falls back to 2400 × 1600, which is almost never the right shape, so always set one.
+
+## Website accounts & shopping cart
+
+* Pages: `/account/login/`, `/account/register/` (Customer / Agent tabs), `/account/forgot-password/`, `/account/reset-password/`, `/account/` (My Account) and `/cart/`.
+* Security: passwords hashed with `password_hash`, session renewed at login, login limited to 5 attempts per 15 minutes per visitor, CSRF tokens on every form, "Remember me" uses a one-time token (only its hash is stored, 30 days, renewed on every use, removed at logout or password change).
+* Approved agents see their agent price on product pages and in the cart. Agent prices are never sent to anyone else.
+* The cart works for guests (cookie) and is kept on the account after login. Prices are always calculated on the server. **Proceed To Checkout** is shown but disabled until checkout is built.
+* **Emails are prepared, not sent.** Welcome, agent received / approved / rejected and password-reset messages are written to the `email_outbox` table (status `pending`). At launch, add a sender (SMTP / cron) that reads pending rows and marks them `sent`. Reset links and future email-verification tokens are already stored in `user_tokens`; `users.email_verified_at` is ready for verification. Until then, set a new password for a customer in the CMS (Accounts → View / Edit).
+* Code: `app/UserAuth.php` (accounts), `app/Cart.php`, `app/Account.php` (pages), `app/Mailer.php` (email outbox), templates in `templates/account/` and `templates/shop/cart.php`, CMS in `admin/accounts.php` and `admin/account-edit.php`.

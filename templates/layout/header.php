@@ -51,15 +51,17 @@ $megaTrees = static function (): array {
         <div class="site-header__right">
             <div class="site-header__utils">
                 <?php if (!empty($d['login_label'])): ?>
-                <a class="btn-login" href="<?= e(safe_url($d['login_url'] ?? '')) ?>">
-                    <span class="icon icon--xs"><?= icon('user') ?></span><?= e($d['login_label']) ?><span class="icon icon--xxs"><?= icon('chevron-down') ?></span>
+                <?php $acct = UserAuth::user(); /* signed in → first name + link to My Account */ ?>
+                <a class="btn-login" href="<?= e($acct ? url('account/') : safe_url($d['login_url'] ?? '')) ?>"<?= $acct ? ' aria-label="My account"' : '' ?>>
+                    <span class="icon icon--xs"><?= icon('user') ?></span><?= e($acct ? $acct['first_name'] : $d['login_label']) ?><span class="icon icon--xxs"><?= icon('chevron-down') ?></span>
                 </a>
                 <?php endif; ?>
                 <?php if (!empty($d['search_url'])): ?>
                 <a class="icon-btn" href="<?= e(safe_url($d['search_url'])) ?>" aria-label="Search"><span class="icon"><?= icon('search') ?></span></a>
                 <?php endif; ?>
                 <?php if (!empty($d['cart_url'])): ?>
-                <a class="icon-btn" href="<?= e(safe_url($d['cart_url'])) ?>" aria-label="Cart"><span class="icon"><?= icon('cart') ?></span></a>
+                <?php $cartCount = Cart::count(); ?>
+                <a class="icon-btn icon-btn--cart" href="<?= e(safe_url($d['cart_url'])) ?>" aria-label="Cart<?= $cartCount ? ', ' . $cartCount . ' item' . ($cartCount === 1 ? '' : 's') : '' ?>"><span class="icon"><?= icon('cart') ?></span><?php if ($cartCount): ?><span class="cart-badge" aria-hidden="true"><?= $cartCount > 99 ? '99+' : $cartCount ?></span><?php endif; ?></a>
                 <?php endif; ?>
                 <button class="nav-toggle" type="button" aria-controls="main-nav" aria-expanded="false" aria-label="Open menu">
                     <span class="icon nav-toggle__open"><?= icon('menu') ?></span>

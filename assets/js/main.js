@@ -268,6 +268,25 @@
         });
     });
 
+    /* Password fields: Show / Hide */
+    document.querySelectorAll('[data-reveal]').forEach(function (btn) {
+        var input = document.getElementById(btn.getAttribute('data-reveal'));
+        if (!input) return;
+        btn.addEventListener('click', function () {
+            var show = input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            btn.textContent = show ? 'Hide' : 'Show';
+            btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+            btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+        });
+        btn.setAttribute('aria-label', 'Show password');
+    });
+
+    /* Cart: typing a new quantity updates the cart straight away */
+    document.querySelectorAll('[data-cart-qty]').forEach(function (input) {
+        input.addEventListener('change', function () { if (input.form) input.form.submit(); });
+    });
+
     /* Contact form: after sending, move focus to the success / error message */
     var notice = document.querySelector('[data-focus]');
     if (notice) notice.focus({ preventScroll: true });

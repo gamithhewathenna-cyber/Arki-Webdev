@@ -259,6 +259,16 @@ final class ProductRepository
         return $cards;
     }
 
+    /** Agent price of a product – ONLY call this for a signed-in, approved agent (UserAuth::isAgent()). */
+    public static function agentPriceFor(int $productId): ?float
+    {
+        if (!UserAuth::isAgent()) {
+            return null;
+        }
+        $v = Database::value('SELECT agent_price FROM products WHERE id = ?', [$productId]);
+        return $v !== null ? (float)$v : null;
+    }
+
     /** The product's main category in a storefront (top-level name + slug), for the breadcrumb. */
     public static function primaryCategory(int $id, string $store): ?array
     {
