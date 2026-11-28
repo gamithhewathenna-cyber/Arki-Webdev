@@ -6,6 +6,9 @@
 <?php render('layout/head', ['pageTitle' => $pageTitle]); ?>
 </head>
 <body class="<?= e($bodyClass) ?>">
+<?php if (Construction::enabled() && Auth::check()): /* only administrators ever get past the holding page */ ?>
+<div class="admin-preview-bar" role="note">Under Construction Mode is on – visitors see the holding page. You are previewing as an administrator.<a href="<?= e(url('admin/settings.php')) ?>">Change</a></div>
+<?php endif; ?>
 <a class="skip-link" href="#main">Skip to content</a>
 <?php $hasBanner = isset($sections['banner']); ?>
 <?php render('layout/header', ['s' => $global['header'] ?? null, 'nav' => $global['navigation'] ?? null, 'overlay' => $hasBanner]); ?>

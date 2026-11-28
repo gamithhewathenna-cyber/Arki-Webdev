@@ -40,6 +40,7 @@ require APP_PATH . '/ProductRepository.php';
 require APP_PATH . '/HtmlSanitizer.php';
 require APP_PATH . '/Shop.php';
 require APP_PATH . '/ContactForm.php';
+require APP_PATH . '/Construction.php';
 
 Database::connect($config['db']);
 

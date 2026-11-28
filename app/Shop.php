@@ -22,8 +22,7 @@ final class Shop
 
     public static function listing(string $store): void
     {
-        require_once APP_PATH . '/DevLock.php';
-        DevLock::enforce();
+        Construction::enforce();
         $store = self::store($store);
 
         ContentRepository::sync('shop');
@@ -157,8 +156,7 @@ final class Shop
 
     public static function product(): void
     {
-        require_once APP_PATH . '/DevLock.php';
-        DevLock::enforce();
+        Construction::enforce();
 
         $from = self::store($_GET['from'] ?? 'store');
         $slug = substr(trim((string)($_GET['p'] ?? '')), 0, 220);

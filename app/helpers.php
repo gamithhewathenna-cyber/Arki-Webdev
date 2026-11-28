@@ -333,8 +333,7 @@ function throttle_clear(string $scope): void
  */
 function render_inner_page(string $page, ?string $pageTitle = null): void
 {
-    require_once APP_PATH . '/DevLock.php';
-    DevLock::enforce();
+    Construction::enforce();
 
     ContentRepository::sync($page);              // creates missing sections from app/schema/seeds.php
     $sections = ContentRepository::page($page);

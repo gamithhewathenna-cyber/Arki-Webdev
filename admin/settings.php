@@ -63,28 +63,17 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         flash('error', $er);
     }
 
-    // Development lock
-    $newPass = (string)($_POST['dev_password'] ?? '');
-    $enable  = !empty($_POST['dev_lock_enabled']);
-    if ($newPass !== '') {
-        if (strlen($newPass) < 6) {
-            flash('error', 'Preview password must be at least 6 characters – it was not changed.');
-        } else {
-            Settings::set('dev_lock_password', password_hash($newPass, PASSWORD_DEFAULT));
-        }
-    }
-    if ($enable && (string)Settings::get('dev_lock_password', '') === '') {
-        flash('error', 'Set a preview password before enabling password protection.');
-        $enable = false;
-    }
-    Settings::set('dev_lock_enabled', $enable ? '1' : '0');
+    // Under Construction Mode
+    Settings::set('construction_enabled', !empty($_POST['construction_enabled']) ? '1' : '0');
+    Settings::set('construction_heading', mb_substr(trim((string)($_POST['construction_heading'] ?? '')), 0, 200));
+    Settings::set('construction_message', mb_substr(trim(str_replace("\r\n", "\n", (string)($_POST['construction_message'] ?? ''))), 0, 2000));
 
     flash('success', 'Settings saved.');
     redirect('settings.php');
 }
 
 $fav = (string)Settings::get('favicon', '');
-$hasPass = (string)Settings::get('dev_lock_password', '') !== '';
+$underConstruction = Construction::enabled();
 admin_header('Website Settings', 'settings');
 ?>
 <header class="adm-head"><div><h1>Website Settings</h1><p class="muted">General website settings.</p></div></header>
@@ -114,15 +103,22 @@ admin_header('Website Settings', 'settings');
     </section>
 
     <section class="adm-card">
-        <h2>Development stage</h2>
+        <h2>Under Construction Mode <span class="adm-pill <?= $underConstruction ? 'adm-pill--draft' : 'adm-pill--published' ?>"><?= $underConstruction ? 'On – visitors see the holding page' : 'Off – website is open' ?></span></h2>
         <div class="field">
-            <label class="check"><input type="checkbox" name="dev_lock_enabled" value="1" <?= Settings::get('dev_lock_enabled') === '1' ? 'checked' : '' ?>> Password-protect the public website</label>
-            <p class="help">Visitors must enter the preview password to see the site. Logged-in administrators are let through automatically.</p>
+            <label class="adm-switch">
+                <input type="checkbox" name="construction_enabled" value="1"<?= $underConstruction ? ' checked' : '' ?>>
+                <span class="adm-switch__track" aria-hidden="true"></span>
+                <span>Show the “Under construction” page to visitors</span>
+            </label>
+            <p class="help">While this is on, visitors only see the holding page. You stay logged in to the CMS and can still preview the whole website. Turn it off to open the website to everyone.</p>
         </div>
-        <div class="field">
-            <label for="dev_password"><?= $hasPass ? 'Change preview password' : 'Preview password' ?></label>
-            <input id="dev_password" name="dev_password" type="password" minlength="6" autocomplete="new-password" placeholder="<?= $hasPass ? 'Leave blank to keep the current password' : '' ?>">
+        <div class="adm-grid-2">
+            <div class="field"><label for="construction_heading">Holding page heading</label>
+                <input id="construction_heading" name="construction_heading" maxlength="200" value="<?= e((string)Settings::get('construction_heading', '')) ?>" placeholder="We’re Building Something New"></div>
+            <div class="field"><label for="construction_message">Holding page message</label>
+                <textarea id="construction_message" name="construction_message" rows="3" maxlength="2000" placeholder="Our new website is under construction and will be ready soon. Thank you for your patience."><?= e((string)Settings::get('construction_message', '')) ?></textarea></div>
         </div>
+        <p class="help">Leave them empty to use the grey example texts. <a href="<?= e(url()) ?>" target="_blank" rel="noopener">Open the website ↗</a> (as a logged-in administrator you see the full site; log out or use a private window to see what visitors see).</p>
         <div class="adm-note">
             <strong>Search engines:</strong> indexing is disabled. Every page sends <code>noindex, nofollow</code> as a meta tag and an <code>X-Robots-Tag</code> header.
             Remove these at launch (see README → “Going live”).

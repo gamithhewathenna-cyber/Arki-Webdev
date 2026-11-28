@@ -27,7 +27,6 @@ Built with PHP 8, MySQL, HTML5 and CSS3. It has no frameworks, no Composer and n
 | Login | Where | Default username / password |
 |---|---|---|
 | CMS | `yourdomain.com/admin/` | `admin` / `ArkiAdmin@2026` → change it under **Administrators** |
-| Website preview (lock is ON) | `yourdomain.com` | `arki-preview` → change it or turn the lock off under **Settings** |
 
 **If the site shows a message instead of the homepage:**
 
@@ -45,7 +44,7 @@ Built with PHP 8, MySQL, HTML5 and CSS3. It has no frameworks, no Composer and n
 | **Products** | The product catalogue (see below). |
 | **Contact Page** | The Contact Us page (`/contact/`): intro, contact buttons, form texts, the email address that receives a copy of each enquiry, and the showrooms with their Google maps. |
 | **Enquiries** | Every message sent through the contact form: read, reply by email, mark as replied, archive, delete, download as CSV. Protected against spam (hidden trap field, max 5 messages per visitor per 30 minutes). |
-| **Settings** | Site name, browser title, favicon and the **development password lock**. |
+| **Website Settings** | Site name, browser title, favicon, logos and **Under Construction Mode**. |
 | **Administrators** | Add or remove CMS users and change your own password. |
 
 **About images**
@@ -74,16 +73,15 @@ Built with PHP 8, MySQL, HTML5 and CSS3. It has no frameworks, no Composer and n
 * **Agent / dealer prices** are stored but never sent to the website – visitors see “Login To View”. Add To Quote, Add To Wishlist and the heart icons are shown but inactive until those features are built.
 * Website pages: `/work/products/`, `/learn/products/`, `/store/products/` (filters, sorting, 9 per page) and `/product/?p=product-name`.
 
-## 4. Development-stage protection
+## 4. Development stage
 
-* **Password lock:** go to Settings → Development stage and tick *Password-protect the public website*. Visitors then see a password screen. Logged-in admins pass straight through. Repeated wrong attempts are throttled.
+* **Under Construction Mode:** Website Settings → *Under Construction Mode*. When it is on, visitors only see a holding page (heading and message editable there); when it is off, the website is open to everyone. Logged-in administrators always see the full website, with a small bar at the top reminding them the mode is on. The holding page answers with “503 – temporarily unavailable”, which tells search engines the site is not ready yet.
 * **No indexing:** every page sends `<meta name="robots" content="noindex, nofollow">` and an `X-Robots-Tag: noindex` HTTP header. Uploaded images also get the header.
   `robots.txt` is deliberately **not** used to block crawlers, because Google has to be able to read a page to see its `noindex`.
-* **Server-level password (optional):** `.htaccess` includes a commented-out Basic Auth block. You can also use cPanel → *Directory Privacy*.
 
 ## 5. Going live (later)
 
-1. Turn off the password lock in Settings.
+1. Make sure **Under Construction Mode** is off (Website Settings).
 2. Remove the `noindex` directives:
    * the `X-Robots-Tag` line in `app/helpers.php` → `send_security_headers()`
    * the two robots `<meta>` tags in `templates/layout/head.php`
@@ -96,7 +94,7 @@ Built with PHP 8, MySQL, HTML5 and CSS3. It has no frameworks, no Composer and n
 * All output is escaped. CMS links are restricted to `http(s)`, relative paths, `mailto:` and `tel:`, so `javascript:` links are blocked.
 * CSRF tokens on every form. All changes are POST-only.
 * Passwords use `password_hash` (bcrypt/argon). The session is regenerated on login and expires after 2 hours idle. Cookies are HttpOnly and SameSite.
-* Login and preview-password brute-force throttling: 5 attempts per 15 minutes per IP.
+* Login brute-force throttling: 5 attempts per 15 minutes per IP. Contact form: max 5 messages per visitor per 30 minutes, plus a hidden spam trap.
 * Uploads are checked by their real MIME type and pixel data, then re-encoded with GD, which strips EXIF and any hidden payloads. Files get random names. SVG is not accepted. PHP execution is disabled in `uploads/`.
 * `app/`, `config/` and `templates/` are blocked from the web. `config/` has its own deny rule. You can also set `config/config.php` to `640` permissions.
 * Headers: Content-Security-Policy (no inline scripts), X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy, and HSTS on HTTPS.
@@ -117,7 +115,7 @@ app/                  (blocked from web)
   Database.php        PDO wrapper
   helpers.php         escaping, URLs, images (<picture>/WebP), CSRF, throttling
   ContentRepository   reads/writes sections + items
-  Settings, Auth, DevLock, Uploader, AdminForm
+  Settings, Auth, Construction (Under Construction Mode), Uploader, AdminForm
   schema/pages.php    ★ defines every page, section and editable field
 templates/            (blocked from web)
   layout/             page shell, head, header, footer

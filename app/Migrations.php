@@ -57,6 +57,13 @@ final class Migrations
                 }
             },
 
+            // The visitor password lock is replaced by Under Construction Mode (off).
+            '2026-11-28-construction-mode' => static function (): void {
+                Database::run("DELETE FROM settings WHERE setting_key IN ('dev_lock_enabled', 'dev_lock_password')");
+                Database::run("DELETE FROM login_attempts WHERE scope = 'devlock'");
+                Database::run("INSERT IGNORE INTO settings (setting_key, setting_value) VALUES ('construction_enabled', '0')");
+            },
+
             // Contact page: enquiries table + Contact Us links (app/schema/contact_db.php).
             '2026-11-28-contact-page' => static function (): void {
                 foreach (self::statements((string)require APP_PATH . '/schema/contact_db.php') as $sql) {

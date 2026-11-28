@@ -19,9 +19,6 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         if ((string)($_POST['password'] ?? '') === 'ArkiAdmin@2026') {
             flash('error', 'You are using the default password from database.sql. Please change it now under Administrators.');
         }
-        if (password_verify('arki-preview', (string)Settings::get('dev_lock_password', ''))) {
-            flash('error', 'The website preview password is still the default (arki-preview). Change it under Website Settings.');
-        }
         redirect(url('admin/'));
     } else {
         throttle_hit('admin');

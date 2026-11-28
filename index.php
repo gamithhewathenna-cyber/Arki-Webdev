@@ -7,9 +7,8 @@
 declare(strict_types=1);
 
 require __DIR__ . '/app/bootstrap.php';
-require APP_PATH . '/DevLock.php';
 
-DevLock::enforce();
+Construction::enforce();
 
 render('layout/page', [
     'pageTitle' => Settings::get('home_title', Settings::get('site_name', 'ARKI Environments')),

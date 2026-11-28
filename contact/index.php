@@ -6,8 +6,7 @@
 declare(strict_types=1);
 
 require dirname(__DIR__) . '/app/bootstrap.php';
-require_once APP_PATH . '/DevLock.php';
-DevLock::enforce();
+Construction::enforce();
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_POST['contact_form'])) {
     ContentRepository::sync('contact');
