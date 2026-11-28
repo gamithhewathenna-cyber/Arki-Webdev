@@ -458,6 +458,8 @@ $schema['store'] = [
         'cta'        => $home['cta'],
     ],
 ];
+/* Store page: category cards built automatically from all Store categories (max 5, a new random mix each visit). */
+$schema['store']['sections']['categories'] = $autoCategories('Store');
 
 /* =================================================================
  *  CONTACT US (/contact/)

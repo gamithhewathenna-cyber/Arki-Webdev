@@ -250,13 +250,10 @@ final class ProductRepository
             $image = array_rand($pool[(int)$t['id']]);
             $cards[] = ['name' => $t['name'], 'slug' => $t['slug'], 'image' => (string)$image, 'alt' => (string)$pool[(int)$t['id']][$image]];
         }
-        // One row only: when more categories qualify, a random set is shown on each visit
-        // (kept in the category order, so the row still reads naturally).
-        if ($limit > 0 && count($cards) > $limit) {
-            $keep = array_rand($cards, $limit); // keys in ascending (= category) order
-            $cards = array_values(array_intersect_key($cards, array_flip((array)$keep)));
-        }
-        return $cards;
+        // One row only, shuffled on every visit: a random mix of categories (max $limit),
+        // in a random order, each with a random product image.
+        shuffle($cards);
+        return $limit > 0 ? array_slice($cards, 0, $limit) : $cards;
     }
 
     /** Agent price of a product – ONLY call this for a signed-in, approved agent (UserAuth::isAgent()). */
