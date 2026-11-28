@@ -1176,7 +1176,7 @@ a.contact-button:hover { background: var(--c-ink); color: #fff; }
 .site-header-spacer.is-on { display: block; }
 .site-header.is-stuck {
     position: fixed; top: 0; left: 0; right: 0; z-index: 60;
-    padding-top: 10px; padding-bottom: 10px; color: var(--c-ink);
+    padding-top: 18px; padding-bottom: 12px; color: var(--c-ink);
     background: rgba(244, 244, 244, .95);
     -webkit-backdrop-filter: blur(14px) saturate(1.2);
     backdrop-filter: blur(14px) saturate(1.2);
