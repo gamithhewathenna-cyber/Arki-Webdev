@@ -1,4 +1,20 @@
-<?php /** @var array $s */ $d = $s['data']; if (empty($s['items'])) return;
+<?php /** @var array $s @var string $pageKey */ $d = $s['data'];
+// Automatic cards (Work page): built from the products in each category – same markup as manual cards.
+if (!empty(ContentRepository::sectionSchema($pageKey ?? '', 'categories')['auto'])) {
+    $store = Shop::store($pageKey);
+    try {
+        $cards = ProductRepository::categoryShowcase($store);
+    } catch (Throwable $e) {
+        $cards = []; // product tables not installed yet
+    }
+    $s['items'] = array_map(static fn($c) => ['data' => [
+        'title'     => $c['name'],
+        'image'     => $c['image'],
+        'image_alt' => $c['alt'],
+        'url'       => $store . '/products/?cat[]=' . $c['slug'],
+    ]], $cards);
+}
+if (empty($s['items'])) return;
 $hasHead = !empty($d['heading']);
 $more = '';
 if (!empty($d['link_label'])) {

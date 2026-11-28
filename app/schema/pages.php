@@ -430,6 +430,19 @@ $innerPage = static fn(string $label, string $url): array => [
 $schema['work']  = $innerPage('Work Page', 'work/');
 $schema['learn'] = $innerPage('Learn Page', 'learn/');
 
+/* Work page: the category cards are built automatically from Products – one card per
+   Work category, with a random image of a Work product in it (no manual cards). */
+$schema['work']['sections']['categories'] = [
+    'label'       => 'Product Categories (automatic)',
+    'description' => 'One card per Work category (Products → Lists → Work Categories), each showing a random image of a published Work product in that category – a new mix on every visit. Categories without products are left out. Only the texts below are edited here.',
+    'auto'        => true,
+    'fields'      => [
+        'heading'    => ['type' => 'text', 'label' => 'Heading (optional)', 'help' => 'e.g. Our Categories'],
+        'link_label' => ['type' => 'text', 'label' => 'Link label', 'help' => 'e.g. Explore All Work Products'],
+        'link_url'   => ['label' => 'Link URL'] + $link,
+    ],
+];
+
 /** Store layout: banner, intro, categories (with heading), featured products, call to action. */
 $schema['store'] = [
     'label'    => 'Store Page',

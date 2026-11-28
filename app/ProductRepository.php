@@ -212,6 +212,43 @@ final class ProductRepository
         return $p;
     }
 
+    /**
+     * Category cards for a storefront page: every active top-level category of
+     * that storefront's tree that has at least one published product (assigned
+     * to the storefront, with an image) in it or its subcategories. Each card
+     * gets a randomly chosen product image – a fresh mix on every page load.
+     * @return array<int, array{name: string, slug: string, image: string, alt: string}>
+     */
+    public static function categoryShowcase(string $store): array
+    {
+        $tax = Catalog::categoryTax($store);
+        $join = ($store === 'work' || $store === 'learn')
+            ? 'JOIN product_storefronts sf ON sf.product_id = p.id AND sf.storefront = ' . Database::pdo()->quote($store)
+            : '';
+        $rows = Database::all(
+            "SELECT COALESCE(t.parent_id, t.id) AS top_id, p.image, p.name
+             FROM products p
+             $join
+             JOIN product_term_links l ON l.product_id = p.id
+             JOIN product_terms t ON t.id = l.term_id AND t.taxonomy = ? AND t.is_active = 1
+             WHERE p.status = 'published' AND p.image IS NOT NULL AND p.image <> ''",
+            [$tax]
+        );
+        $pool = [];
+        foreach ($rows as $r) {
+            if (is_file(ROOT_PATH . '/' . ltrim((string)$r['image'], '/'))) {
+                $pool[(int)$r['top_id']][$r['image']] = $r['name']; // one entry per image
+            }
+        }
+        $cards = [];
+        foreach (Catalog::terms($tax, true) as $t) {
+            if ($t['parent_id'] !== null || empty($pool[(int)$t['id']])) continue;
+            $image = array_rand($pool[(int)$t['id']]);
+            $cards[] = ['name' => $t['name'], 'slug' => $t['slug'], 'image' => (string)$image, 'alt' => (string)$pool[(int)$t['id']][$image]];
+        }
+        return $cards;
+    }
+
     /** The product's main category in a storefront (top-level name + slug), for the breadcrumb. */
     public static function primaryCategory(int $id, string $store): ?array
     {
