@@ -696,12 +696,12 @@ a.category-card:hover .category-card__media img { transform: scale(1.04); }
 .swatch input:checked + .swatch__chip { box-shadow: 0 0 0 2px var(--c-bg), 0 0 0 3px var(--c-ink); }
 .product-option--row { display: flex; align-items: flex-end; gap: 16px; }
 /* Materials: round texture thumbnails with the name underneath (image: Products → Lists → Materials) */
-.product-option__materials { display: flex; flex-wrap: wrap; gap: 14px 18px; padding-left: 10px; }
-.material { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; width: clamp(56px, 4.6vw, 84px); cursor: pointer; text-align: center; }
+.product-option__materials { display: flex; flex-wrap: wrap; gap: 12px clamp(20px, 1.8vw, 32px); padding-left: 10px; }   /* same start as the colour circles */
+.material { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; width: clamp(24px, 2.6vw, 44px); cursor: pointer; text-align: center; }   /* exactly as wide as a colour circle */
 .material input { position: absolute; opacity: 0; pointer-events: none; }
 .material__chip {
     display: flex; align-items: center; justify-content: center;
-    width: clamp(40px, 3.4vw, 60px); height: clamp(40px, 3.4vw, 60px); border-radius: 50%; overflow: hidden;
+    width: clamp(24px, 2.6vw, 44px); height: clamp(24px, 2.6vw, 44px); border-radius: 50%; overflow: hidden; flex: none;   /* same size as the colour circles */
     background: #ddd; box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); transition: box-shadow .2s, transform .2s;
 }
 .material__chip img { width: 100%; height: 100%; object-fit: cover; }
@@ -709,7 +709,7 @@ a.category-card:hover .category-card__media img { transform: scale(1.04); }
 .material:hover .material__chip { transform: scale(1.05); }
 .material input:checked + .material__chip { box-shadow: 0 0 0 2px var(--c-bg), 0 0 0 3px var(--c-ink); }
 .material input:focus-visible + .material__chip { outline: 2px solid var(--c-ink); outline-offset: 3px; }
-.material__name { font-size: var(--fs-xs); line-height: 1.3; color: var(--c-muted); overflow-wrap: anywhere; }
+.material__name { width: max-content; max-width: 96px; font-size: var(--fs-xs); line-height: 1.3; color: var(--c-muted); }   /* centred under the circle, may be wider than it */
 .material input:checked ~ .material__name { color: var(--c-ink); }
 .qty { display: inline-flex; align-items: center; border: 1px solid #c9c9c9; background: #fff; height: 2.3em; }
 .qty input { width: 3em; border: 0; text-align: center; font: inherit; font-size: var(--fs-sm); -moz-appearance: textfield; background: transparent; }
