@@ -134,10 +134,14 @@ final class ProductRepository
         );
     }
 
-    /** Filter values that actually have products in this storefront. */
-    public static function filterOptions(string $store): array
+    /**
+     * Filter values that actually have products in this storefront.
+     * $scope narrows the products (Store page → Work / Learn section); the
+     * category tree is always the page's own ($store).
+     */
+    public static function filterOptions(string $store, ?string $scope = null): array
     {
-        [$where, $args] = self::where($store, []);
+        [$where, $args] = self::where($scope ?? $store, []);
         $ids = "SELECT p.id FROM products p WHERE $where";
         $col = static fn(string $c): string => "SELECT DISTINCT p.$c FROM products p WHERE $where AND p.$c IS NOT NULL";
 

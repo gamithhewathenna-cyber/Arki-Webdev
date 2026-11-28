@@ -76,6 +76,7 @@
                 if (+hi.value >= +r.dataset.max) hi.disabled = true;
             });
             filterForm.querySelectorAll('input[type=search]').forEach(function (i) { if (!i.value.trim()) i.disabled = true; });
+            filterForm.querySelectorAll('input[name=section][value=all]:checked').forEach(function (i) { i.disabled = true; }); // "All Products" = no section
             filterForm.querySelectorAll('select').forEach(function (s) { if (!s.value || (s.name === 'sort' && s.value === 'featured')) s.disabled = true; });
             document.querySelectorAll('select[form="' + filterForm.id + '"]').forEach(function (s) { if (s.value === 'featured') s.disabled = true; });
             filterForm.submit();

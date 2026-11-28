@@ -29,16 +29,27 @@ final class Shop
         ContentRepository::sync('shop');
         $shop = ContentRepository::page('shop');
 
-        $options = ProductRepository::filterOptions($store);
+        // Section: Work and Learn pages are locked to their own products;
+        // the Store page can switch between All Products, Work and Learn.
+        $section = $store;
+        if ($store === 'store' && in_array($_GET['section'] ?? '', ['work', 'learn'], true)) {
+            $section = (string)$_GET['section'];
+        }
+
+        $options = ProductRepository::filterOptions($store, $section);
         $filters = self::readFilters($options);
+        $filters['ui']['section'] = $store === 'store' && $section !== 'store' ? $section : '';
+        if ($filters['ui']['section'] !== '') {
+            $filters['active'] = true;
+        }
         $sort = isset(ProductRepository::SORTS[$_GET['sort'] ?? '']) ? (string)$_GET['sort'] : 'featured';
         $page = max(1, (int)($_GET['page'] ?? 1));
 
-        [$items, $total] = ProductRepository::listing($store, $filters['sql'], $sort, $page, self::PER_PAGE);
+        [$items, $total] = ProductRepository::listing($section, $filters['sql'], $sort, $page, self::PER_PAGE);
         $pages = max(1, (int)ceil($total / self::PER_PAGE));
         if ($page > $pages) {
             $page = $pages;
-            [$items, $total] = ProductRepository::listing($store, $filters['sql'], $sort, $page, self::PER_PAGE);
+            [$items, $total] = ProductRepository::listing($section, $filters['sql'], $sort, $page, self::PER_PAGE);
         }
 
         $label = ProductRepository::STOREFRONTS[$store];
@@ -134,6 +145,7 @@ final class Shop
             'q' => $ui['q'], 'cat' => $ui['cat'], 'type' => $ui['type'], 'avail' => $ui['avail'],
             'material' => $ui['material'], 'colour' => $ui['colour'], 'brand' => $ui['brand'], 'env' => $ui['env'],
             'min' => $ui['min'], 'max' => $ui['max'], 'sort' => $sort !== 'featured' ? $sort : '',
+            'section' => $ui['section'] ?? '',
         ];
         if ($page > 1) $q['page'] = $page;
         return $q;

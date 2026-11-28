@@ -592,6 +592,11 @@ a.category-card:hover .category-card__media img { transform: scale(1.04); }
 .filter-check input:checked { background: var(--c-ink); border-color: var(--c-ink); }
 .filter-check input:checked::after { content: ""; width: 7px; height: 4px; border: solid #fff; border-width: 0 0 1.5px 1.5px; transform: rotate(-45deg) translate(1px, -1px); }
 .filter-check input:focus-visible { outline: 2px solid var(--c-ink); outline-offset: 2px; }
+/* Section (Work / Learn / All Products): same look as the checkboxes; locked on Work and Learn */
+.filter-check input[type="radio"]:checked::after { content: ""; width: 7px; height: 4px; border: solid #fff; border-width: 0 0 1.5px 1.5px; transform: rotate(-45deg) translate(1px, -1px); }
+.filter-group--section.is-locked .filter-check { cursor: default; }
+.filter-group--section.is-locked .filter-check:has(input:not(:checked)) { opacity: .45; }
+.filter-group--section.is-locked input { cursor: default; }
 
 .price-range__value { display: block; margin: 0 0 .7rem 6px; font-size: var(--fs-sm); color: var(--c-text); }
 .price-range__track { position: relative; height: 18px; }
