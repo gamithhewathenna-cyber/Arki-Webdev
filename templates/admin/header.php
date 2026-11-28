@@ -52,6 +52,16 @@
             </a>
         </div>
 
+        <?php $newEnquiries = 0;
+        try { $newEnquiries = (int)Database::value("SELECT COUNT(*) FROM enquiries WHERE status = 'new'"); } catch (Throwable $e) { /* table not created yet */ } ?>
+        <p class="adm-nav__label" id="nav-inbox">Inbox</p>
+        <div role="group" aria-labelledby="nav-inbox">
+            <a class="adm-nav__link<?= $active === 'enquiries' ? ' is-active' : '' ?>" href="<?= e(url('admin/enquiries.php')) ?>"<?= $active === 'enquiries' ? ' aria-current="page"' : '' ?>>
+                <?= admin_icon('mail') ?><span>Enquiries</span>
+                <?php if ($newEnquiries): ?><em class="adm-nav__count" title="<?= $newEnquiries ?> new"><?= $newEnquiries ?></em><?php endif; ?>
+            </a>
+        </div>
+
         <p class="adm-nav__label" id="nav-system">System Management</p>
         <div role="group" aria-labelledby="nav-system">
             <?= $navLink('settings', 'Website Settings', 'admin/settings.php', 'settings') ?>

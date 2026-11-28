@@ -76,6 +76,46 @@ $shopBanner = [
 ];
 
 return [
+    'contact' => [
+        'contact_intro' => [
+            'data' => [
+                'tagline'          => 'Designed For Work. Built For People.',
+                'heading'          => 'Let’s Talk.',
+                'body'             => 'Whether You’re Planning A Whole Workplace Or Just Choosing A Chair, We’d Love To Help. Tell Us A Little About Your Project And The Right Person Will Be In Touch.',
+                'direct_heading'   => 'Prefer To Reach Us Directly?',
+                'direct_text'      => 'For online store orders, please include your order number so we can help faster.',
+                'form_heading'     => 'Send Us A Message',
+                'form_text'        => 'Fill in a few details and we’ll get back to you within one business day.',
+                'topics'           => "A new workplace project\nWork furniture\nLearn / education furniture\nAn online store order\nBooking a showroom appointment\nSomething else",
+                'newsletter_label' => 'I’d like to receive occasional updates from Arki.',
+                'button_label'     => 'Send Enquiry',
+                'success_message'  => 'Thank you – your message has been sent. We’ll get back to you within one business day.',
+                'notify_email'     => '',
+            ],
+            'items' => [
+                ['icon' => 'email', 'label' => 'Email', 'value' => 'info@arkienvironments.au', 'url' => 'mailto:info@arkienvironments.au', 'width' => 'full'],
+                ['icon' => 'phone', 'label' => 'Phone', 'value' => '07 3706 6963', 'url' => 'tel:0737066963', 'width' => 'half'],
+                ['icon' => 'phone', 'label' => 'Phone', 'value' => '+61 7 3706 6963', 'url' => 'tel:+61737066963', 'width' => 'half'],
+            ],
+        ],
+        'showrooms' => [
+            'data' => [
+                'image'      => 'uploads/demo/cta-bg.jpg',
+                'image_alt'  => 'Showroom lounge',
+                'heading'    => 'Come And See Us',
+                'body'       => 'Our showrooms are open by appointment, so we can give you our full attention and have the right pieces ready to see and try.',
+                'note_title' => 'Not nearby?',
+                'note_text'  => 'No problem. We deliver and install for clients across Australia, and can guide your project remotely from first plan to final handover.',
+            ],
+            'items' => [
+                ['city' => 'Sydney', 'address' => "Tenancy 02,\n13 Bowden Street,\nAlexandria NSW 2015", 'hours' => "Monday–Friday\n9 AM - 5 PM",
+                 'map_address' => '13 Bowden Street, Alexandria NSW 2015, Australia', 'map_image' => '', 'button_label' => 'Book An Appointment', 'button_url' => '#contact-form'],
+                ['city' => 'Brisbane', 'address' => "29 Cairns Street,\nKangaroo Point QLD 4169", 'hours' => "Monday–Friday\n9 AM - 5 PM",
+                 'map_address' => '29 Cairns Street, Kangaroo Point QLD 4169, Australia', 'map_image' => '', 'button_label' => 'Book An Appointment', 'button_url' => '#contact-form'],
+            ],
+        ],
+    ],
+
     'shop' => [
         'banner_work'  => $shopBanner,
         'banner_learn' => $shopBanner,

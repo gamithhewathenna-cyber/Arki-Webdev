@@ -57,6 +57,13 @@ final class Migrations
                 }
             },
 
+            // Contact page: enquiries table + Contact Us links (app/schema/contact_db.php).
+            '2026-11-28-contact-page' => static function (): void {
+                foreach (self::statements((string)require APP_PATH . '/schema/contact_db.php') as $sql) {
+                    Database::pdo()->exec($sql);
+                }
+            },
+
             // Header menu "Products" → product categories mega menu (Work / Learn / Store).
             '2026-11-28-products-mega-menu' => static function (): void {
                 $nav = Database::one("SELECT id FROM sections WHERE page = 'global' AND section_key = 'navigation'");

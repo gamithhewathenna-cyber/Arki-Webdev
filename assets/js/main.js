@@ -267,6 +267,10 @@
         });
     });
 
+    /* Contact form: after sending, move focus to the success / error message */
+    var notice = document.querySelector('[data-focus]');
+    if (notice) notice.focus({ preventScroll: true });
+
     /* Mouse drag-to-scroll for horizontal rows (touch scrolls natively) */
     document.querySelectorAll('[data-drag-scroll]').forEach(function (el) {
         var down = false, moved = false, startX = 0, startLeft = 0;

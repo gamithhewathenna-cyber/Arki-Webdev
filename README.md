@@ -43,6 +43,8 @@ Built with PHP 8, MySQL, HTML5 and CSS3. It has no frameworks, no Composer and n
 | **Work / Learn / Store Page** | The three storefront landing pages (`/work/`, `/learn/`, `/store/`), section by section. |
 | **Header & Footer** | The logo, Login/Search/Cart links, main menu (including dropdown links), footer columns, footer links, contact/social buttons, payment logos, copyright and legal links. |
 | **Products** | The product catalogue (see below). |
+| **Contact Page** | The Contact Us page (`/contact/`): intro, contact buttons, form texts, the email address that receives a copy of each enquiry, and the showrooms with their Google maps. |
+| **Enquiries** | Every message sent through the contact form: read, reply by email, mark as replied, archive, delete, download as CSV. Protected against spam (hidden trap field, max 5 messages per visitor per 30 minutes). |
 | **Settings** | Site name, browser title, favicon and the **development password lock**. |
 | **Administrators** | Add or remove CMS users and change your own password. |
 

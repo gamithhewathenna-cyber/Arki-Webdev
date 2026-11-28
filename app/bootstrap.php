@@ -39,6 +39,7 @@ require APP_PATH . '/Catalog.php';
 require APP_PATH . '/ProductRepository.php';
 require APP_PATH . '/HtmlSanitizer.php';
 require APP_PATH . '/Shop.php';
+require APP_PATH . '/ContactForm.php';
 
 Database::connect($config['db']);
 

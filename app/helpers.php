@@ -126,6 +126,7 @@ function icon(string $name): string
         'facebook'       => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 8V6.5c0-.7.2-1.2 1.2-1.2H17V2.2A24 24 0 0 0 14.6 2C12.2 2 10.6 3.4 10.6 6.1V8H8v3.4h2.6V22H14V11.4h2.7L17 8h-3z" fill="currentColor"/></svg>',
         'instagram'      => '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor"/></svg>',
         'linkedin'       => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM2.3 9h3.4v12H2.3zM9 9h3.3v1.7c.5-.9 1.7-2 3.6-2 3.8 0 4.5 2.5 4.5 5.8V21H17v-5.8c0-1.4 0-3.2-2-3.2s-2.3 1.5-2.3 3.1V21H9z" fill="currentColor"/></svg>',
+        'truck'          => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 6.5h11v9h-11zM13.5 9.5h4l3 3.2v2.8h-7M1 9h4M0.5 12h3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.5" cy="17" r="1.9" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17" cy="17" r="1.9" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
         'heart'          => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>',
         'link'           => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
     ];
@@ -246,8 +247,8 @@ function send_security_headers(): void
     header('X-Frame-Options: SAMEORIGIN');
     header('Referrer-Policy: strict-origin-when-cross-origin');
     header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()');
-    // frame-src: product videos from YouTube (privacy mode) / Vimeo; media-src: uploaded product videos.
-    header("Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self'; script-src 'self'; font-src 'self'; connect-src 'self'; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; frame-ancestors 'self'; form-action 'self'; base-uri 'self'; object-src 'none'");
+    // frame-src: product videos (YouTube privacy mode / Vimeo) and showroom maps (Google Maps); media-src: uploaded product videos.
+    header("Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self'; script-src 'self'; font-src 'self'; connect-src 'self'; frame-src https://www.youtube-nocookie.com https://player.vimeo.com https://www.google.com https://maps.google.com; frame-ancestors 'self'; form-action 'self'; base-uri 'self'; object-src 'none'");
     if (is_https()) {
         header('Strict-Transport-Security: max-age=31536000');
     }
@@ -330,7 +331,7 @@ function throttle_clear(string $scope): void
  * Render an inner page (Work, Learn …) defined in app/schema/pages.php.
  * Used by each page's front controller, e.g. learn/index.php.
  */
-function render_inner_page(string $page): void
+function render_inner_page(string $page, ?string $pageTitle = null): void
 {
     require_once APP_PATH . '/DevLock.php';
     DevLock::enforce();
@@ -338,7 +339,7 @@ function render_inner_page(string $page): void
     ContentRepository::sync($page);              // creates missing sections from app/schema/seeds.php
     $sections = ContentRepository::page($page);
     $label = (string)(ContentRepository::schema()[$page]['label'] ?? '');
-    $title = trim(preg_replace('/\s+/', ' ', (string)($sections['banner']['data']['heading'] ?? $label)));
+    $title = trim(preg_replace('/\s+/', ' ', (string)($pageTitle ?? $sections['banner']['data']['heading'] ?? $label)));
 
     render('layout/page', [
         'pageTitle' => ($title !== '' ? $title . ' – ' : '') . Settings::get('site_name', 'ARKI Environments'),

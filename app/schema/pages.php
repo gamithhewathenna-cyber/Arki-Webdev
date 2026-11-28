@@ -444,4 +444,73 @@ $schema['store'] = [
     ],
 ];
 
+/* =================================================================
+ *  CONTACT US (/contact/)
+ *  Enquiries from the form are saved and listed under CMS → Enquiries.
+ * ================================================================= */
+$schema['contact'] = [
+    'label'    => 'Contact Page',
+    'url'      => 'contact/',
+    'sortable' => true,
+    'sections' => [
+        'contact_intro' => [
+            'tab'         => 'Introduction & Form',
+            'label'       => 'Introduction, Contact Details & Form',
+            'description' => 'Big “Let’s Talk.” heading and contact buttons on the left, the enquiry form on the right.',
+            'fields'      => [
+                'tagline'          => ['type' => 'text', 'label' => 'Tagline'],
+                'heading'          => ['type' => 'multiline', 'label' => 'Main heading (H1)'],
+                'body'             => ['type' => 'textarea', 'label' => 'Introduction text'],
+                'direct_heading'   => ['type' => 'text', 'label' => 'Contact details – heading', 'help' => 'e.g. Prefer To Reach Us Directly?'],
+                'direct_text'      => ['type' => 'textarea', 'label' => 'Contact details – text'],
+                'form_heading'     => ['type' => 'text', 'label' => 'Form – heading'],
+                'form_text'        => ['type' => 'textarea', 'label' => 'Form – text'],
+                'topics'           => ['type' => 'textarea', 'label' => 'Form – “I’m enquiring about…” options', 'help' => 'One option per line. Leave empty to hide the dropdown.'],
+                'newsletter_label' => ['type' => 'text', 'label' => 'Form – newsletter tick box text', 'help' => 'Leave empty to hide the tick box.'],
+                'button_label'     => ['type' => 'text', 'label' => 'Form – button text'],
+                'success_message'  => ['type' => 'textarea', 'label' => 'Message shown after sending'],
+                'notify_email'     => ['type' => 'text', 'label' => 'Send a copy of each enquiry to', 'help' => 'Email address(es), separated by commas. Leave empty to only keep enquiries in the CMS (Enquiries).'],
+            ],
+            'items'       => [
+                'label'  => 'Contact button',
+                'title'  => 'value',
+                'fields' => [
+                    'icon'  => ['type' => 'select', 'label' => 'Icon', 'options' => ['email' => 'Email', 'phone' => 'Phone', 'location' => 'Location', 'link' => 'Link']],
+                    'label' => ['type' => 'text', 'label' => 'Small label', 'help' => 'e.g. Email, Phone'],
+                    'value' => ['type' => 'text', 'label' => 'Shown text', 'required' => true, 'help' => 'e.g. info@arkienvironments.au'],
+                    'url'   => ['type' => 'url', 'label' => 'Link', 'help' => 'e.g. mailto:info@… or tel:+61737066963'],
+                    'width' => ['type' => 'select', 'label' => 'Width', 'options' => ['full' => 'Full width', 'half' => 'Half width (two side by side)']],
+                ],
+            ],
+        ],
+
+        'showrooms' => [
+            'tab'         => 'Showrooms',
+            'label'       => 'Showrooms – Come And See Us',
+            'description' => 'Dark image band with a card per showroom (address, hours, map) and a note below.',
+            'fields'      => [
+                'image'      => ['type' => 'image', 'label' => 'Background image', 'help' => 'Shown dark behind the text.', 'crop' => ['w' => 2400, 'h' => 1130]],
+                'image_alt'  => ['type' => 'text', 'label' => 'Image description (alt text)'],
+                'heading'    => ['type' => 'multiline', 'label' => 'Heading'],
+                'body'       => ['type' => 'textarea', 'label' => 'Text'],
+                'note_title' => ['type' => 'text', 'label' => 'Note – title', 'help' => 'e.g. Not nearby?'],
+                'note_text'  => ['type' => 'textarea', 'label' => 'Note – text'],
+            ],
+            'items'       => [
+                'label'  => 'Showroom',
+                'title'  => 'city',
+                'fields' => [
+                    'city'         => ['type' => 'text', 'label' => 'City / name', 'required' => true],
+                    'address'      => ['type' => 'multiline', 'label' => 'Address', 'help' => 'Press Enter for a new line.'],
+                    'hours'        => ['type' => 'multiline', 'label' => 'Opening hours'],
+                    'map_address'  => ['type' => 'text', 'label' => 'Map location', 'help' => 'Address to show on the Google map, e.g. 13 Bowden Street, Alexandria NSW 2015. Leave empty to show the image below instead.'],
+                    'map_image'    => ['type' => 'image', 'label' => 'Map image (optional)', 'help' => 'Only used when no map location is given.', 'crop' => ['w' => 1180, 'h' => 820]],
+                    'button_label' => ['type' => 'text', 'label' => 'Button text', 'default' => 'Book An Appointment'],
+                    'button_url'   => ['label' => 'Button link'] + $link,
+                ],
+            ],
+        ],
+    ],
+];
+
 return $schema;
