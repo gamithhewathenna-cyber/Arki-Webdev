@@ -710,7 +710,7 @@ a.category-card:hover .category-card__media img { transform: scale(1.04); }
 .product-actions .btn[disabled] { cursor: not-allowed; }
 
 /* Information tabs */
-.product-tabs { margin-top: clamp(72px, 8vw, 200px); }   /* clear space between the Add To Cart buttons and the Description tabs */
+.product-tabs { margin-top: clamp(40px, 5vw, 120px); margin-bottom: clamp(64px, 7vw, 170px); }   /* bottom: clear space before the CTA banner / next section */
 .product-tabs__list { display: flex; gap: clamp(16px, 4vw, 100px); border-bottom: 1px solid #d4d4d4; overflow-x: auto; scrollbar-width: none; }
 .product-tabs__tab { flex: none; padding: .5em clamp(0px, 1.4vw, 40px) .6em 0; margin-bottom: -1px; border-bottom: 2px solid transparent; font-size: var(--fs-sm); color: var(--c-text); letter-spacing: .02em; }
 .product-tabs__tab[aria-selected="true"] { border-bottom-color: var(--c-ink); color: var(--c-ink); }
