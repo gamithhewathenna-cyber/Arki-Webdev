@@ -63,7 +63,19 @@ final class ContentRepository
                 }
             }
 
-            $next = (int)Database::value('SELECT COALESCE(MAX(sort_order),0)+1 FROM sections WHERE page = ?', [$page]);
+            // Position: straight after the section that comes before it in the schema
+            // (e.g. a new "Our Team" lands under "Our Story", not at the bottom of the page).
+            $next = null;
+            $keys = array_keys($schema['sections']);
+            for ($i = array_search($key, $keys, true) - 1; $i >= 0; $i--) {
+                $prev = Database::value('SELECT sort_order FROM sections WHERE page = ? AND section_key = ?', [$page, $keys[$i]]);
+                if ($prev !== null && $prev !== false) {
+                    $next = (int)$prev + 1;
+                    Database::run('UPDATE sections SET sort_order = sort_order + 1 WHERE page = ? AND sort_order >= ?', [$page, $next]);
+                    break;
+                }
+            }
+            $next ??= (int)Database::value('SELECT COALESCE(MAX(sort_order),0)+1 FROM sections WHERE page = ?', [$page]);
             // IGNORE: if two requests race, only one creates the section (unique page+section_key).
             $st = Database::run(
                 'INSERT IGNORE INTO sections (page, section_key, data, is_active, sort_order, updated_at) VALUES (?, ?, ?, 1, ?, NOW())',

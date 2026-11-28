@@ -63,6 +63,23 @@
         update();
     });
 
+    /* About page – team cards: the selected card shows the person's details ---- */
+    document.querySelectorAll('[data-team]').forEach(function (team) {
+        var cards = team.querySelectorAll('[data-team-card]');
+        var hover = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+        var select = function (card) {
+            cards.forEach(function (c) { c.classList.toggle('is-active', c === card); });
+        };
+        cards.forEach(function (card) {
+            if (hover) card.addEventListener('mouseenter', function () { select(card); });
+            card.addEventListener('click', function () { if (!team.classList.contains('is-dragging')) select(card); });
+            card.addEventListener('focusin', function () { select(card); });
+            card.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') { if (e.target === card) { e.preventDefault(); select(card); } }
+            });
+        });
+    });
+
     /* =================================================================
      *  Product listing: filters
      * ================================================================= */
@@ -380,7 +397,7 @@
 
         // Cards inside grids / sliders come in one after another
         var items = [];
-        document.querySelectorAll('.hero-grid, .category-grid, .product-grid, .family-grid, .solutions-grid, .inspiration-grid, .gallery-grid, .showroom-grid, .related-slider__track, .cart-list').forEach(function (grid) {
+        document.querySelectorAll('.hero-grid, .category-grid, .product-grid, .family-grid, .solutions-grid, .inspiration-grid, .gallery-grid, .showroom-grid, .related-slider__track, .team-track, .cart-list').forEach(function (grid) {
             Array.prototype.forEach.call(grid.children, function (el, i) {
                 el.style.setProperty('--reveal-delay', Math.min(i, 7) * 90 + 'ms');
                 items.push(el);
@@ -398,7 +415,7 @@
 
         blocks.forEach(function (el) {
             // a section holding a card grid only fades – its cards do the moving
-            if (el.querySelector('.hero-grid, .category-grid, .product-grid, .family-grid, .solutions-grid, .inspiration-grid, .gallery-grid, .showroom-grid, .related-slider__track')) el.classList.add('reveal--fade');
+            if (el.querySelector('.hero-grid, .category-grid, .product-grid, .family-grid, .solutions-grid, .inspiration-grid, .gallery-grid, .showroom-grid, .related-slider__track, .team-track')) el.classList.add('reveal--fade');
             el.classList.add('reveal');
             io.observe(el);
         });

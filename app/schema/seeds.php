@@ -211,6 +211,29 @@ return [
                 ['title' => 'Here for the long term', 'text' => 'We stay involved from the first sketch to the final chair.'],
             ],
         ],
+        'team' => [
+            'data' => [
+                'tagline' => 'Our Team',
+                'heading' => "The People Behind\nEvery Space",
+            ],
+            'items' => [
+                ['name' => 'Sarah Mitchell', 'role' => 'Managing Director', 'photo' => '', 'photo_alt' => '',
+                 'bio' => 'Sarah has over 15 years of experience in workplace design and leads Arki’s partnerships with organisations across Australia.',
+                 'linkedin' => '#', 'instagram' => '', 'facebook' => '', 'email' => ''],
+                ['name' => 'James Carter', 'role' => 'Design Lead', 'photo' => '', 'photo_alt' => '',
+                 'bio' => 'James turns briefs into layouts that work, combining Steelcase research with a practical eye for how people really use a space.',
+                 'linkedin' => '#', 'instagram' => '', 'facebook' => '', 'email' => ''],
+                ['name' => 'Emily Nguyen', 'role' => 'Education Specialist', 'photo' => '', 'photo_alt' => '',
+                 'bio' => 'Emily works with schools and universities to plan flexible learning spaces that support every kind of student and teacher.',
+                 'linkedin' => '#', 'instagram' => '', 'facebook' => '', 'email' => ''],
+                ['name' => 'Daniel Brooks', 'role' => 'Project Manager', 'photo' => '', 'photo_alt' => '',
+                 'bio' => 'Daniel keeps every fit-out on time and on budget, coordinating delivery and installation from the first order to handover.',
+                 'linkedin' => '#', 'instagram' => '', 'facebook' => '', 'email' => ''],
+                ['name' => 'Olivia Bennett', 'role' => 'Client Services', 'photo' => '', 'photo_alt' => '',
+                 'bio' => 'Olivia looks after our clients long after handover, from warranty and care advice to adding new pieces as teams grow.',
+                 'linkedin' => '#', 'instagram' => '', 'facebook' => '', 'email' => ''],
+            ],
+        ],
         'process' => [
             'data' => [
                 'image'     => 'uploads/demo/proj-2.jpg',

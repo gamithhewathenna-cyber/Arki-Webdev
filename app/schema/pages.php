@@ -575,6 +575,32 @@ $schema['about'] = [
             ],
         ],
 
+        'team' => [
+            'tab'         => 'Our Team',
+            'label'       => 'Our Team',
+            'description' => 'Sliding row of portrait cards with name and role. Hovering or clicking a card shows the person’s details (bio and social links) on a dark panel.',
+            'fields'      => [
+                'tagline' => ['type' => 'text', 'label' => 'Small label', 'help' => 'Shown in a rounded outline above the heading, e.g. Our Team'],
+                'heading' => ['type' => 'multiline', 'label' => 'Heading'],
+            ],
+            'items'       => [
+                'label'  => 'Team member',
+                'title'  => 'name',
+                'thumb'  => 'photo',
+                'fields' => [
+                    'name'      => ['type' => 'text', 'label' => 'Name', 'required' => true],
+                    'role'      => ['type' => 'text', 'label' => 'Role / job title', 'help' => 'e.g. Managing Director'],
+                    'photo'     => ['type' => 'image', 'label' => 'Photo', 'help' => 'Portrait photo – keep the face in the upper half; name and role sit at the bottom.', 'crop' => ['w' => 700, 'h' => 1000]],
+                    'photo_alt' => ['type' => 'text', 'label' => 'Photo description (alt text)'],
+                    'bio'       => ['type' => 'textarea', 'label' => 'Short bio', 'help' => 'Two or three sentences work best.'],
+                    'linkedin'  => ['type' => 'url', 'label' => 'LinkedIn link', 'help' => 'Leave blank to hide.'],
+                    'instagram' => ['type' => 'url', 'label' => 'Instagram link', 'help' => 'Leave blank to hide.'],
+                    'facebook'  => ['type' => 'url', 'label' => 'Facebook link', 'help' => 'Leave blank to hide.'],
+                    'email'     => ['type' => 'text', 'label' => 'Email address', 'help' => 'Leave blank to hide.'],
+                ],
+            ],
+        ],
+
         'process' => [
             'tab'         => 'How We Work',
             'label'       => 'How We Work – Steps',
