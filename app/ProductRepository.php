@@ -219,7 +219,7 @@ final class ProductRepository
      * gets a randomly chosen product image – a fresh mix on every page load.
      * @return array<int, array{name: string, slug: string, image: string, alt: string}>
      */
-    public static function categoryShowcase(string $store): array
+    public static function categoryShowcase(string $store, int $limit = 5): array
     {
         $tax = Catalog::categoryTax($store);
         $join = ($store === 'work' || $store === 'learn')
@@ -245,6 +245,12 @@ final class ProductRepository
             if ($t['parent_id'] !== null || empty($pool[(int)$t['id']])) continue;
             $image = array_rand($pool[(int)$t['id']]);
             $cards[] = ['name' => $t['name'], 'slug' => $t['slug'], 'image' => (string)$image, 'alt' => (string)$pool[(int)$t['id']][$image]];
+        }
+        // One row only: when more categories qualify, a random set is shown on each visit
+        // (kept in the category order, so the row still reads naturally).
+        if ($limit > 0 && count($cards) > $limit) {
+            $keep = array_rand($cards, $limit); // keys in ascending (= category) order
+            $cards = array_values(array_intersect_key($cards, array_flip((array)$keep)));
         }
         return $cards;
     }
