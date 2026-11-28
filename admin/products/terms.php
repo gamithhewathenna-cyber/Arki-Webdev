@@ -12,6 +12,11 @@ if (!Catalog::valid($tax)) {
     exit('Unknown list.');
 }
 $def = Catalog::TAXONOMIES[$tax];
+// Wording for the image field of this list (colour swatch, material texture, brand logo)
+[$imgName, $imgLabel] = [
+    'colour'   => ['Swatch image', 'Swatch image (optional – e.g. a fabric photo)'],
+    'material' => ['Material image', 'Material image / texture (shown as a round thumbnail on the product page)'],
+][$tax] ?? ['Logo', 'Logo'];
 $editId = (int)($_GET['edit'] ?? 0);
 $editing = $editId ? Catalog::term($editId) : null;
 if ($editing && $editing['taxonomy'] !== $tax) {
@@ -68,7 +73,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     $image = $row['image'] ?? null;
     $oldImage = null;
     if (!empty($def['image'])) {
-        if ($new = p_image_upload('img_term', $def['image'], $errors, $tax === 'colour' ? 'Swatch image' : 'Logo')) {
+        if ($new = p_image_upload('img_term', $def['image'], $errors, $imgName)) {
             $oldImage = $image;
             $image = $new;
         } elseif (!empty($_POST['remove']['image']) && $image) {
@@ -113,8 +118,8 @@ admin_header($def['label'], 'p:' . $tax);
             <div class="adm-hex"><input type="color" value="<?= e($editing['hex'] ?? '#cccccc') ?>" data-hex-picker aria-label="Pick colour"><?= p_input('hex', $editing['hex'] ?? '', ['max' => 7, 'placeholder' => '#4a4a4a']) ?></div></div>
         <?php endif; ?>
         <?php if (!empty($def['image'])): ?>
-        <div class="field"><label for="img_term"><?= $tax === 'colour' ? 'Swatch image (optional – e.g. a fabric photo)' : 'Logo' ?></label>
-            <?= AdminForm::imageInput('img_term', 'img_term', $def['image'], (string)($editing['image'] ?? ''), 'remove[image]', $tax === 'colour' ? 'Swatch image' : 'Logo') ?><?= AdminForm::imageHelp($def['image']) ?></div>
+        <div class="field"><label for="img_term"><?= e($imgLabel) ?></label>
+            <?= AdminForm::imageInput('img_term', 'img_term', $def['image'], (string)($editing['image'] ?? ''), 'remove[image]', $imgName) ?><?= AdminForm::imageHelp($def['image']) ?></div>
         <?php endif; ?>
         <div class="field"><?= p_check('is_active', 'Active (shown in product forms and filters)', (bool)($editing['is_active'] ?? true)) ?></div>
         <div class="adm-actions">
@@ -137,6 +142,7 @@ admin_header($def['label'], 'p:' . $tax);
                     <td>
                         <span class="<?= !empty($t['depth']) ? 'adm-indent' : '' ?>">
                         <?php if (!empty($def['hex'])): ?><span class="adm-swatch" data-hex="<?= e((string)$t['hex']) ?>"><?php if ($t['image']): ?><img src="<?= e(upload_url($t['image'])) ?>" alt=""><?php endif; ?></span><?php endif; ?>
+                        <?php if ($tax === 'material'): ?><span class="adm-swatch"><?php if ($t['image']): ?><img src="<?= e(upload_url($t['image'])) ?>" alt=""><?php endif; ?></span><?php endif; ?>
                         <?php if ($tax === 'brand' && $t['image']): ?><img class="adm-logo" src="<?= e(upload_url($t['image'])) ?>" alt=""><?php endif; ?>
                         <a class="adm-strong" href="<?= e($self . '&edit=' . (int)$t['id']) ?>"><?= e($t['name']) ?></a>
                         <span class="muted small"><?= e($t['slug']) ?><?= $t['hex'] ? ' · ' . e($t['hex']) : '' ?></span></span>

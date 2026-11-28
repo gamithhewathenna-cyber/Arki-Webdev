@@ -114,15 +114,22 @@ $fmtSize = static fn(int $b) => $b >= 1048576 ? round($b / 1048576, 1) . ' MB' :
                         </div>
                     </fieldset>
                     <?php endif; ?>
+                    <?php if ($options['material']): ?>
+                    <fieldset class="product-option">
+                        <legend>Materials</legend>
+                        <div class="product-option__materials">
+                            <?php foreach ($options['material'] as $t):
+                                $mi = !empty($t['image']) && is_file(ROOT_PATH . '/' . $t['image']) ? upload_url($t['image']) : ''; ?>
+                            <label class="material">
+                                <input type="radio" name="opt_material" value="<?= (int)$t['id'] ?>">
+                                <span class="material__chip<?= $mi ? '' : ' material__chip--empty' ?>"><?php if ($mi): ?><img src="<?= e($mi) ?>" alt="" loading="lazy"><?php else: ?><?= e(mb_strtoupper(mb_substr((string)$t['name'], 0, 1))) ?><?php endif; ?></span>
+                                <span class="material__name"><?= e($t['name']) ?></span>
+                            </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </fieldset>
+                    <?php endif; ?>
                     <div class="product-option product-option--row">
-                        <?php if ($options['material']): ?>
-                        <label class="product-option__material"><span class="product-option__label">Material</span>
-                            <span class="filter-select"><select name="opt_material">
-                                <option value="">Select</option>
-                                <?php foreach ($options['material'] as $t): ?><option value="<?= (int)$t['id'] ?>"><?= e($t['name']) ?></option><?php endforeach; ?>
-                            </select><?= icon('chevron-down') ?></span>
-                        </label>
-                        <?php endif; ?>
                         <div class="qty" data-qty>
                             <label class="sr-only" for="qty">Quantity</label>
                             <input id="qty" name="qty" type="number" min="1" max="999" value="1" inputmode="numeric">

@@ -25,7 +25,7 @@ final class Catalog
         'cat_store'  => ['label' => 'Store Categories',      'single' => 'Store category', 'nested' => true, 'store' => 'store'],
         'type'       => ['label' => 'Product Types',         'single' => 'Product Type'],
         'brand'      => ['label' => 'Brands',                'single' => 'Brand', 'image' => ['w' => 600, 'h' => 300, 'fit' => true]],
-        'material'   => ['label' => 'Materials',             'single' => 'Material', 'option' => true],
+        'material'   => ['label' => 'Materials',             'single' => 'Material', 'option' => true, 'image' => ['w' => 400, 'h' => 400]],   // image: texture shown as a round thumbnail
         'colour'     => ['label' => 'Colours',               'single' => 'Colour', 'option' => true, 'hex' => true, 'image' => ['w' => 200, 'h' => 200]],
         'size'       => ['label' => 'Sizes',                 'single' => 'Size', 'option' => true],
         'env_rating' => ['label' => 'Environmental Ratings', 'single' => 'Environmental Rating'],

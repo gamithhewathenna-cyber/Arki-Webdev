@@ -180,7 +180,7 @@
             return {
                 size: get('input[name=opt_size]:checked'),
                 colour: get('input[name=opt_colour]:checked'),
-                material: get('select[name=opt_material]')
+                material: get('input[name=opt_material]:checked')
             };
         };
         var apply = function () {
