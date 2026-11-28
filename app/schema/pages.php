@@ -630,4 +630,34 @@ $schema['about'] = [
     ],
 ];
 
+/* =================================================================
+ *  PROMO POPUP – shown on every page once the visitor scrolls down.
+ *  Own menu entry in the CMS (Marketing → Promo Popup).
+ * ================================================================= */
+$schema['popup'] = [
+    'label'    => 'Promo Popup',
+    'nav'      => false,          // has its own entry in the CMS menu
+    'sortable' => false,
+    'sections' => [
+        'popup' => [
+            'tab'         => 'Promo Popup',
+            'label'       => 'Promo Popup',
+            'description' => 'A 700 × 500 image in a popup with a close button and a link button. It opens once the visitor has scrolled part of the way down a page. Use the Visible switch to turn the popup on or off.',
+            'fields'      => [
+                'image'        => ['type' => 'image', 'label' => 'Popup image', 'required' => true, 'help' => '700 × 500 px. Keep important text away from the bottom edge – the button sits there.', 'crop' => ['w' => 700, 'h' => 500]],
+                'image_alt'    => ['type' => 'text', 'label' => 'Image description (alt text)', 'help' => 'What the image says, e.g. 20% off all lounge chairs this month.'],
+                'button_label' => ['type' => 'text', 'label' => 'Button text', 'help' => 'e.g. Shop The Sale. Leave blank to hide the button.'],
+                'button_url'   => ['label' => 'Button link'] + $link,
+                'scroll'       => ['type' => 'select', 'label' => 'Open after scrolling', 'options' => ['15' => '15% of the page', '10' => '10% of the page', '25' => '25% of the page', '50' => '50% of the page']],
+                'frequency'    => ['type' => 'select', 'label' => 'How often', 'options' => [
+                    'session' => 'Once per visit (until the browser is closed)',
+                    'day'     => 'At most once a day',
+                    'week'    => 'At most once a week',
+                    'always'  => 'On every page (testing)',
+                ], 'help' => 'After a visitor closes the popup it stays closed for this long. Changing the popup shows it again to everyone.'],
+            ],
+        ],
+    ],
+];
+
 return $schema;

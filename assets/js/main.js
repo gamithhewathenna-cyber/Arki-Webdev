@@ -63,6 +63,49 @@
         update();
     });
 
+    /* Promo popup (CMS → Promo Popup) – opens once the visitor scrolls N% of the page ---- */
+    var promo = document.querySelector('[data-promo]');
+    if (promo && typeof promo.showModal === 'function') {
+        var pFreq = promo.dataset.promoFreq || 'session';
+        var pKey = 'arki-promo-' + (promo.dataset.promoKey || '');
+        var pAt = Math.min(0.9, Math.max(0.01, (+promo.dataset.promoAt || 15) / 100));
+        var pTtl = { day: 864e5, week: 6048e5 }[pFreq] || 0;
+        var pStore = function () { try { return pFreq === 'session' ? window.sessionStorage : window.localStorage; } catch (e) { return null; } };
+        var pSeen = function () {
+            if (pFreq === 'always') return false;
+            try {
+                var s = pStore(), v = s && s.getItem(pKey);
+                return !!v && (!pTtl || Date.now() - (+v) < pTtl);
+            } catch (e) { return false; }
+        };
+        var pRemember = function () { try { var s = pStore(); if (s && pFreq !== 'always') s.setItem(pKey, String(Date.now())); } catch (e) { /* private mode */ } };
+        var pBack = null;
+        var pCheck = function () {
+            var max = document.documentElement.scrollHeight - window.innerHeight;
+            if (max > 0 && window.pageYOffset / max >= pAt) pOpen();
+        };
+        var pOpen = function () {
+            window.removeEventListener('scroll', pCheck);
+            if (promo.open || document.querySelector('dialog[open]')) return;
+            pBack = document.activeElement;
+            promo.showModal();
+            pRemember();
+        };
+        var pClose = function () {
+            if (!promo.open || promo.classList.contains('is-closing')) return;
+            promo.classList.add('is-closing');
+            setTimeout(function () { promo.classList.remove('is-closing'); promo.close(); }, reduceMotion ? 0 : 220);
+        };
+        promo.querySelector('[data-promo-close]').addEventListener('click', pClose);
+        promo.addEventListener('click', function (e) { if (e.target === promo) pClose(); });   // click outside the image
+        promo.addEventListener('cancel', function (e) { e.preventDefault(); pClose(); });       // Esc key
+        promo.addEventListener('close', function () { if (pBack && pBack.focus) pBack.focus(); });
+        if (!pSeen()) {
+            window.addEventListener('scroll', pCheck, { passive: true });
+            pCheck(); // e.g. page reloaded half-way down
+        }
+    }
+
     /* About page – team cards: the selected card shows the person's details ---- */
     document.querySelectorAll('[data-team]').forEach(function (team) {
         var cards = team.querySelectorAll('[data-team-card]');

@@ -25,6 +25,7 @@
     'links'    => $global['footer_links'] ?? null,
     'contacts' => $global['footer_contacts'] ?? null,
 ]); ?>
+<?php render('layout/popup'); /* Promo popup – CMS → Promo Popup */ ?>
 <script src="<?= e(asset('js/main.js')) ?>" defer></script>
 </body>
 </html>

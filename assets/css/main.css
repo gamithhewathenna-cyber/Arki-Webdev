@@ -1380,3 +1380,42 @@ html { scroll-padding-top: calc(var(--stuck-h, 0px) + 16px); }
     .team-card { flex-basis: 64vw; }
     .team-head__nav { display: none; }   /* swipe on phones */
 }
+
+/* ==========================================================================
+   Promo popup (CMS → Promo Popup) – 700 × 500 image, close button, link button
+   ========================================================================== */
+.promo {
+    padding: 0; border: 0; margin: auto; background: transparent; color: inherit; overflow: visible;
+    width: min(700px, calc(100vw - 32px), calc((100vh - 32px) * 1.4)); max-width: none; max-height: none;
+}
+.promo::backdrop { background: rgba(12, 12, 12, .55); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+html:has(.promo[open]) { overflow: hidden; }   /* page stays still behind the popup */
+.promo__box { position: relative; overflow: hidden; border-radius: clamp(14px, 1.4vw, 22px); background: #e6e6e6; box-shadow: 0 30px 80px rgba(0, 0, 0, .35); }
+.promo__media { display: block; aspect-ratio: 700 / 500; }
+.promo__media picture, .promo__img { display: block; width: 100%; height: 100%; }
+.promo__img { object-fit: cover; }
+.promo__close {
+    position: absolute; top: 12px; right: 12px; z-index: 2; display: grid; place-items: center;
+    width: 38px; height: 38px; border-radius: 50%; background: rgba(255, 255, 255, .94); color: var(--c-ink);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .18); transition: transform .25s var(--ease), background-color .2s;
+}
+.promo__close svg { width: 16px; height: 16px; }
+.promo__close:hover { background: #fff; transform: rotate(90deg); }
+.promo__close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.promo__btn {
+    position: absolute; left: 50%; bottom: clamp(16px, 2.6vw, 30px); transform: translateX(-50%); z-index: 1;
+    padding: .85em 1.9em; border-radius: 999px; background: var(--c-ink); color: #fff;
+    font-size: var(--fs-sm); letter-spacing: .04em; white-space: nowrap;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .25); transition: background-color .2s, transform .25s var(--ease);
+}
+.promo__btn:hover { background: #333; transform: translateX(-50%) translateY(-2px); }
+.promo__btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+@media (prefers-reduced-motion: no-preference) {
+    .promo[open] { animation: promo-in .5s var(--ease) both; }
+    .promo[open]::backdrop { animation: promo-fade .5s ease both; }
+    .promo.is-closing { animation: promo-out .22s ease both; }
+    .promo.is-closing::backdrop { animation: promo-fade .22s ease reverse both; }
+    @keyframes promo-in { from { opacity: 0; transform: translateY(24px) scale(.96); } to { opacity: 1; transform: none; } }
+    @keyframes promo-out { to { opacity: 0; transform: translateY(12px) scale(.98); } }
+    @keyframes promo-fade { from { opacity: 0; } to { opacity: 1; } }
+}

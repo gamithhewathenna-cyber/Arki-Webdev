@@ -52,6 +52,11 @@
             </a>
         </div>
 
+        <p class="adm-nav__label" id="nav-marketing">Marketing</p>
+        <div role="group" aria-labelledby="nav-marketing">
+            <?= $navLink('popup', 'Promo Popup', 'admin/?page=popup', 'megaphone') ?>
+        </div>
+
         <?php $newEnquiries = 0;
         try { $newEnquiries = (int)Database::value("SELECT COUNT(*) FROM enquiries WHERE status = 'new'"); } catch (Throwable $e) { /* table not created yet */ } ?>
         <p class="adm-nav__label" id="nav-inbox">Inbox</p>
