@@ -54,6 +54,7 @@
 
         <p class="adm-nav__label" id="nav-marketing">Marketing</p>
         <div role="group" aria-labelledby="nav-marketing">
+            <?= $navLink('topbar', 'Notification Bar', 'admin/?page=topbar', 'bell') ?>
             <?= $navLink('popup', 'Promo Popup', 'admin/?page=popup', 'megaphone') ?>
         </div>
 

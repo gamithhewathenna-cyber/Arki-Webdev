@@ -659,4 +659,33 @@ $schema['popup'] = [
     ],
 ];
 
+/* =================================================================
+ *  TOP NOTIFICATION BAR – thin black bar above the header on every
+ *  page; all messages slide slowly across in a loop.
+ *  Own menu entry in the CMS (Marketing → Notification Bar).
+ * ================================================================= */
+$schema['topbar'] = [
+    'label'    => 'Notification Bar',
+    'nav'      => false,          // has its own entry in the CMS menu
+    'sortable' => false,
+    'sections' => [
+        'topbar' => [
+            'tab'         => 'Notification Bar',
+            'label'       => 'Top Notification Bar',
+            'description' => 'Black bar at the very top of every page. All messages below slide slowly across in a loop (they pause when the mouse is over them). Use the Visible switch to turn the bar on or off; switch single messages on or off in the list.',
+            'fields'      => [
+                'speed' => ['type' => 'select', 'label' => 'Sliding speed', 'options' => ['slow' => 'Slow', 'normal' => 'Normal', 'fast' => 'Fast']],
+            ],
+            'items'       => [
+                'label'  => 'Message',
+                'title'  => 'text',
+                'fields' => [
+                    'text' => ['type' => 'text', 'label' => 'Message', 'required' => true, 'help' => 'Short offer or notice, e.g. Free delivery Australia-wide on orders over $500'],
+                    'url'  => ['label' => 'Link (optional)', 'help' => 'Makes the message clickable, e.g. /store/ – leave blank for plain text.'] + $link,
+                ],
+            ],
+        ],
+    ],
+];
+
 return $schema;

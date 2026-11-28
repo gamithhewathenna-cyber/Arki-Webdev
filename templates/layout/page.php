@@ -10,6 +10,7 @@
 <div class="admin-preview-bar" role="note">Under Construction Mode is on – visitors see the holding page. You are previewing as an administrator.<a href="<?= e(url('admin/settings.php')) ?>">Change</a></div>
 <?php endif; ?>
 <a class="skip-link" href="#main">Skip to content</a>
+<?php render('layout/topbar'); /* Top notification bar – CMS → Marketing → Notification Bar */ ?>
 <?php $hasBanner = isset($sections['banner']); ?>
 <?php render('layout/header', ['s' => $global['header'] ?? null, 'nav' => $global['navigation'] ?? null, 'overlay' => $hasBanner]); ?>
 

@@ -63,6 +63,30 @@
         update();
     });
 
+    /* Top notification bar – messages slide slowly across in an endless loop ---- */
+    document.querySelectorAll('[data-topbar]').forEach(function (bar) {
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; // stays still, scrollable
+        var track = bar.querySelector('.topbar__track');
+        var group = track && track.querySelector('.topbar__group');
+        if (!group) return;
+        var originals = Array.prototype.slice.call(group.children);
+        var quiet = function (el) { // copies are for the eye only
+            el.setAttribute('aria-hidden', 'true');
+            el.querySelectorAll('a').forEach(function (a) { a.setAttribute('tabindex', '-1'); });
+            return el;
+        };
+        // repeat the messages until one set is wider than the bar (so there is never a gap)
+        for (var n = 0; group.scrollWidth < bar.clientWidth * 1.1 && n < 20; n++) {
+            originals.forEach(function (li) { group.appendChild(quiet(li.cloneNode(true))); });
+        }
+        track.appendChild(quiet(group.cloneNode(true))); // second identical set → seamless loop at -50%
+        var speed = +bar.dataset.speed || 35;
+        var setDuration = function () { track.style.setProperty('--topbar-dur', Math.max(8, group.scrollWidth / speed) + 's'); };
+        setDuration();
+        window.addEventListener('resize', setDuration);
+        bar.classList.add('is-ready');
+    });
+
     /* Promo popup (CMS → Promo Popup) – opens once the visitor scrolls N% of the page ---- */
     var promo = document.querySelector('[data-promo]');
     if (promo && typeof promo.showModal === 'function') {

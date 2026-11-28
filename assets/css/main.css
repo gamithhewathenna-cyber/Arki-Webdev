@@ -1414,3 +1414,31 @@ a.promo__media:focus-visible { outline: 3px solid #fff; outline-offset: -6px; }
     @keyframes promo-out { to { opacity: 0; transform: translateY(12px) scale(.98); } }
     @keyframes promo-fade { from { opacity: 0; } to { opacity: 1; } }
 }
+
+/* ==========================================================================
+   Top notification bar (CMS → Marketing → Notification Bar)
+   ========================================================================== */
+:root { --topbar-h: 36px; }
+.topbar {
+    position: relative; z-index: 56; height: var(--topbar-h); overflow: hidden;
+    background: #000; color: #fff; font-size: var(--fs-xs); letter-spacing: .04em; line-height: 1;
+}
+.topbar__track { display: flex; width: max-content; height: 100%; }
+.topbar__group { display: flex; align-items: center; flex: none; height: 100%; margin: 0; padding: 0; list-style: none; }
+.topbar__item { position: relative; display: flex; align-items: center; height: 100%; padding: 0 clamp(26px, 2.4vw, 44px); white-space: nowrap; }
+.topbar__item::after { content: ""; position: absolute; right: -2px; top: 50%; width: 4px; height: 4px; margin-top: -2px; border-radius: 50%; background: var(--c-gold); }
+.topbar__item a { color: #fff; text-decoration: none; transition: color .2s; }
+.topbar__item a:hover, .topbar__item a:focus-visible { color: var(--c-gold); text-decoration: underline; text-underline-offset: 3px; }
+.topbar.is-ready .topbar__track { animation: topbar-slide var(--topbar-dur, 40s) linear infinite; }
+.topbar:hover .topbar__track, .topbar:focus-within .topbar__track { animation-play-state: paused; }   /* stop to read or click */
+@keyframes topbar-slide { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+    .topbar { overflow-x: auto; scrollbar-width: none; }
+    .topbar.is-ready .topbar__track { animation: none; }
+}
+@media (max-width: 760px) { :root { --topbar-h: 32px; } }
+
+/* the header sits below the bar – also when it is drawn over a banner image */
+.topbar ~ .site-header--overlay { top: var(--topbar-h); }
+.admin-preview-bar ~ .topbar ~ .site-header--overlay { top: calc(34px + var(--topbar-h)); }
+.topbar ~ .site-header.is-stuck { top: 0; }

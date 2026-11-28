@@ -299,4 +299,16 @@ return [
             ],
         ],
     ],
+
+    'topbar' => [
+        'topbar' => [
+            'data'  => ['speed' => 'slow'],
+            'items' => [
+                ['text' => 'Free delivery Australia-wide on orders over $500', 'url' => 'store/'],
+                ['text' => 'Authorised Steelcase dealer - Sydney & Brisbane showrooms open by appointment', 'url' => 'contact/'],
+                ['text' => 'New arrivals in the Store - explore the latest lounge and seating', 'url' => 'store/products/'],
+                ['text' => 'Agents & dealers: register for trade pricing', 'url' => 'account/register/'],
+            ],
+        ],
+    ],
 ];
